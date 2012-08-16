@@ -4,13 +4,12 @@ from collections import OrderedDict
 
 import neo
 
-from PyQt4.QtCore import (Qt, SIGNAL, pyqtSignature, QThread, QMutex,
+from PyQt4.QtCore import (Qt, pyqtSignature, QThread, QMutex,
                           QSettings)
 from PyQt4.QtGui import (QFileSystemModel, QHeaderView, QListWidgetItem,
                          QMessageBox, QTreeWidgetItem, QAbstractItemView,
-                         QStyledItemDelegate, QStyle, QApplication,
-                         QTreeWidget, QProgressDialog, QFileDialog,
-                         QDesktopServices)
+                         QStyle, QApplication, QTreeWidget, QProgressDialog,
+                         QFileDialog, QDesktopServices)
 
 from spykeutils.progress_indicator import ignores_cancel
 from spykeutils.spyke_exception import SpykeException
@@ -25,79 +24,8 @@ from main_window import MainWindow
 from settings import SettingsWindow
 from filter_dialog import FilterDialog
 from filter_group_dialog import FilterGroupDialog
-from analysis_edit_dialog import AnalysisEditDialog
-
-
-class CheckableItemDelegate(QStyledItemDelegate):
-    CheckTypeRole = Qt.UserRole + 102
-    CheckedRole = Qt.UserRole + 103
-    CheckBoxCheckType = 1
-    RadioCheckType = 2
-
-    def __init__(self, viewWidget):
-        QStyledItemDelegate.__init__(self)
-        self.viewWidget = viewWidget
-        self.counter = 0
-
-    def paint(self, painter, option, index):
-        #noinspection PyArgumentList
-        style = QApplication.instance().style()
-
-        if index.data(CheckableItemDelegate.CheckTypeRole):
-            # Size and spacing in current style
-            is_radio = index.data(CheckableItemDelegate.CheckTypeRole) == \
-                       CheckableItemDelegate.RadioCheckType
-            if is_radio:
-                button_width = style.pixelMetric(
-                    QStyle.PM_ExclusiveIndicatorWidth, option)
-                spacing = style.pixelMetric(
-                    QStyle.PM_RadioButtonLabelSpacing, option)
-            else:
-                button_width = style.pixelMetric(
-                    QStyle.PM_IndicatorWidth, option)
-                spacing = style.pixelMetric(
-                    QStyle.PM_CheckBoxLabelSpacing, option)
-
-
-            # Draw default appearance shifted to right
-            myOption = option
-            left = myOption.rect.left()
-            myOption.rect.setLeft(left + spacing + button_width)
-            QStyledItemDelegate.paint(self, painter, myOption, index)
-
-            # Draw check button to open space (where expand indicator would be)
-            myOption.rect.setLeft(left)
-            myOption.rect.setWidth(button_width)
-
-            if index.data(CheckableItemDelegate.CheckedRole):
-                myOption.state |=  QStyle.State_On
-            else:
-                myOption.state |= QStyle.State_Off
-
-            if is_radio:
-                style.drawPrimitive(QStyle.PE_IndicatorRadioButton, myOption, painter)
-            else:
-                style.drawPrimitive(QStyle.PE_IndicatorCheckBox, myOption, painter)
-        else:
-            QStyledItemDelegate.paint(self, painter, option, index)
-
-    def sizeHint(self, option, index):
-        s = QStyledItemDelegate.sizeHint(self, option, index)
-        # sizeHint is for some reason only called once, so set
-        # size globally
-        #if index.data(CheckableItemDelegate.CheckTypeRole):
-        #    # Determine size of check buttons in current style
-        #    #noinspection PyArgumentList
-        #    button_height = QApplication.style().pixelMetric(QStyle.PM_ExclusiveIndicatorHeight, option)
-        #    # Ensure that row is tall enough to draw check button
-        #    print button_height
-        #    s.setHeight(max(s.height(), button_height))
-        radio_height = QApplication.style().pixelMetric(
-            QStyle.PM_ExclusiveIndicatorHeight, option)
-        check_height = QApplication.style().pixelMetric(
-            QStyle.PM_IndicatorHeight, option)
-        s.setHeight(max(s.height(), radio_height, check_height))
-        return s
+from plugin_editor_dock import PluginEditorDock
+from checkable_item_delegate import CheckableItemDelegate
 
 #noinspection PyCallByClass,PyTypeChecker,PyArgumentList
 class MainWindowNeo(MainWindow):
@@ -163,12 +91,20 @@ class MainWindowNeo(MainWindow):
         self.filterTreeWidget.setItemDelegate(CheckableItemDelegate(
             self.filterTreeWidget))
 
-        self.reload_plugins()
+        # Initialize plugin system
+        self.pluginEditorDock = PluginEditorDock()
+        self.pluginEditorDock.setObjectName('editorDock')
+        self.addDockWidget(Qt.RightDockWidgetArea, self.pluginEditorDock)
+        self.pluginEditorDock.setVisible(False)
+        self.pluginEditorDock.plugin_saved.connect(
+            self.reload_plugins)
+        self.update_view_menu()
 
         self.init_neo_mode()
-
         if not hasattr(self, 'internal_database_mode'):
             self.load_current_selection()
+            self.restore_state()
+            self.reload_plugins()
 
     def load_current_selection(self):
         current_selection = os.path.join(
@@ -357,19 +293,19 @@ class MainWindowNeo(MainWindow):
         self.provider_factory = NeoStoredProvider.from_current_selection
 
     def reload_plugins(self):
-        #try:
-        self.analysisModel = PluginModel()
-        for p in self.plugin_paths:
-            self.analysisModel.add_path(p)
-        #except Exception, e:
-        #    QMessageBox.critical(self, 'Error loading plugins', str(e))
-        #    return
+        try:
+            self.analysisModel = PluginModel()
+            for p in self.plugin_paths:
+                self.analysisModel.add_path(p)
+        except Exception, e:
+            QMessageBox.critical(self, 'Error loading plugins', str(e))
+            return
 
         self.neoAnalysesTreeView.setModel(self.analysisModel)
         self.neoAnalysesTreeView.expandAll()
-        self.analysisModel.connect(self.neoAnalysesTreeView.selectionModel(),
-            SIGNAL("currentChanged(QModelIndex, QModelIndex)"), self.selectedAnalysisChanged)
-        self.selectedAnalysisChanged(None)
+        self.neoAnalysesTreeView.selectionModel().currentChanged.connect(
+            self.selected_analysis_changed)
+        self.selected_analysis_changed(None)
 
     def get_letter_id(self, id):
         """ Return a name consisting of letters given an integer
@@ -647,7 +583,7 @@ class MainWindowNeo(MainWindow):
             trains.extend(s.spiketrains)
         return trains
 
-    def selectedAnalysisChanged(self, current):
+    def selected_analysis_changed(self, current):
         enabled = True
         if not current:
             enabled = False
@@ -707,10 +643,7 @@ class MainWindowNeo(MainWindow):
         path = ''
         if self.plugin_paths:
             path = self.plugin_paths[0]
-        dialog = AnalysisEditDialog(path, parent=self)
-        dialog.exec_()
-        if dialog.result() == dialog.Accepted:
-            self.reload_plugins()
+        self.pluginEditorDock.add_file(path)
 
     def on_editAnalysisButton_pressed(self):
         item = self.neoAnalysesTreeView.currentIndex()
@@ -719,10 +652,7 @@ class MainWindowNeo(MainWindow):
             path = self.analysisModel.data(item, self.analysisModel.FilePathRole)
         if not path and self.plugin_paths:
             path = self.plugin_paths[0]
-        dialog = AnalysisEditDialog(path, parent=self)
-        dialog.exec_()
-        if dialog.result() == dialog.Accepted:
-            self.reload_plugins()
+        self.pluginEditorDock.add_file(path)
 
     def filter_group_dict(self):
         """ Return a dictionary with filter groups for each filter type
@@ -920,21 +850,25 @@ class MainWindowNeo(MainWindow):
         self.populate_neo_block_list()
 
     def closeEvent(self, event):
-        """ Saves all filters before closing
+        """ Saves all filters and plugins before closing
         """
-        data_path = QDesktopServices.storageLocation(
-            QDesktopServices.DataLocation)
-        filter_path = os.path.join(data_path, 'filters')
-        # Ensure that filters folder exists
-        if not os.path.exists(filter_path):
-            try:
-                os.makedirs(filter_path)
-            except OSError:
-                QMessageBox.critical(self, 'Error',
-                    'Could not create filter directory!')
-        for m in self.filter_managers.itervalues():
-            m.save()
-        super(MainWindowNeo, self).closeEvent(event)
+        if not self.pluginEditorDock.close_all():
+            event.ignore()
+        else:
+            data_path = QDesktopServices.storageLocation(
+                QDesktopServices.DataLocation)
+            filter_path = os.path.join(data_path, 'filters')
+            # Ensure that filters folder exists
+            if not os.path.exists(filter_path):
+                try:
+                    os.makedirs(filter_path)
+                except OSError:
+                    QMessageBox.critical(self, 'Error',
+                        'Could not create filter directory!')
+            for m in self.filter_managers.itervalues():
+                m.save()
+            event.accept()
+            super(MainWindowNeo, self).closeEvent(event)
 
     def add_neo_selection(self, data):
         """ Adds a new neo selection provider with the given data
