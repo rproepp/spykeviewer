@@ -137,6 +137,9 @@ class FilterDialog(QDialog):
         if len(self.nameLineEdit.text()) < 1:
             QMessageBox.critical(self, 'Error saving filter', 'Please provide a name for the filter.')
             return
+        if '"' in self.nameLineEdit.text():
+            QMessageBox.critical(self, 'Error saving filter', 'You cannot use " in the name of a filter.')
+            return
         err = self.code_errors()
         if err:
             QMessageBox.critical(self, 'Error saving filter', 'Compile error:\n' + err)

@@ -91,6 +91,7 @@ QGroupBox::title {
      <string>Selections</string>
     </property>
     <addaction name="actionNewSelection"/>
+    <addaction name="actionClearSelections"/>
     <addaction name="separator"/>
    </widget>
    <addaction name="menuFile"/>
@@ -2719,6 +2720,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionSettings">
    <property name="text">
     <string>Settings...</string>
+   </property>
+  </action>
+  <action name="actionClearSelections">
+   <property name="text">
+    <string>Clear</string>
    </property>
   </action>
  </widget>

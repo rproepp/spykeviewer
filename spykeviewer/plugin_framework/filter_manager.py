@@ -1,4 +1,5 @@
 import re
+import codecs
 from collections import OrderedDict
 
 def _move_ordered_dict_item(o_dict, item_key, new_position):
@@ -97,13 +98,12 @@ class FilterManager:
         except IOError:
             pass
 
-    # Make this more robust against different indentation schemes?
     def _load_filter_group(self, s, group):
         # Work regular expression magic to extract method names and code
         s = s.replace('    ', '\t')
         nl = '(?:\n|\r|\r\n)' # Different possibilities for newline
-        it = re.finditer('^def (?P<name>\\w*)\\(%s\\):(?P<flags>\s*#.*)?%s(?P<body>(?:\t.*%s)*)'
-            % (self.signature, nl,nl), s, re.M)
+        it = re.finditer('^def filter\\(%s\\):(?P<flags>\s*#.*)?%s\t"""(?P<name>[^"]*)"""%s(?P<body>(?:\t.*%s)*)'
+            % (self.signature, nl,nl,nl), s, re.M)
         for i in it:
             name = i.group('name')
             # Remove starting tabs
@@ -128,7 +128,7 @@ class FilterManager:
         """ Clears all filters and reloads them from file
         """
         self.currently_loading = True
-        f = open(self.filename, 'r')
+        f = codecs.open(self.filename, 'r', 'utf-8')
         s = f.read()
         # Search for groups and load filters for each group
         start = 0
@@ -158,7 +158,7 @@ class FilterManager:
         self.currently_loading = False
 
     def _write_filter(self, file, name, flt):
-        file.write('\ndef %s(%s):' % (name,self.signature))
+        file.write('\ndef filter(%s):' % self.signature)
         if flt.active or flt.on_exception:
             file.write(' #')
             if flt.active:
@@ -169,13 +169,14 @@ class FilterManager:
                 file.write('EXCEPTION_TRUE')
         file.write('\n')
 
+        file.write('\t"""%s"""\n' % name)
         for l in flt.code:
             file.write('\t%s\n' % l)
 
     def save(self):
         """ Saves all filters to file
         """
-        f = open(self.filename, 'w')
+        f = codecs.open(self.filename, 'w', 'utf-8')
         f.write('# Filter file. All functions need to have the same parameter list.\n')
         f.write('# All code outside of functions (e.g. imports) will be ignored!\n')
         f.write('# When editing this file manually, use tab indentation or indent by 4 spaces,\n')

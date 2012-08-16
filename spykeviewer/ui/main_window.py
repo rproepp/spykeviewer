@@ -177,7 +177,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.switch_to_neo_mode()
 
         if self.console:
-            self.console.interpreter.locals['s'] = self.provider
+            self.console.interpreter.locals['current'] = self.provider
 
 
     def switch_to_db_mode(self):
@@ -190,8 +190,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def _init_python_tab(self):
         # Console
-        ns = {'s': self.provider}
-        msg = "Adapter object is s"
+        ns = {'current': self.provider, 'selections': self.selections}
         cmds = """
 from __future__ import division
 import scipy as sp
@@ -205,8 +204,7 @@ import spykeviewer
 plt.ion()
 """.split('\n')
         self.console = InternalShell(self.consoleDock, namespace=ns,
-            message=msg, multithreaded=False,
-            commands=cmds, max_line_count=1000)
+            multithreaded=False, commands=cmds, max_line_count=1000)
         self.consoleDock.setWidget(self.console)
         self.console.clear_terminal()
 
@@ -364,6 +362,8 @@ plt.ion()
         self.menuSelections.clear()
         a = self.menuSelections.addAction('New')
         a.triggered.connect(self.on_selection_new)
+        a = self.menuSelections.addAction('Clear')
+        a.triggered.connect(self.on_selection_clear)
         self.menuSelections.addSeparator()
 
         for i, s in enumerate(self.selections):
@@ -397,6 +397,14 @@ plt.ion()
             self.selections[i].name, self)
         self.populate_selection_menu()
 
+    def on_selection_clear(self):
+        if QMessageBox.question(self, 'Confirmation',
+            'Do you really want to remove all selections?',
+            QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
+            return
+
+        del self.selections[:]
+        self.populate_selection_menu()
 
     def on_selection_rename(self, selection):
         (name, ok) = QInputDialog.getText(self, 'Edit selection name',

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/rob/Code/Spyke/viewer/spykeviewer/ui/main.ui'
 #
-# Created: Wed Aug 15 19:07:27 2012
+# Created: Thu Aug 16 12:04:37 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1172,6 +1172,8 @@ class Ui_MainWindow(object):
         self.actionSave_data.setObjectName(_fromUtf8("actionSave_data"))
         self.actionSettings = QtGui.QAction(MainWindow)
         self.actionSettings.setObjectName(_fromUtf8("actionSettings"))
+        self.actionClearSelections = QtGui.QAction(MainWindow)
+        self.actionClearSelections.setObjectName(_fromUtf8("actionClearSelections"))
         self.menuFile.addAction(self.actionSave_selection)
         self.menuFile.addAction(self.actionLoad_selection)
         self.menuFile.addAction(self.actionSwitch_Modes)
@@ -1181,6 +1183,7 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionExit)
         self.menuHelp.addAction(self.actionPlot_navigation)
         self.menuSelections.addAction(self.actionNewSelection)
+        self.menuSelections.addAction(self.actionClearSelections)
         self.menuSelections.addSeparator()
         self.menuBar.addAction(self.menuFile.menuAction())
         self.menuBar.addAction(self.menuDatabase.menuAction())
@@ -1475,4 +1478,5 @@ class Ui_MainWindow(object):
         self.actionCommand_History.setText(QtGui.QApplication.translate("MainWindow", "Command History", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_data.setText(QtGui.QApplication.translate("MainWindow", "Save Data...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSettings.setText(QtGui.QApplication.translate("MainWindow", "Settings...", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionClearSelections.setText(QtGui.QApplication.translate("MainWindow", "Clear", None, QtGui.QApplication.UnicodeUTF8))
 
