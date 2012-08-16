@@ -823,7 +823,7 @@ Valid if at least one unit with a template is selected.</string>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_6">
     <layout class="QGridLayout" name="gridLayout_11">
-     <item row="0" column="0" colspan="2">
+     <item row="0" column="0" colspan="3">
       <widget class="QTreeView" name="neoAnalysesTreeView">
        <property name="uniformRowHeights">
         <bool>true</bool>
@@ -856,7 +856,7 @@ Valid if at least one unit with a template is selected.</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
+     <item row="1" column="2">
       <widget class="QPushButton" name="editAnalysisButton">
        <property name="enabled">
         <bool>false</bool>
@@ -866,7 +866,17 @@ Valid if at least one unit with a template is selected.</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="0" colspan="2">
+     <item row="3" column="2">
+      <widget class="QPushButton" name="startRemoteAnalysisButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Remote</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
       <widget class="QPushButton" name="configureAnalysisButton">
        <property name="enabled">
         <bool>false</bool>
@@ -876,13 +886,10 @@ Valid if at least one unit with a template is selected.</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
-      <widget class="QPushButton" name="startRemoteAnalysisButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="refreshAnalysesButton">
        <property name="text">
-        <string>Remote</string>
+        <string>Refresh</string>
        </property>
       </widget>
      </item>

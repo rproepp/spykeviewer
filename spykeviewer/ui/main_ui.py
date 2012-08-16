@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/rob/Code/Spyke/viewer/spykeviewer/ui/main.ui'
 #
-# Created: Tue Aug 14 15:53:20 2012
+# Created: Wed Aug 15 19:07:27 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -362,7 +362,7 @@ class Ui_MainWindow(object):
         self.neoAnalysesTreeView.setObjectName(_fromUtf8("neoAnalysesTreeView"))
         self.neoAnalysesTreeView.header().setVisible(False)
         self.neoAnalysesTreeView.header().setDefaultSectionSize(0)
-        self.gridLayout_11.addWidget(self.neoAnalysesTreeView, 0, 0, 1, 2)
+        self.gridLayout_11.addWidget(self.neoAnalysesTreeView, 0, 0, 1, 3)
         self.newAnalysisButton = QtGui.QPushButton(self.dockWidgetContents_6)
         self.newAnalysisButton.setObjectName(_fromUtf8("newAnalysisButton"))
         self.gridLayout_11.addWidget(self.newAnalysisButton, 1, 0, 1, 1)
@@ -373,15 +373,18 @@ class Ui_MainWindow(object):
         self.editAnalysisButton = QtGui.QPushButton(self.dockWidgetContents_6)
         self.editAnalysisButton.setEnabled(False)
         self.editAnalysisButton.setObjectName(_fromUtf8("editAnalysisButton"))
-        self.gridLayout_11.addWidget(self.editAnalysisButton, 1, 1, 1, 1)
-        self.configureAnalysisButton = QtGui.QPushButton(self.dockWidgetContents_6)
-        self.configureAnalysisButton.setEnabled(False)
-        self.configureAnalysisButton.setObjectName(_fromUtf8("configureAnalysisButton"))
-        self.gridLayout_11.addWidget(self.configureAnalysisButton, 2, 0, 1, 2)
+        self.gridLayout_11.addWidget(self.editAnalysisButton, 1, 2, 1, 1)
         self.startRemoteAnalysisButton = QtGui.QPushButton(self.dockWidgetContents_6)
         self.startRemoteAnalysisButton.setEnabled(False)
         self.startRemoteAnalysisButton.setObjectName(_fromUtf8("startRemoteAnalysisButton"))
-        self.gridLayout_11.addWidget(self.startRemoteAnalysisButton, 3, 1, 1, 1)
+        self.gridLayout_11.addWidget(self.startRemoteAnalysisButton, 3, 2, 1, 1)
+        self.configureAnalysisButton = QtGui.QPushButton(self.dockWidgetContents_6)
+        self.configureAnalysisButton.setEnabled(False)
+        self.configureAnalysisButton.setObjectName(_fromUtf8("configureAnalysisButton"))
+        self.gridLayout_11.addWidget(self.configureAnalysisButton, 3, 1, 1, 1)
+        self.refreshAnalysesButton = QtGui.QPushButton(self.dockWidgetContents_6)
+        self.refreshAnalysesButton.setObjectName(_fromUtf8("refreshAnalysesButton"))
+        self.gridLayout_11.addWidget(self.refreshAnalysesButton, 1, 1, 1, 1)
         self.analysisDock.setWidget(self.dockWidgetContents_6)
         MainWindow.addDockWidget(QtCore.Qt.DockWidgetArea(4), self.analysisDock)
         self.spikeSortingDock = QtGui.QDockWidget(MainWindow)
@@ -1312,8 +1315,9 @@ class Ui_MainWindow(object):
         self.newAnalysisButton.setText(QtGui.QApplication.translate("MainWindow", "New", None, QtGui.QApplication.UnicodeUTF8))
         self.startAnalysisButton.setText(QtGui.QApplication.translate("MainWindow", "Start", None, QtGui.QApplication.UnicodeUTF8))
         self.editAnalysisButton.setText(QtGui.QApplication.translate("MainWindow", "Edit", None, QtGui.QApplication.UnicodeUTF8))
-        self.configureAnalysisButton.setText(QtGui.QApplication.translate("MainWindow", "Configure", None, QtGui.QApplication.UnicodeUTF8))
         self.startRemoteAnalysisButton.setText(QtGui.QApplication.translate("MainWindow", "Remote", None, QtGui.QApplication.UnicodeUTF8))
+        self.configureAnalysisButton.setText(QtGui.QApplication.translate("MainWindow", "Configure", None, QtGui.QApplication.UnicodeUTF8))
+        self.refreshAnalysesButton.setText(QtGui.QApplication.translate("MainWindow", "Refresh", None, QtGui.QApplication.UnicodeUTF8))
         self.spikeSortingDock.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Spike Sorting", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox_22.setTitle(QtGui.QApplication.translate("MainWindow", "Cluster Projection", None, QtGui.QApplication.UnicodeUTF8))
         self.clusterProjectionCenterZeroCheckBox.setText(QtGui.QApplication.translate("MainWindow", "Center at zero", None, QtGui.QApplication.UnicodeUTF8))

@@ -1085,6 +1085,9 @@ class MainWindowNeo(MainWindow):
         self.worker.start()
 
 
+    def on_refreshAnalysesButton_pressed(self):
+        self.reload_plugins()
+
     @pyqtSignature("")
     def on_actionSettings_triggered(self):
         settings = SettingsWindow(self.selection_path, self.filter_path,
