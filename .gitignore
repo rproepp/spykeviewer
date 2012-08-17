@@ -2,3 +2,5 @@
 doc/build
 filters
 selections
+bin/build
+bin/dist
