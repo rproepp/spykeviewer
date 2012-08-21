@@ -14,9 +14,12 @@ class SignalPlotPlugin(AnalysisPlugin):
                                            'Recording Channel'))
     show_events = di.BoolItem('Show events', default=True)
     show_epochs = di.BoolItem('Show epochs', default=True)
-    show_spikes = di.BoolItem('Show spike events', default=False)
-    show_waveforms = di.BoolItem('Show spike waveforms', default=True)
-
+    show_waveforms = di.BoolItem('Show spike waveforms', default=False)
+    st_mode = di.ChoiceItem('Spike Trains',  ('Not used', 
+                                              'Show spike events',
+                                              'Show spike waveforms'),
+                            default=2)
+    
     def get_name(self):
         return 'Signal Plot'
 
@@ -55,7 +58,7 @@ class SignalPlotPlugin(AnalysisPlugin):
             epochs = current.epochs()
 
         spike_trains = None
-        if self.show_spikes:
+        if self.st_mode > 0:
             current.progress.set_status('Loading spike trains')
             spike_trains = current.spike_trains_by_segment()
 
@@ -88,9 +91,11 @@ class SignalPlotPlugin(AnalysisPlugin):
                 if self.domain == 0: # Channel groups
                     plot.signal_array(sig, events=seg_events,
                         epochs=seg_epochs, spike_trains=seg_trains,
-                        spike_waveforms=seg_spikes)
+                        spike_waveforms=seg_spikes, 
+                        spike_train_waveforms=self.st_mode == 2)
                 else: # Single channels
                     for s in sig:
                         plot.signal(s, events=seg_events,
                             epochs=seg_epochs, spike_trains=seg_trains,
-                            spike_waveforms=seg_spikes)
+                            spike_waveforms=seg_spikes,
+                            spike_train_waveforms=self.st_mode==2)
