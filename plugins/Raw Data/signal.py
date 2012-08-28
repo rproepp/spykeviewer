@@ -1,24 +1,22 @@
-from spykeviewer.plugin_framework.analysis_plugin import AnalysisPlugin
-
 from PyQt4.QtGui import QMessageBox
-import guidata.dataset.dataitems as di
 
-import spykeutils.plot as plot
+from spykeutils.plugin import analysis_plugin, gui_data
 from spykeutils.spyke_exception import SpykeException
+import spykeutils.plot as plot
 import spykeutils.plot.helper as helper
 
-class SignalPlotPlugin(AnalysisPlugin):
+class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
     """ Signal Plot
     """
-    domain = di.ChoiceItem('Domain', ('Recording Channel Group',
-                                           'Recording Channel'))
-    show_events = di.BoolItem('Show events', default=True)
-    show_epochs = di.BoolItem('Show epochs', default=True)
-    show_waveforms = di.BoolItem('Show spike waveforms', default=False)
-    st_mode = di.ChoiceItem('Spike Trains',  ('Not used', 
-                                              'Show spike events',
-                                              'Show spike waveforms'),
-                            default=2)
+    domain = gui_data.ChoiceItem('Domain', ('Recording Channel Group',
+                                            'Recording Channel'))
+    show_events = gui_data.BoolItem('Show events', default=True)
+    show_epochs = gui_data.BoolItem('Show epochs', default=True)
+    show_waveforms = gui_data.BoolItem('Show spike waveforms', default=False)
+    st_mode = gui_data.ChoiceItem('Spike Trains', ('Not used',
+                                                   'Show spike events',
+                                                   'Show spike waveforms'),
+                                 default=2)
     
     def get_name(self):
         return 'Signal Plot'

@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import logging
 
 from PyQt4.QtGui import (QMainWindow, QMessageBox,
                          QApplication, QFileDialog, QInputDialog,
@@ -16,8 +17,13 @@ from spyderlib.widgets.sourcecode.codeeditor import CodeEditor
 
 from main_ui import Ui_MainWindow
 from progress_indicator_dialog import ProgressIndicatorDialog
-from ..plugin_framework.data_provider import DataProvider
-from ..plugin_framework.analysis_plugin import AnalysisPlugin
+from spykeutils.plugin.data_provider import DataProvider
+from spykeutils.plugin.analysis_plugin import AnalysisPlugin
+
+logger = logging.getLogger('spykeviewer')
+ch = logging.StreamHandler()
+ch.setLevel(logging.WARNING)
+logger.addHandler(ch)
 
 #noinspection PyCallByClass,PyTypeChecker,PyArgumentList
 class MainWindow(QMainWindow, Ui_MainWindow):

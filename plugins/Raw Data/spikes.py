@@ -1,13 +1,13 @@
-from spykeviewer.plugin_framework.analysis_plugin import AnalysisPlugin
+from spykeutils.plugin import analysis_plugin, gui_data
 import spykeutils.plot
-import guidata.dataset.dataitems as di
 
-class SpikePlotPlugin(AnalysisPlugin):
+class SpikePlotPlugin(analysis_plugin.AnalysisPlugin):
     """ Spike Waveform Plot"""
-    anti_aliased = di.BoolItem('Antialiased lines (smoothing)', default=True)
-    plot_type = di.ChoiceItem('Plot type', ('Separate Axes',
-                                         'Split vertically',
-                                         'Split horizontally'))
+    anti_aliased = gui_data.BoolItem('Antialiased lines (smoothing)',
+                                    default=True)
+    plot_type = gui_data.ChoiceItem('Plot type', ('Separate Axes',
+                                                 'Split vertically',
+                                                 'Split horizontally'))
     
     def get_name(self):
         return 'Spike Waveform Plot'

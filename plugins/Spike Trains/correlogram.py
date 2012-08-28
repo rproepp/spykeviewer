@@ -1,13 +1,13 @@
-from spykeviewer.plugin_framework.analysis_plugin import AnalysisPlugin
-import spykeutils.plot
-import guidata.dataset.dataitems as di
 import quantities as pq
 
-class CorrelogramPlugin(AnalysisPlugin):
-    bin_size = di.FloatItem('Bin size', 1.0, 0.1, 10000.0, unit='ms')
-    cut_off = di.FloatItem('Cut off', 50.0, 2.0, 10000.0, unit='ms')
-    data_source = di.ChoiceItem('Data source', ('Units', 'Selections'))
-    border_correction = di.BoolItem('Border correction', default=True)
+from spykeutils.plugin import analysis_plugin, gui_data
+import spykeutils.plot
+
+class CorrelogramPlugin(analysis_plugin.AnalysisPlugin):
+    bin_size = gui_data.FloatItem('Bin size', 1.0, 0.1, 10000.0, unit='ms')
+    cut_off = gui_data.FloatItem('Cut off', 50.0, 2.0, 10000.0, unit='ms')
+    data_source = gui_data.ChoiceItem('Data source', ('Units', 'Selections'))
+    border_correction = gui_data.BoolItem('Border correction', default=True)
 
     def get_name(self):
         return 'Correlogram'

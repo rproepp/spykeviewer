@@ -1,33 +1,30 @@
-from spykeviewer.plugin_framework.analysis_plugin import AnalysisPlugin
+import quantities as pq
+
+from spykeutils.plugin import analysis_plugin, gui_data
 from spykeutils.plot.psth import psth
 
-import quantities as pq
-import guidata.dataset.datatypes as dt
-import guidata.dataset.dataitems as di
-from PyQt4.Qt import QMessageBox
-
 # Needed for activatable parameters
-stop_prop = dt.ValueProp(False)
-align_prop = dt.ValueProp(False)
-optimize_prop = dt.ValueProp(False)
+stop_prop = gui_data.ValueProp(False)
+align_prop = gui_data.ValueProp(False)
+optimize_prop = gui_data.ValueProp(False)
 
-class PSTHPlugin(AnalysisPlugin):
+class PSTHPlugin(analysis_plugin.AnalysisPlugin):
     """ PSTH Plugin
     """
     # Configurable parameters
-    bin_size = di.FloatItem('Bin size', min=1.0, default=500.0, unit='ms')
-    start_time = di.FloatItem('Start time', default=0.0, unit='ms')
+    bin_size = gui_data.FloatItem('Bin size', min=1.0, default=500.0, unit='ms')
+    start_time = gui_data.FloatItem('Start time', default=0.0, unit='ms')
 
-    stop_enabled = di.BoolItem('Stop time enabled',
+    stop_enabled = gui_data.BoolItem('Stop time enabled',
         default=False).set_prop('display', store=stop_prop)
-    stop = di.FloatItem('Time', default=10001.0,
+    stop = gui_data.FloatItem('Time', default=10001.0,
         unit='ms').set_prop('display', active=stop_prop)
 
-    align_enabled = di.BoolItem('Alignment event enabled',
+    align_enabled = gui_data.BoolItem('Alignment event enabled',
         default=False).set_prop('display', store=align_prop)
-    align = di.StringItem('Event label',
+    align = gui_data.StringItem('Event label',
         default='lastSt').set_prop('display', active=align_prop)
-    diagram_type = di.ChoiceItem('Type', ('Bar', 'Line'))
+    diagram_type = gui_data.ChoiceItem('Type', ('Bar', 'Line'))
 
     def __init__(self):
         super(PSTHPlugin, self).__init__()

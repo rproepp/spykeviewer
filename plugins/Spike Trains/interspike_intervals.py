@@ -1,13 +1,12 @@
-from spykeviewer.plugin_framework.analysis_plugin import AnalysisPlugin
+import quantities as pq
+
+from spykeutils.plugin import analysis_plugin, gui_data
 import spykeutils.plot as plot
 
-import quantities as pq
-import guidata.dataset.dataitems as di
-
-class ISIPlugin(AnalysisPlugin):
-    bin_size = di.FloatItem('Bin size', 1.0, 0.1, 10000.0, unit='ms')
-    cut_off = di.FloatItem('Cut off', 50.0, 2.0, 10000.0, unit='ms')
-    diagram_type = di.ChoiceItem('Type', ('Bar', 'Line'))
+class ISIPlugin(analysis_plugin.AnalysisPlugin):
+    bin_size = gui_data.FloatItem('Bin size', 1.0, 0.1, 10000.0, unit='ms')
+    cut_off = gui_data.FloatItem('Cut off', 50.0, 2.0, 10000.0, unit='ms')
+    diagram_type = gui_data.ChoiceItem('Type', ('Bar', 'Line'))
 
     def get_name(self):
         return 'Interspike Interval Histogram'

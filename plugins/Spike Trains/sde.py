@@ -1,45 +1,42 @@
-from spykeviewer.plugin_framework.analysis_plugin import AnalysisPlugin
-
-from spykeutils.plot.sde import sde
-
 import quantities as pq
-import guidata.dataset.datatypes as dt
-import guidata.dataset.dataitems as di
 from PyQt4.Qt import QMessageBox
 
-# Needed for activatable parameters
-stop_prop = dt.ValueProp(False)
-align_prop = dt.ValueProp(False)
-optimize_prop = dt.ValueProp(False)
+from spykeutils.plugin import analysis_plugin, gui_data
+import spykeutils.plot as plot
 
-class SDEPlugin(AnalysisPlugin):
+# Needed for activatable parameters
+stop_prop = gui_data.ValueProp(False)
+align_prop = gui_data.ValueProp(False)
+optimize_prop = gui_data.ValueProp(False)
+
+class SDEPlugin(analysis_plugin.AnalysisPlugin):
     """ Spike Train Density Plugin
     """
     # Configurable parameters
-    kernel_size = di.FloatItem('Kernel size', min=1.0, default=500.0,
+    kernel_size = gui_data.FloatItem('Kernel size', min=1.0, default=500.0,
         unit='ms')
-    start_time = di.FloatItem('Start time', default=0.0, unit='ms')
+    start_time = gui_data.FloatItem('Start time', default=0.0, unit='ms')
 
-    stop_enabled = di.BoolItem('Stop time enabled',
+    stop_enabled = gui_data.BoolItem('Stop time enabled',
         default=False).set_prop('display', store=stop_prop)
-    stop = di.FloatItem('Time', default=10001.0,
+    stop = gui_data.FloatItem('Time', default=10001.0,
         unit='ms').set_prop('display', active=stop_prop)
 
-    align_enabled = di.BoolItem('Alignment event enabled',
+    align_enabled = gui_data.BoolItem('Alignment event enabled',
         default=False).set_prop('display', store=align_prop)
-    align = di.StringItem('Event label',
+    align = gui_data.StringItem('Event label',
         default='lastSt').set_prop('display', active=align_prop)
 
-    _g = dt.BeginGroup('Kernel width optimization')
-    optimize_enabled = di.BoolItem('Enabled',
+    _g = gui_data.BeginGroup('Kernel width optimization')
+    optimize_enabled = gui_data.BoolItem('Enabled',
         default=False).set_prop('display', store=optimize_prop)
-    minimum_kernel = di.FloatItem('Minimum kernel size', default=10.0,
+    minimum_kernel = gui_data.FloatItem('Minimum kernel size', default=10.0,
         unit='ms', min=0.5).set_prop('display', active=optimize_prop)
-    maximum_kernel = di.FloatItem('Maximum kernel size', default=500.0,
+    maximum_kernel = gui_data.FloatItem('Maximum kernel size', default=500.0,
         unit='ms', min=1.0).set_prop('display', active=optimize_prop)
-    optimize_steps = di.IntItem('Kernel size steps', default=20,
+    optimize_steps = gui_data.IntItem('Kernel size steps', default=20,
         min=2).set_prop('display', active=optimize_prop)
-    _g_ = dt.EndGroup('Kernel size optimization')
+    _g_ = gui_data.EndGroup('Kernel size optimization')
 
     def __init__(self):
         super(SDEPlugin, self).__init__()
@@ -71,7 +68,7 @@ class SDEPlugin(AnalysisPlugin):
         else:
             events = None
 
-        sde(trains, events, start, stop, kernel_size, optimize_steps, 
+        plot.sde(trains, events, start, stop, kernel_size, optimize_steps,
             minimum_kernel, maximum_kernel, self.unit, current.progress)
 
     def configure(self):

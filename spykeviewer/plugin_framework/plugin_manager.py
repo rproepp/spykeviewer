@@ -1,7 +1,12 @@
 import os
 import sys
 import inspect
-from analysis_plugin import AnalysisPlugin
+import traceback
+import logging
+
+from spykeutils.plugin.analysis_plugin import AnalysisPlugin
+
+logger = logging.getLogger('spykeviewer')
 
 class PluginManager:
     """ Manages plugins loaded from a directory
@@ -72,8 +77,9 @@ class PluginManager:
                     try:
                         execfile(p, exc_globals)
                     except Exception:
-                        sys.stderr.write('Error during execution of ' +
-                            'potential plugin file ' + p + '\n')
+                        logger.warning('Error during execution of ' +
+                            'potential plugin file ' + p + ':\n' +
+                            traceback.format_exc() + '\n')
                     for cl in exc_globals.values():
                         if not inspect.isclass(cl):
                             continue
@@ -81,7 +87,7 @@ class PluginManager:
                         # Should be a subclass of AnalysisPlugin...
                         if not issubclass(cl, AnalysisPlugin):
                             continue
-                            # ...but should not be AnalysisPlugin (can happen
+                        # ...but should not be AnalysisPlugin (can happen
                         # when directly imported)
                         if cl == AnalysisPlugin:
                             continue

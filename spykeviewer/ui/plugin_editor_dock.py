@@ -10,9 +10,9 @@ class PluginEditorDock(QDockWidget):
     """
 
     template_code = \
-"""from spykeviewer.plugin_framework.analysis_plugin import AnalysisPlugin
+"""from spykeutils.plugin import analysis_plugin, gui_data
 
-class SamplePlugin(AnalysisPlugin):
+class SamplePlugin(analysis_plugin.AnalysisPlugin):
     def get_name(self):
         return 'New plugin'
 

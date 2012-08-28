@@ -1,14 +1,14 @@
-from spykeviewer.plugin_framework.analysis_plugin import AnalysisPlugin
+import quantities as pq
+
+from spykeutils.plugin import analysis_plugin, gui_data
 import spykeutils.plot as plot
 
-import quantities as pq
-import guidata.dataset.dataitems as di
 
-class RasterPlotPlugin(AnalysisPlugin):
-    domain = di.ChoiceItem('Domain', ('Units', 'Segments'))
-    show_lines = di.BoolItem('Show lines', default=True)
-    show_events = di.BoolItem('Show events', default=True)
-    show_epochs = di.BoolItem('Show epochs', default=True)
+class RasterPlotPlugin(analysis_plugin.AnalysisPlugin):
+    domain = gui_data.ChoiceItem('Domain', ('Units', 'Segments'))
+    show_lines = gui_data.BoolItem('Show lines', default=True)
+    show_events = gui_data.BoolItem('Show events', default=True)
+    show_epochs = gui_data.BoolItem('Show epochs', default=True)
 
     def __init__(self):
         super(RasterPlotPlugin, self).__init__()

@@ -1,6 +1,6 @@
 import os
-import sys
 from collections import OrderedDict
+import logging
 
 import neo
 
@@ -15,11 +15,10 @@ from spykeutils.progress_indicator import ignores_cancel
 from spykeutils.spyke_exception import SpykeException
 
 from plugin_model import PluginModel
-from ..plugin_framework.data_provider_neo import (NeoStoredProvider,
-                                                            NeoViewerProvider,
-                                                            NeoDataProvider)
+from spykeutils.plugin.data_provider_neo import NeoDataProvider
+from spykeutils.plugin.data_provider_stored import NeoStoredProvider
 from ..plugin_framework.filter_manager import FilterManager
-from ..plugin_framework.analysis_plugin import AnalysisPlugin
+from spykeutils.plugin.analysis_plugin import AnalysisPlugin
 from main_window import MainWindow
 from settings import SettingsWindow
 from filter_dialog import FilterDialog
@@ -28,10 +27,13 @@ from plugin_editor_dock import PluginEditorDock
 from checkable_item_delegate import CheckableItemDelegate
 
 #noinspection PyCallByClass,PyTypeChecker,PyArgumentList
+from spykeviewer.plugin_framework.data_provider_viewer import NeoViewerProvider
+
+logger = logging.getLogger('spykeviewer')
+
 class MainWindowNeo(MainWindow):
     """ Implements Neo functionality in the main window
     """
-
     FilterTreeRoleTop = 0
     FilterTreeRoleGroup = 1
     FilterTreeRoleFilter = 2
@@ -251,8 +253,10 @@ class MainWindowNeo(MainWindow):
         item = self.filterTreeWidget.itemFromIndex(index)
         top, group = self._get_filter_item_coords(item)
 
-        if index.data(CheckableItemDelegate.CheckTypeRole) == CheckableItemDelegate.CheckBoxCheckType:
-            item.setData(0, CheckableItemDelegate.CheckedRole, not index.data(CheckableItemDelegate.CheckedRole))
+        if index.data(CheckableItemDelegate.CheckTypeRole) == \
+           CheckableItemDelegate.CheckBoxCheckType:
+            item.setData(0, CheckableItemDelegate.CheckedRole,
+                not index.data(CheckableItemDelegate.CheckedRole))
             f = self.filter_managers[top].get_item(item.text(0), group)
             f.active = item.data(0, CheckableItemDelegate.CheckedRole)
         else:
@@ -340,8 +344,8 @@ class MainWindowNeo(MainWindow):
         # Load worker thread finished
         blocks = self.load_worker.blocks
         if blocks is None:
-            sys.stderr.write('Could not read file "%s"' %
-                             self.load_worker.file_name)
+            logger.error('Could not read file "%s"' %
+                          self.load_worker.file_name)
 
         for block in blocks:
             name = block.name
@@ -696,11 +700,14 @@ class MainWindowNeo(MainWindow):
                         else:
                             item.setData(0, CheckableItemDelegate.CheckedRole, False)
                         if i[1].exclusive:
-                            item.setData(0, CheckableItemDelegate.CheckTypeRole, CheckableItemDelegate.RadioCheckType)
+                            item.setData(0, CheckableItemDelegate.CheckTypeRole,
+                                CheckableItemDelegate.RadioCheckType)
                         else:
-                            item.setData(0, CheckableItemDelegate.CheckTypeRole, CheckableItemDelegate.CheckBoxCheckType)
+                            item.setData(0, CheckableItemDelegate.CheckTypeRole,
+                                CheckableItemDelegate.CheckBoxCheckType)
                         item.setData(1, Qt.UserRole, MainWindowNeo.FilterTreeRoleFilter)
-                        item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDragEnabled)
+                        item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable |
+                                      Qt.ItemIsDragEnabled)
                         group.addChild(item)
                 else:
                     item = QTreeWidgetItem(top)
@@ -709,13 +716,15 @@ class MainWindowNeo(MainWindow):
                         item.setData(0, CheckableItemDelegate.CheckedRole, True)
                     else:
                         item.setData(0, CheckableItemDelegate.CheckedRole, False)
-                    item.setData(0, CheckableItemDelegate.CheckTypeRole, CheckableItemDelegate.CheckBoxCheckType)
+                    item.setData(0, CheckableItemDelegate.CheckTypeRole,
+                        CheckableItemDelegate.CheckBoxCheckType)
                     item.setData(1, Qt.UserRole, MainWindowNeo.FilterTreeRoleFilter)
                     item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDragEnabled)
                     top.addChild(item)
 
     def on_filterTreeWidget_currentItemChanged(self, current):
-        enabled = current is not None and current.data(1, Qt.UserRole) != MainWindowNeo.FilterTreeRoleTop
+        enabled = current is not None and \
+                  current.data(1, Qt.UserRole) != MainWindowNeo.FilterTreeRoleTop
         self.editFilterButton.setEnabled(enabled)
         self.deleteFilterButton.setEnabled(enabled)
         self.copyFilterButton.setEnabled(enabled)
@@ -740,7 +749,8 @@ class MainWindowNeo(MainWindow):
         dialog = FilterDialog(self.filter_group_dict(), type=top, group=group, parent=self)
         while dialog.exec_():
             try:
-                self.filter_managers[dialog.type()].add_filter(dialog.name(), dialog.code(), on_exception=dialog.on_exception(), group_name=dialog.group())
+                self.filter_managers[dialog.type()].add_filter(dialog.name(), dialog.code(),
+                    on_exception=dialog.on_exception(), group_name=dialog.group())
                 break
             except ValueError as e:
                 QMessageBox.critical(self, 'Error creating filter', str(e))
@@ -752,7 +762,8 @@ class MainWindowNeo(MainWindow):
 
     def on_deleteFilterButton_pressed(self):
         item = self.filterTreeWidget.currentItem()
-        if QMessageBox.question(self, 'Please confirm', 'Do you really want to delete "%s"?' % item.text(0),
+        if QMessageBox.question(self, 'Please confirm', 'Do you really want to delete "%s"?' %
+                                                        item.text(0),
             QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
             return
 
@@ -800,9 +811,12 @@ class MainWindowNeo(MainWindow):
                 if not copy and item.text(0) != dialog.name():
                     self.filter_managers[top].remove_item(item.text(0), group)
                 if item.data(1, Qt.UserRole) == MainWindowNeo.FilterTreeRoleFilter:
-                    self.filter_managers[top].add_filter(dialog.name(), dialog.code(), on_exception=dialog.on_exception(), group_name=dialog.group(), overwrite=True)
+                    self.filter_managers[top].add_filter(dialog.name(), dialog.code(),
+                        on_exception=dialog.on_exception(), group_name=dialog.group(),
+                        overwrite=True)
                 else:
-                    self.filter_managers[top].add_group(dialog.name(), dialog.exclusive(), group_items, overwrite=True)
+                    self.filter_managers[top].add_group(dialog.name(), dialog.exclusive(),
+                        group_items, overwrite=True)
                 break
             except ValueError as e:
                 QMessageBox.critical(self, 'Error saving filter', str(e))
@@ -892,7 +906,7 @@ class MainWindowNeo(MainWindow):
             blocks = NeoDataProvider.get_blocks(b[1], False)
             QApplication.restoreOverrideCursor()
             if not blocks:
-                sys.stderr.write('Could not read file "%s"' + b[1])
+                logger.error('Could not read file "%s"' % b[1])
                 self.progress.step()
                 continue
 
