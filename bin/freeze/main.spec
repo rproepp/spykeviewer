@@ -2,6 +2,7 @@
 
 import os
 import sys
+import platform
 
 import spykeviewer
 import guidata
@@ -28,11 +29,18 @@ a = Analysis([os.path.join(path, 'bin', 'freeze', 'dependencies.py'), os.path.jo
 #        a.scripts.remove(s)
 #        break
 
+if platform.system() == 'Windows':
+    exename = os.path.join('build\\pyi.win32\\main', 'spykeviewer.exe')
+elif platform.system() == 'Darwin':
+    exename = os.path.join('build/pyi.darwin/main', 'spykeviewer')
+else:
+    print 'Unsupported operating system!'
+    sys.exit()
 pyz = PYZ(a.pure)
 exe = EXE(pyz,
           a.scripts,
           exclude_binaries=1,
-          name=os.path.join('build\\pyi.win32\\main', 'main.exe'),
+          name=exename,
           debug=False,
           strip=None,
           upx=False,
@@ -52,3 +60,6 @@ coll = COLLECT(exe,
                strip=None,
                upx=True,
                name=os.path.join('dist', 'main'))
+               
+if platform.system() == 'Darwin':
+	app = BUNDLE(exe, appname='Spyke Viewer', version='0.1.0')

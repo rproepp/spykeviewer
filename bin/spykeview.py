@@ -2,7 +2,15 @@
 
 import sys
 import os
+import platform
 import locale
+
+# Hack to circumvent OS X locale bug
+if platform.system() == 'Darwin':
+    if os.getenv('LC_CTYPE') == 'UTF-8':
+        os.environ['LC_CTYPE'] = ''
+else:
+    locale.setlocale(locale.LC_ALL, '')
 
 # Use new style API
 import sip
@@ -25,8 +33,8 @@ if __name__ == "__main__":
         sys.path.insert(0, os.path.abspath(os.pardir))
         from spykeviewer.ui.main_window_neo import MainWindowNeo
 
-    locale.setlocale(locale.LC_ALL, '')
     app = QtGui.QApplication(sys.argv)
     ui = MainWindowNeo()
     ui.show()
+    ui.raise_()
     sys.exit(app.exec_())
