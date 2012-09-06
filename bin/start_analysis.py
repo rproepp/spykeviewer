@@ -2,17 +2,19 @@ import sys
 import argparse
 import inspect
 import json
+import pickle
 
-from spykeviewer.plugin_framework.analysis_plugin import AnalysisPlugin
-from spykeviewer.plugin_framework.data_provider import DataProvider
+from spykeutils.plugin.analysis_plugin import AnalysisPlugin
+from spykeutils.plugin.data_provider import DataProvider
 
 # Import DataProvider implementations so they can be loaded...
 try:
-    #noinspection PyUnresolvedReferences
-    import viewercode.data_provider_db
+    from spykeprivate.data_provider_db import DBStoredProvider
+    # The following line should not be needed, investigate
+    DataProvider._factories['DB'] = DBStoredProvider.from_data
 except ImportError:
     pass
-import spykeviewer.plugin_framework.data_provider_neo
+import spykeutils.plugin.data_provider_stored
 
 #from analyze import ProgressIndicatorConsole
 
@@ -22,7 +24,7 @@ if __name__ == '__main__':
     parser.add_argument('Code', type=str, help='Code of the analysis')
     parser.add_argument('Selection', type=str, help='Serialized selection')
     parser.add_argument('-c', '--config', dest='config', type=str,
-        help='Serialized configuration of analysis')
+        help='Pickled configuration of analysis')
     parser.add_argument('-cf', '--codefile', dest='codefile',
         action='store_const', const=True, default=False,
         help='Code represents a filename containing code (default: Code is a string containing code')
@@ -60,7 +62,7 @@ if __name__ == '__main__':
 
     # Load configuration
     if args.config:
-        plugin.deserialize_parameters(args.config)
+        plugin.set_parameters(pickle.loads(args.config))
 
     # Load selection
     sels = []

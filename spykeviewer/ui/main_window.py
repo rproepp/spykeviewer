@@ -100,6 +100,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.menuBar.clear()
         self.menuBar.addMenu(self.menuFile)
         self.menuBar.addMenu(self.menuSelections)
+        self.menuBar.addMenu(self.menuPlugins)
         self.menuView = self.createPopupMenu()
         self.menuView.setTitle('View')
         self.menuBar.addMenu(self.menuView)
@@ -439,7 +440,7 @@ plt.ion()
 
     def serialize_selections(self):
         sl = list() # Selection list, current selection as first item
-        sl.append(self.provider_factory('current', self).data_dict())
+        sl.append(self.provider_factory('__current__', self).data_dict())
         for s in self.selections:
             sl.append(s.data_dict())
         return json.dumps(sl, sort_keys=True, indent=2)
@@ -455,10 +456,11 @@ plt.ion()
         try:
             f = open(filename, 'r')
             p = json.load(f)
-            # First selection in file is current selection
-            self.set_current_selection(p[0])
-            for s in p[1:]:
-                self.add_selection(s)
+            for s in p:
+                if s['name'] == '__current__':
+                    self.set_current_selection(s)
+                else:
+                    self.add_selection(s)
             f.close()
             self.populate_selection_menu()
         except Exception, e:

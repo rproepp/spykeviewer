@@ -1,7 +1,7 @@
-from spykeviewer.plugin_framework.data_provider_neo import NeoDataProvider
+from spykeutils.plugin.data_provider_neo import NeoDataProvider
 
 class NeoViewerProvider(NeoDataProvider):
-    def __init__(self, viewer, name='Current'):
+    def __init__(self, viewer, name='__current__'):
         super(NeoViewerProvider, self).__init__(name, viewer.progress)
         self.viewer = viewer
 

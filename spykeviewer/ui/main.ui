@@ -94,9 +94,22 @@ QGroupBox::title {
     <addaction name="actionClearSelections"/>
     <addaction name="separator"/>
    </widget>
+   <widget class="QMenu" name="menuPlugins">
+    <property name="title">
+     <string>Plugins</string>
+    </property>
+    <addaction name="actionRunPlugin"/>
+    <addaction name="actionConfigurePlugin"/>
+    <addaction name="actionNewPlugin"/>
+    <addaction name="actionEditPlugin"/>
+    <addaction name="actionSavePlugin"/>
+    <addaction name="actionRefreshPlugins"/>
+    <addaction name="actionRemotePlugin"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuDatabase"/>
    <addaction name="menuSelections"/>
+   <addaction name="menuPlugins"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QDockWidget" name="consoleDock">
@@ -817,14 +830,14 @@ Valid if at least one unit with a template is selected.</string>
   </widget>
   <widget class="QDockWidget" name="analysisDock">
    <property name="windowTitle">
-    <string>Analyses</string>
+    <string>Plugins</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>4</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_6">
     <layout class="QGridLayout" name="gridLayout_11">
-     <item row="0" column="0" colspan="3">
+     <item row="0" column="0" colspan="2">
       <widget class="QTreeView" name="neoAnalysesTreeView">
        <property name="uniformRowHeights">
         <bool>true</bool>
@@ -838,60 +851,6 @@ Valid if at least one unit with a template is selected.</string>
        <attribute name="headerDefaultSectionSize">
         <number>0</number>
        </attribute>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QPushButton" name="newAnalysisButton">
-       <property name="text">
-        <string>New</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QPushButton" name="startAnalysisButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>Start</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QPushButton" name="editAnalysisButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>Edit</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="2">
-      <widget class="QPushButton" name="startRemoteAnalysisButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>Remote</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QPushButton" name="configureAnalysisButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>Configure</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QPushButton" name="refreshAnalysesButton">
-       <property name="text">
-        <string>Refresh</string>
-       </property>
       </widget>
      </item>
     </layout>
@@ -1090,7 +1049,11 @@ Valid for at least one sorted unit.</string>
          </widget>
         </item>
         <item row="1" column="1" colspan="3">
-         <widget class="QLineEdit" name="analysisAlgorithmLineEdit"/>
+         <widget class="QLineEdit" name="analysisAlgorithmLineEdit">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="label_32">
@@ -1100,7 +1063,11 @@ Valid for at least one sorted unit.</string>
          </widget>
         </item>
         <item row="2" column="1" colspan="3">
-         <widget class="QLineEdit" name="analysisDateLineEdit"/>
+         <widget class="QLineEdit" name="analysisDateLineEdit">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -2601,6 +2568,23 @@ p, li { white-space: pre-wrap; }
     </layout>
    </widget>
   </widget>
+  <widget class="QToolBar" name="pluginToolBar">
+   <property name="windowTitle">
+    <string>Analysis Toolbar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionNewPlugin"/>
+   <addaction name="actionEditPlugin"/>
+   <addaction name="actionSavePlugin"/>
+   <addaction name="actionRefreshPlugins"/>
+   <addaction name="actionConfigurePlugin"/>
+   <addaction name="actionRunPlugin"/>
+  </widget>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
@@ -2610,31 +2594,6 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="iconVisibleInMenu">
     <bool>false</bool>
-   </property>
-  </action>
-  <action name="actionLocal">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Local</string>
-   </property>
-   <property name="iconVisibleInMenu">
-    <bool>true</bool>
-   </property>
-  </action>
-  <action name="actionG_Node">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>G-Node</string>
    </property>
   </action>
   <action name="actionSave_selection">
@@ -2665,51 +2624,12 @@ p, li { white-space: pre-wrap; }
     <string>New</string>
    </property>
   </action>
-  <action name="action1">
-   <property name="text">
-    <string>1</string>
-   </property>
-  </action>
-  <action name="action1_2">
-   <property name="text">
-    <string>1</string>
-   </property>
-  </action>
-  <action name="action1_3">
-   <property name="text">
-    <string>1</string>
-   </property>
-  </action>
   <action name="actionClearCache">
    <property name="text">
     <string>Clear NEO object cache</string>
    </property>
    <property name="visible">
     <bool>true</bool>
-   </property>
-  </action>
-  <action name="actionConsole">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Console</string>
-   </property>
-  </action>
-  <action name="actionVariable_Explorer">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Variable Explorer</string>
-   </property>
-  </action>
-  <action name="actionCommand_History">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Command History</string>
    </property>
   </action>
   <action name="actionSave_data">
@@ -2727,8 +2647,112 @@ p, li { white-space: pre-wrap; }
     <string>Clear</string>
    </property>
   </action>
+  <action name="actionNewPlugin">
+   <property name="icon">
+    <iconset resource="../../resources/icons.qrc">
+     <normaloff>:/Analyses/New</normaloff>:/Analyses/New</iconset>
+   </property>
+   <property name="text">
+    <string>New Plugin</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a new plugin</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionEditPlugin">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../resources/icons.qrc">
+     <normaloff>:/Analyses/Edit</normaloff>:/Analyses/Edit</iconset>
+   </property>
+   <property name="text">
+    <string>Edit Plugin</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="actionRefreshPlugins">
+   <property name="icon">
+    <iconset resource="../../resources/icons.qrc">
+     <normaloff>:/Analyses/Reload</normaloff>:/Analyses/Reload</iconset>
+   </property>
+   <property name="text">
+    <string>Refresh Plugins</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionSavePlugin">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../resources/icons.qrc">
+     <normaloff>:/Analyses/Save</normaloff>:/Analyses/Save</iconset>
+   </property>
+   <property name="text">
+    <string>Save Plugin</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionConfigurePlugin">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../resources/icons.qrc">
+     <normaloff>:/Analyses/Config</normaloff>:/Analyses/Config</iconset>
+   </property>
+   <property name="text">
+    <string>Configure Plugin</string>
+   </property>
+   <property name="shortcut">
+    <string>F6</string>
+   </property>
+  </action>
+  <action name="actionRunPlugin">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../resources/icons.qrc">
+     <normaloff>:/Analyses/Run</normaloff>:/Analyses/Run</iconset>
+   </property>
+   <property name="text">
+    <string>Run Plugin</string>
+   </property>
+   <property name="shortcut">
+    <string>F5</string>
+   </property>
+  </action>
+  <action name="actionRemotePlugin">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../resources/icons.qrc">
+     <normaloff>:/Analyses/Remote</normaloff>:/Analyses/Remote</iconset>
+   </property>
+   <property name="text">
+    <string>Start with Remote Script</string>
+   </property>
+   <property name="shortcut">
+    <string>F9</string>
+   </property>
+  </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../resources/icons.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>optimizePSTHRadioButton</sender>

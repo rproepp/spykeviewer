@@ -22,7 +22,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
 
     plugin_saved = pyqtSignal()
 
-    def __init__(self, title='Analysis Editor', parent=None):
+    def __init__(self, title='Plugin Editor', parent=None):
         QDockWidget.__init__(self, title, parent)
         self.setupUi()
 
@@ -36,7 +36,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
 
     def setupUi(self):
         self.saveButton = QPushButton('Save', self)
-        self.saveButton.clicked.connect(self.button_pressed)
+        self.saveButton.clicked.connect(self.save_current)
 
         self.tabs = QTabWidget()
         self.tabs.setTabsClosable(True)
@@ -69,7 +69,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
             tab_name = os.path.split(file_name)[1]
         else:
             editor.set_text(self.template_code)
-            tab_name = 'New Analysis'
+            tab_name = 'New Plugin'
 
         editor.file_was_changed = False
         editor.textChanged.connect(lambda: self.file_changed(editor))
@@ -86,7 +86,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         if self.tabs.widget(tab_index).file_was_changed:
             fname = os.path.split(self.tabs.widget(tab_index).file_name)[1]
             if not fname:
-                fname = 'New Analysis'
+                fname = 'New Plugin'
             ans = QMessageBox.question(self, 'File was changed',
                 'Do you want to save "%s" before closing?' % fname,
                 QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
@@ -117,7 +117,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
 
         fname = os.path.split(editor.file_name)[1]
         if not fname:
-            fname = 'New Analysis'
+            fname = 'New Plugin'
         text = '*' + fname
 
         self.tabs.setTabText(self.tabs.indexOf(editor), text)
@@ -139,8 +139,10 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
 
     #noinspection PyCallByClass,PyTypeChecker,PyArgumentList
     def save_file(self, editor):
+        if not editor:
+            return
         if not editor.file_name.endswith('py'):
-            d = QFileDialog(self, 'Choose where to save selection',
+            d = QFileDialog(self, 'Choose where to save plugin',
                 self.tabs.currentWidget().file_name)
             d.setAcceptMode(QFileDialog.AcceptSave)
             d.setNameFilter("Python files (*.py)")
@@ -149,15 +151,10 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
                 editor.file_name = str(d.selectedFiles()[0])
             else:
                 return False
-            #else:
-        #    if QMessageBox.question(self, 'Warning',
-        #        'Do you really want to overwrite the existing file?',
-        #        QMessageBox.Yes | QMessageBox.No) != QMessageBox.Yes:
-        #        return
 
         err = self.code_has_errors()
         if err:
-            QMessageBox.critical(self, 'Error saving analysis',
+            QMessageBox.critical(self, 'Error saving plugin',
                 'Compile error:\n' + err)
             return False
 
@@ -172,6 +169,6 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         return True
 
 
-    def button_pressed(self):
+    def save_current(self):
         editor = self.tabs.currentWidget()
         self.save_file(editor)

@@ -594,10 +594,10 @@ class MainWindowNeo(MainWindow):
         elif not self.analysisModel.data(current, Qt.UserRole):
             enabled = False
 
-        self.startAnalysisButton.setEnabled(enabled)
-        self.configureAnalysisButton.setEnabled(enabled)
-        self.editAnalysisButton.setEnabled(enabled)
-        self.startRemoteAnalysisButton.setEnabled(enabled)
+        self.actionRunPlugin.setEnabled(enabled)
+        self.actionEditPlugin.setEnabled(enabled)
+        self.actionConfigurePlugin.setEnabled(enabled)
+        self.actionRemotePlugin.setEnabled(enabled)
 
     def current_plugin(self):
         item = self.neoAnalysesTreeView.currentIndex()
@@ -612,51 +612,6 @@ class MainWindowNeo(MainWindow):
             return None
 
         return self.analysisModel.data(item, self.analysisModel.FilePathRole)
-
-    @ignores_cancel
-    def on_startAnalysisButton_pressed(self):
-        ana = self.current_plugin()
-        if not ana:
-            return
-
-        try:
-            ana.start(self.provider, self.selections)
-        except SpykeException, err:
-            self.progress.done()
-            QMessageBox.critical(self, 'Error executing analysis', str(err))
-
-    def on_startRemoteAnalysisButton_pressed(self):
-        import subprocess
-        selections = self.serialize_selections()
-        config = self.current_plugin().serialize_parameters()
-        f = open(self.remote_script, 'r')
-        code = f.read()
-        subprocess.Popen(['python', '-c', '%s' % code,#'start_analysis.py',
-                         type(self.current_plugin()).__name__,
-                         self.current_plugin_path(),
-                         selections, '-cf', '-c', config])
-
-    def on_configureAnalysisButton_pressed(self):
-        ana = self.current_plugin()
-        if not ana:
-            return
-
-        ana.configure()
-
-    def on_newAnalysisButton_pressed(self):
-        path = ''
-        if self.plugin_paths:
-            path = self.plugin_paths[0]
-        self.pluginEditorDock.add_file(path)
-
-    def on_editAnalysisButton_pressed(self):
-        item = self.neoAnalysesTreeView.currentIndex()
-        path = ''
-        if item:
-            path = self.analysisModel.data(item, self.analysisModel.FilePathRole)
-        if not path and self.plugin_paths:
-            path = self.plugin_paths[0]
-        self.pluginEditorDock.add_file(path)
 
     def filter_group_dict(self):
         """ Return a dictionary with filter groups for each filter type
@@ -1048,3 +1003,62 @@ class MainWindowNeo(MainWindow):
             self.remote_script = settings.remote_script()
             self.plugin_paths = settings.plugin_paths()
             self.reload_plugins()
+
+    @pyqtSignature("")
+    @ignores_cancel
+    def on_actionRunPlugin_triggered(self):
+        ana = self.current_plugin()
+        if not ana:
+            return
+
+        try:
+            ana.start(self.provider, self.selections)
+        except SpykeException, err:
+            self.progress.done()
+            QMessageBox.critical(self, 'Error executing analysis', str(err))
+
+    @pyqtSignature("")
+    def on_actionEditPlugin_triggered(self):
+        item = self.neoAnalysesTreeView.currentIndex()
+        path = ''
+        if item:
+            path = self.analysisModel.data(item, self.analysisModel.FilePathRole)
+        if not path and self.plugin_paths:
+            path = self.plugin_paths[0]
+        self.pluginEditorDock.add_file(path)
+
+    @pyqtSignature("")
+    def on_actionConfigurePlugin_triggered(self):
+        ana = self.current_plugin()
+        if not ana:
+            return
+
+        ana.configure()
+
+    @pyqtSignature("")
+    def on_actionRefreshPlugins_triggered(self):
+        self.reload_plugins()
+
+    @pyqtSignature("")
+    def on_actionNewPlugin_triggered(self):
+        path = ''
+        if self.plugin_paths:
+            path = self.plugin_paths[0]
+        self.pluginEditorDock.add_file(path)
+
+    @pyqtSignature("")
+    def on_actionSavePlugin_triggered(self):
+        self.pluginEditorDock.save_current()
+
+    @pyqtSignature("")
+    def on_actionRemotePlugin_triggered(self):
+        import subprocess
+        import pickle
+        selections = self.serialize_selections()
+        config = pickle.dumps(self.current_plugin().get_parameters())
+        f = open(self.remote_script, 'r')
+        code = f.read()
+        subprocess.Popen(['python', '-c', '%s' % code,
+                          type(self.current_plugin()).__name__,
+                          self.current_plugin_path(),
+                          selections, '-cf', '-c', config])

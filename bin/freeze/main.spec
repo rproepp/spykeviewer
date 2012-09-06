@@ -30,12 +30,15 @@ a = Analysis([os.path.join(path, 'bin', 'freeze', 'dependencies.py'), os.path.jo
 #        break
 
 if platform.system() == 'Windows':
-    exename = os.path.join('build\\pyi.win32\\main', 'spykeviewer.exe')
+    exename = os.path.join('build', 'pyi.win32', 'main', 'spykeviewer.exe')
 elif platform.system() == 'Darwin':
-    exename = os.path.join('build/pyi.darwin/main', 'spykeviewer')
+    exename = os.path.join('build' , 'pyi.darwin', 'main', 'spykeviewer')
+elif platform.system() == 'Linux':
+    exename = os.path.join('build', 'pyi.linux', 'main', 'spykeviewer')
 else:
     print 'Unsupported operating system!'
     sys.exit()
+
 pyz = PYZ(a.pure)
 exe = EXE(pyz,
           a.scripts,
@@ -58,8 +61,8 @@ coll = COLLECT(exe,
                a.zipfiles,
                a.datas,
                strip=None,
-               upx=True,
+               upx=False,
                name=os.path.join('dist', 'main'))
                
 if platform.system() == 'Darwin':
-	app = BUNDLE(exe, appname='Spyke Viewer', version='0.1.0')
+    app = BUNDLE(exe, appname='Spyke Viewer', version='0.1.0')
