@@ -143,7 +143,7 @@ QGroupBox::title {
   </widget>
   <widget class="QDockWidget" name="filterDBDock">
    <property name="windowTitle">
-    <string>Kitchen Sink</string>
+    <string>Database</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
@@ -2463,24 +2463,6 @@ p, li { white-space: pre-wrap; }
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_35">
-         <property name="text">
-          <string>Segment:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QListWidget" name="neoSegmentList">
-         <property name="selectionMode">
-          <enum>QAbstractItemView::ExtendedSelection</enum>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QVBoxLayout" name="verticalLayout_29">
-       <item>
         <widget class="QLabel" name="label_36">
          <property name="text">
           <string>Channel Groups:</string>
@@ -2503,6 +2485,24 @@ p, li { white-space: pre-wrap; }
        </item>
        <item>
         <widget class="QListWidget" name="neoChannelList">
+         <property name="selectionMode">
+          <enum>QAbstractItemView::ExtendedSelection</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_29">
+       <item>
+        <widget class="QLabel" name="label_35">
+         <property name="text">
+          <string>Segment:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="neoSegmentList">
          <property name="selectionMode">
           <enum>QAbstractItemView::ExtendedSelection</enum>
          </property>
