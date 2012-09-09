@@ -350,7 +350,8 @@ class MainWindowNeo(MainWindow):
         for block in blocks:
             name = block.name
             if not name or name == 'One segment only':
-                name = self.file_system_model.fileName(file)
+                name = self.file_system_model.fileName(
+                    self.load_worker.indices[0])
             name += ' (%s)' % self.get_letter_id(self.block_index)
 
             self.block_names[block] = name
@@ -868,7 +869,7 @@ class MainWindowNeo(MainWindow):
             for block in blocks:
                 name = block.name
                 if not name or name == 'One segment only':
-                    name = self.file_system_model.fileName(file)
+                    name = os.path.basename(b[1])
                 name += ' (%s)' % self.get_letter_id(i)
 
                 self.block_names[block] = name
