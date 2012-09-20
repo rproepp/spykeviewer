@@ -24,8 +24,8 @@ class SDEPlugin(analysis_plugin.AnalysisPlugin):
 
     align_enabled = gui_data.BoolItem('Alignment event enabled',
         default=False).set_prop('display', store=align_prop)
-    align = gui_data.StringItem('Event label',
-        default='lastSt').set_prop('display', active=align_prop)
+    align = gui_data.StringItem(
+        'Event label').set_prop('display', active=align_prop)
 
     _g = gui_data.BeginGroup('Kernel width optimization')
     optimize_enabled = gui_data.BoolItem('Enabled',

@@ -54,7 +54,7 @@ QGroupBox::title {
     </property>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menuBar">
+  <widget class="QMenuBar" name="mainMenu">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -106,9 +106,20 @@ QGroupBox::title {
     <addaction name="actionRefreshPlugins"/>
     <addaction name="actionRemotePlugin"/>
    </widget>
+   <widget class="QMenu" name="menuFilter">
+    <property name="title">
+     <string>Filter</string>
+    </property>
+    <addaction name="actionNewFilter"/>
+    <addaction name="actionNewFilterGroup"/>
+    <addaction name="actionCopyFilter"/>
+    <addaction name="actionEditFilter"/>
+    <addaction name="actionDeleteFilter"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuDatabase"/>
    <addaction name="menuSelections"/>
+   <addaction name="menuFilter"/>
    <addaction name="menuPlugins"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -756,6 +767,9 @@ Valid if at least one unit with a template is selected.</string>
          <verstretch>3</verstretch>
         </sizepolicy>
        </property>
+       <property name="contextMenuPolicy">
+        <enum>Qt::CustomContextMenu</enum>
+       </property>
        <property name="dragEnabled">
         <bool>true</bool>
        </property>
@@ -781,50 +795,6 @@ Valid if at least one unit with a template is selected.</string>
        </column>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QPushButton" name="newFilterButton">
-       <property name="text">
-        <string>New</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QPushButton" name="copyFilterButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>Copy</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QPushButton" name="editFilterButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>Edit</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QPushButton" name="deleteFilterButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>Delete</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0" colspan="2">
-      <widget class="QPushButton" name="newFilterGroupButton">
-       <property name="text">
-        <string>New Group</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </widget>
   </widget>
@@ -839,6 +809,9 @@ Valid if at least one unit with a template is selected.</string>
     <layout class="QGridLayout" name="gridLayout_11">
      <item row="0" column="0" colspan="2">
       <widget class="QTreeView" name="neoAnalysesTreeView">
+       <property name="contextMenuPolicy">
+        <enum>Qt::CustomContextMenu</enum>
+       </property>
        <property name="uniformRowHeights">
         <bool>true</bool>
        </property>
@@ -2634,7 +2607,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionSave_data">
    <property name="text">
-    <string>Save Data...</string>
+    <string>Save Selected Data as...</string>
    </property>
   </action>
   <action name="actionSettings">
@@ -2747,6 +2720,60 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="shortcut">
     <string>F9</string>
+   </property>
+  </action>
+  <action name="actionNewFilter">
+   <property name="icon">
+    <iconset resource="../../resources/icons.qrc">
+     <normaloff>:/Filter/icons/new-filter.png</normaloff>:/Filter/icons/new-filter.png</iconset>
+   </property>
+   <property name="text">
+    <string>New Filter</string>
+   </property>
+  </action>
+  <action name="actionCopyFilter">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../resources/icons.qrc">
+     <normaloff>:/Filter/icons/copy-filter.png</normaloff>:/Filter/icons/copy-filter.png</iconset>
+   </property>
+   <property name="text">
+    <string>Copy Filter</string>
+   </property>
+  </action>
+  <action name="actionEditFilter">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../resources/icons.qrc">
+     <normaloff>:/Filter/icons/edit-filter.png</normaloff>:/Filter/icons/edit-filter.png</iconset>
+   </property>
+   <property name="text">
+    <string>Edit Filter</string>
+   </property>
+  </action>
+  <action name="actionDeleteFilter">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../resources/icons.qrc">
+     <normaloff>:/Filter/icons/remove-filter.png</normaloff>:/Filter/icons/remove-filter.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete Filter</string>
+   </property>
+  </action>
+  <action name="actionNewFilterGroup">
+   <property name="icon">
+    <iconset resource="../../resources/icons.qrc">
+     <normaloff>:/Filter/icons/new-filter-group.png</normaloff>:/Filter/icons/new-filter-group.png</iconset>
+   </property>
+   <property name="text">
+    <string>New Filter Group</string>
    </property>
   </action>
  </widget>

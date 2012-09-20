@@ -108,6 +108,7 @@ class MainWindowNeo(MainWindow):
             self.restore_state()
             self.reload_plugins()
 
+
     def load_current_selection(self):
         current_selection = os.path.join(
             self.selection_path, '.current.sel')
@@ -297,6 +298,13 @@ class MainWindowNeo(MainWindow):
         self.provider_factory = NeoStoredProvider.from_current_selection
 
     def reload_plugins(self):
+        old_path = None
+        if hasattr(self, 'analysisModel'):
+            item = self.neoAnalysesTreeView.currentIndex()
+            if item:
+                old_path = self.analysisModel.data(item,
+                    self.analysisModel.FilePathRole)
+
         try:
             self.analysisModel = PluginModel()
             for p in self.plugin_paths:
@@ -306,10 +314,17 @@ class MainWindowNeo(MainWindow):
             return
 
         self.neoAnalysesTreeView.setModel(self.analysisModel)
+
+        selected_index = None
+        if old_path:
+            indices = self.analysisModel.get_indices_for_path(old_path)
+            if indices:
+                selected_index = indices[0]
+                self.neoAnalysesTreeView.setCurrentIndex(selected_index)
         self.neoAnalysesTreeView.expandAll()
         self.neoAnalysesTreeView.selectionModel().currentChanged.connect(
             self.selected_analysis_changed)
-        self.selected_analysis_changed(None)
+        self.selected_analysis_changed(selected_index)
 
     def get_letter_id(self, id):
         """ Return a name consisting of letters given an integer
@@ -680,12 +695,16 @@ class MainWindowNeo(MainWindow):
 
     def on_filterTreeWidget_currentItemChanged(self, current):
         enabled = current is not None and \
-                  current.data(1, Qt.UserRole) != MainWindowNeo.FilterTreeRoleTop
-        self.editFilterButton.setEnabled(enabled)
-        self.deleteFilterButton.setEnabled(enabled)
-        self.copyFilterButton.setEnabled(enabled)
+            current.data(1, Qt.UserRole) != MainWindowNeo.FilterTreeRoleTop
+        self.actionEditFilter.setEnabled(enabled)
+        self.actionDeleteFilter.setEnabled(enabled)
+        self.actionCopyFilter.setEnabled(enabled)
 
-    def on_newFilterButton_pressed(self):
+    def on_filterTreeWidget_customContextMenuRequested(self, pos):
+        self.menuFilter.popup(self.filterTreeWidget.mapToGlobal(pos))
+
+    @pyqtSignature("")
+    def on_actionNewFilter_triggered(self):
         item = self.filterTreeWidget.currentItem()
         top = None
         group = None
@@ -702,11 +721,13 @@ class MainWindowNeo(MainWindow):
                 top = item.text(0)
                 group = None
 
-        dialog = FilterDialog(self.filter_group_dict(), type=top, group=group, parent=self)
+        dialog = FilterDialog(self.filter_group_dict(), type=top,
+            group=group, parent=self)
         while dialog.exec_():
             try:
-                self.filter_managers[dialog.type()].add_filter(dialog.name(), dialog.code(),
-                    on_exception=dialog.on_exception(), group_name=dialog.group())
+                self.filter_managers[dialog.type()].add_filter(dialog.name(),
+                    dialog.code(), on_exception=dialog.on_exception(),
+                    group_name=dialog.group())
                 break
             except ValueError as e:
                 QMessageBox.critical(self, 'Error creating filter', str(e))
@@ -716,11 +737,12 @@ class MainWindowNeo(MainWindow):
             self.populate_filter_tree()
             self.filter_populate_function[dialog.type()]()
 
-    def on_deleteFilterButton_pressed(self):
+    @pyqtSignature("")
+    def on_actionDeleteFilter_triggered(self):
         item = self.filterTreeWidget.currentItem()
-        if QMessageBox.question(self, 'Please confirm', 'Do you really want to delete "%s"?' %
-                                                        item.text(0),
-            QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
+        if QMessageBox.question(self, 'Please confirm',
+                'Do you really want to delete "%s"?' % item.text(0),
+                QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
             return
 
         parent = item.parent()
@@ -739,6 +761,14 @@ class MainWindowNeo(MainWindow):
             self.filters_changed = True
             self.populate_filter_tree()
             self.filter_populate_function[top]()
+
+    @pyqtSignature("")
+    def on_actionEditFilter_triggered(self):
+        self.editFilter(False)
+
+    @pyqtSignature("")
+    def on_actionCopyFilter_triggered(self):
+        self.editFilter(True)
 
     def editFilter(self, copy):
         item = self.filterTreeWidget.currentItem()
@@ -782,13 +812,8 @@ class MainWindowNeo(MainWindow):
             self.populate_filter_tree()
             self.filter_populate_function[top]()
 
-    def on_editFilterButton_pressed(self):
-        self.editFilter(False)
-
-    def on_copyFilterButton_pressed(self):
-        self.editFilter(True)
-
-    def on_newFilterGroupButton_pressed(self):
+    @pyqtSignature("")
+    def on_actionNewFilterGroup_triggered(self):
         item = self.filterTreeWidget.currentItem()
         top = None
         if item:
@@ -957,8 +982,7 @@ class MainWindowNeo(MainWindow):
             self.finished.connect(self.cleanup)
 
         def run(self):
-            self.io = neo.io.hdf5io.NeoHdf5IO(filename=self.file_name,
-                update=False)
+            self.io = neo.io.hdf5io.NeoHdf5IO(filename=self.file_name)
             self.io.save(self.block)
 
         def cleanup(self):
@@ -974,7 +998,7 @@ class MainWindowNeo(MainWindow):
         d.setDefaultSuffix('h5')
         d.setConfirmOverwrite(False) # No overwrites, just append to HDF5
         if d.exec_():
-            file_name = str(d.selectedFiles()[0])
+            file_name = unicode(d.selectedFiles()[0])
         else:
             return
 
@@ -1017,6 +1041,9 @@ class MainWindowNeo(MainWindow):
         except SpykeException, err:
             self.progress.done()
             QMessageBox.critical(self, 'Error executing analysis', str(err))
+
+    def on_neoAnalysesTreeView_doubleClicked(self, index):
+        self.on_actionRunPlugin_triggered()
 
     @pyqtSignature("")
     def on_actionEditPlugin_triggered(self):
@@ -1063,3 +1090,6 @@ class MainWindowNeo(MainWindow):
                           type(self.current_plugin()).__name__,
                           self.current_plugin_path(),
                           selections, '-cf', '-c', config])
+
+    def on_neoAnalysesTreeView_customContextMenuRequested(self, pos):
+        self.menuPlugins.popup(self.neoAnalysesTreeView.mapToGlobal(pos))

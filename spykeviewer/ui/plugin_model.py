@@ -87,3 +87,16 @@ class PluginModel(PluginManager, QAbstractItemModel):
             parent_node = parent.internalPointer()
 
         return parent_node.childCount()
+
+    def get_indices_for_path(self, path, parent=None):
+        indices = []
+        if parent is None:
+            parent = self.root
+
+        for i in xrange(parent.childCount()):
+            c = parent.child(i)
+            indices.extend(self.get_indices_for_path(path, c))
+            if c.path == path:
+                indices.append(self.createIndex(i, 0, c))
+
+        return indices

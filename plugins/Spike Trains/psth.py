@@ -22,8 +22,8 @@ class PSTHPlugin(analysis_plugin.AnalysisPlugin):
 
     align_enabled = gui_data.BoolItem('Alignment event enabled',
         default=False).set_prop('display', store=align_prop)
-    align = gui_data.StringItem('Event label',
-        default='lastSt').set_prop('display', active=align_prop)
+    align = gui_data.StringItem(
+        'Event label').set_prop('display', active=align_prop)
     diagram_type = gui_data.ChoiceItem('Type', ('Bar', 'Line'))
 
     def __init__(self):
@@ -31,7 +31,7 @@ class PSTHPlugin(analysis_plugin.AnalysisPlugin):
         self.unit = pq.ms
 
     def get_name(self):
-        return 'Peri Stimulus Time Histogram'
+        return 'Peristimulus Time Histogram'
 
     def start(self, current, selections):
         # Prepare quantities

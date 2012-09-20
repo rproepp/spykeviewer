@@ -97,14 +97,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
     def update_view_menu(self):
-        self.menuBar.clear()
-        self.menuBar.addMenu(self.menuFile)
-        self.menuBar.addMenu(self.menuSelections)
-        self.menuBar.addMenu(self.menuPlugins)
+        if hasattr(self, 'menuView'):
+            a = self.menuView.menuAction()
+            self.mainMenu.removeAction(a)
         self.menuView = self.createPopupMenu()
         self.menuView.setTitle('View')
-        self.menuBar.addMenu(self.menuView)
-        self.menuBar.addMenu(self.menuHelp)
+        self.mainMenu.insertMenu(self.menuHelp.menuAction(), self.menuView)
 
 
     def restore_state(self):
@@ -180,7 +178,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def mode_switch(self):
         if self.is_db_mode():
             self.switch_to_db_mode()
-        if self.is_neo_mode():
+        else:
             self.switch_to_neo_mode()
 
         if self.console:
@@ -456,17 +454,18 @@ plt.ion()
         try:
             f = open(filename, 'r')
             p = json.load(f)
+            f.close()
             for s in p:
                 if s['name'] == '__current__':
                     self.set_current_selection(s)
                 else:
                     self.add_selection(s)
-            f.close()
-            self.populate_selection_menu()
         except Exception, e:
             self.progress.done()
             QMessageBox.critical(self, 'Error loading selection',
                 str(e).decode('utf8'))
+        finally:
+            self.populate_selection_menu()
 
 
     def on_menuFile_triggered(self, action):
