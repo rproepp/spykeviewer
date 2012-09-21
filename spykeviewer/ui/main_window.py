@@ -67,27 +67,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Docks
         self.setCentralWidget(None)
-
-        # A lot of docks are only needed for the internal database mode
-        self.navigationDBDock.setVisible(False)
-        self.filterDBDock.setVisible(False)
-        self.spikeSortingDock.setVisible(False)
-        self.waveformsDock.setVisible(False)
-        self.spikeTrainDock.setVisible(False)
-
-        if not hasattr(self, 'internal_database_mode'):
-            self.removeDockWidget(self.navigationDBDock)
-            self.removeDockWidget(self.filterDBDock)
-            self.removeDockWidget(self.spikeSortingDock)
-            self.removeDockWidget(self.waveformsDock)
-            self.removeDockWidget(self.spikeTrainDock)
-
-            del self.navigationDBDock
-            del self.filterDBDock
-            del self.spikeSortingDock
-            del self.waveformsDock
-            del self.spikeTrainDock
-
         self.update_view_menu()
 
         if not hasattr(self, 'internal_database_mode'):
@@ -451,7 +430,7 @@ plt.ion()
 
 
     def load_selections_from_file(self, filename):
-        try:
+        #try:
             f = open(filename, 'r')
             p = json.load(f)
             f.close()
@@ -460,12 +439,12 @@ plt.ion()
                     self.set_current_selection(s)
                 else:
                     self.add_selection(s)
-        except Exception, e:
-            self.progress.done()
-            QMessageBox.critical(self, 'Error loading selection',
-                str(e).decode('utf8'))
-        finally:
-            self.populate_selection_menu()
+        #except Exception, e:
+        #    self.progress.done()
+        #    QMessageBox.critical(self, 'Error loading selection',
+        #        str(e).decode('utf8'))
+        #finally:
+        #    self.populate_selection_menu()
 
 
     def on_menuFile_triggered(self, action):
