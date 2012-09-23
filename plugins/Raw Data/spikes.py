@@ -4,7 +4,7 @@ import spykeutils.plot
 class SpikePlotPlugin(analysis_plugin.AnalysisPlugin):
     """ Spike Waveform Plot"""
     anti_aliased = gui_data.BoolItem('Antialiased lines (smoothing)',
-                                    default=True)
+                                     default=True)
     plot_type = gui_data.ChoiceItem('Plot type', ('Separate Axes',
                                                  'Split vertically',
                                                  'Split horizontally'))

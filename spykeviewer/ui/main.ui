@@ -75,11 +75,6 @@ QGroupBox::title {
     <addaction name="actionSettings"/>
     <addaction name="actionExit"/>
    </widget>
-   <widget class="QMenu" name="menuDatabase">
-    <property name="title">
-     <string>Data source</string>
-    </property>
-   </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
@@ -117,7 +112,6 @@ QGroupBox::title {
     <addaction name="actionDeleteFilter"/>
    </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuDatabase"/>
    <addaction name="menuSelections"/>
    <addaction name="menuFilter"/>
    <addaction name="menuPlugins"/>

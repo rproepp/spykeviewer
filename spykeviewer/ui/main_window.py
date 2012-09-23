@@ -11,14 +11,15 @@ from PyQt4.QtCore import (Qt, pyqtSignature, SIGNAL, QMimeData,
                           QSettings, QCoreApplication)
 
 from spyderlib.widgets.internalshell import InternalShell
-from spyderlib.widgets.externalshell.namespacebrowser\
-import NamespaceBrowser
+from spyderlib.widgets.externalshell.namespacebrowser import NamespaceBrowser
 from spyderlib.widgets.sourcecode.codeeditor import CodeEditor
+
+from spykeutils.plugin.data_provider import DataProvider
+from spykeutils.plugin.analysis_plugin import AnalysisPlugin
 
 from main_ui import Ui_MainWindow
 from progress_indicator_dialog import ProgressIndicatorDialog
-from spykeutils.plugin.data_provider import DataProvider
-from spykeutils.plugin.analysis_plugin import AnalysisPlugin
+
 
 logger = logging.getLogger('spykeviewer')
 ch = logging.StreamHandler()
@@ -69,12 +70,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setCentralWidget(None)
         self.update_view_menu()
 
-        if not hasattr(self, 'internal_database_mode'):
-            self.restore_state()
-
-        self.mode_switch()
-
-
     def update_view_menu(self):
         if hasattr(self, 'menuView'):
             a = self.menuView.menuAction()
@@ -82,7 +77,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.menuView = self.createPopupMenu()
         self.menuView.setTitle('View')
         self.mainMenu.insertMenu(self.menuHelp.menuAction(), self.menuView)
-
 
     def restore_state(self):
         settings = QSettings()
@@ -134,6 +128,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.remote_script = settings.value('remoteScript')
 
+        self.load_current_selection()
 
     def set_initial_layout(self):
         self.setGeometry(self.x(), self.y(), 800, 750)
@@ -153,26 +148,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tabifyDockWidget(self.consoleDock, self.variableExplorerDock)
         self.tabifyDockWidget(self.variableExplorerDock, self.historyDock)
 
-
-    def mode_switch(self):
-        if self.is_db_mode():
-            self.switch_to_db_mode()
-        else:
-            self.switch_to_neo_mode()
-
-        if self.console:
-            self.console.interpreter.locals['current'] = self.provider
-
-
-    def switch_to_db_mode(self):
-        raise NotImplementedError()
-
-
-    def switch_to_neo_mode(self):
-        raise NotImplementedError()
-
-
-    def _init_python_tab(self):
+    def _init_python(self):
         # Console
         ns = {'current': self.provider, 'selections': self.selections}
         cmds = """
@@ -213,25 +189,14 @@ plt.ion()
         self.console.connect(self.console, SIGNAL("refresh()"),
             self._append_python_history)
 
-
     def _append_python_history(self):
         self.browser.refresh_table()
         self.history.append('\n' + self.console.history[-1])
         self.history.set_cursor_position('eof')
 
-
-    def is_neo_mode(self):
-        return True
-
-
-    def is_db_mode(self):
-        return False
-
-
     @pyqtSignature("")
     def on_actionExit_triggered(self):
         self.close()
-
 
     def on_menuHelp_triggered(self):
         QMessageBox.about(self, 'How to navigate plots',
@@ -240,7 +205,6 @@ plt.ion()
             '\nHome:\tClick middle mouse button' +
             '\n\nAxis synchronization does not work with some actions. ' +
             'Zoom or translate changed plot to synchronize.')
-
 
     def on_menuSelections_mousePressed(self, event):
         if event.button() == Qt.LeftButton:
@@ -256,7 +220,6 @@ plt.ion()
             self.seldrag_target = None
         QMenu.mousePressEvent(self.menuSelections, event)
 
-
     def on_menuSelections_mouseMoved(self, event):
         if event.buttons() & Qt.LeftButton and self.seldrag_start_pos:
             if ((event.pos() - self.seldrag_start_pos).manhattanLength() >=
@@ -270,7 +233,6 @@ plt.ion()
                 self.seldrag_selection = None
                 self.seldrag_target = None
         QMenu.mouseMoveEvent(self.menuSelections, event)
-
 
     def on_menuSelections_paint(self, event):
         QMenu.paintEvent(self.menuSelections, event)
@@ -287,7 +249,6 @@ plt.ion()
             else:
                 p.drawLine(rect.bottomLeft(), rect.bottomRight())
             p.end()
-
 
     def _menuSelections_pos_is_drop_target(self, pos):
         """ Return if selection can be dropped at this position and
@@ -306,7 +267,6 @@ plt.ion()
             self.seldrag_target_upper = False
         return True
 
-
     def on_menuSelections_dragEnter(self, event):
         event.setDropAction(Qt.MoveAction)
         if self._menuSelections_pos_is_drop_target(event.pos()):
@@ -315,7 +275,6 @@ plt.ion()
             event.ignore()
 
         QMenu.dragEnterEvent(self.menuSelections, event)
-
 
     def on_menuSelections_dragMoved(self, event):
         event.setDropAction(Qt.MoveAction)
@@ -326,7 +285,6 @@ plt.ion()
             event.ignore()
 
         QMenu.dragMoveEvent(self.menuSelections, event)
-
 
     def on_menuSelections_drop(self, event):
         source = self.seldrag_selection
@@ -341,7 +299,6 @@ plt.ion()
 
         QMenu.dropEvent(self.menuSelections, event)
 
-
     def populate_selection_menu(self):
         self.menuSelections.clear()
         a = self.menuSelections.addAction('New')
@@ -355,8 +312,7 @@ plt.ion()
             m.menuAction().setData(s)
 
             a = m.addAction('Load')
-            self.connect(a, SIGNAL('triggered()'),
-                lambda sel=s:self.on_selection_load(sel))
+            a.triggered.connect(lambda sel=s:self.on_selection_load(sel))
 
             a = m.addAction('Save')
             self.connect(a, SIGNAL('triggered()'),
@@ -370,10 +326,8 @@ plt.ion()
             self.connect(a, SIGNAL('triggered()'),
                 lambda sel=s:self.on_selection_remove(sel))
 
-
     def on_selection_load(self, selection):
         self.set_current_selection(selection.data_dict())
-
 
     def on_selection_save(self, selection):
         i = self.selections.index(selection)
@@ -397,7 +351,6 @@ plt.ion()
             selection.name = name
             self.populate_selection_menu()
 
-
     def on_selection_remove(self, selection):
         if QMessageBox.question(self, 'Confirmation',
             'Do you really want to remove the selection "%s"?' %
@@ -408,12 +361,10 @@ plt.ion()
         self.selections.remove(selection)
         self.populate_selection_menu()
 
-
     def on_selection_new(self):
-        self.selections.append(self.provider_factory('Selection %d' %
-                                                     (len(self.selections) + 1), self))
+        self.selections.append(self.provider_factory(
+            'Selection %d' % (len(self.selections) + 1), self))
         self.populate_selection_menu()
-
 
     def serialize_selections(self):
         sl = list() # Selection list, current selection as first item
@@ -422,15 +373,13 @@ plt.ion()
             sl.append(s.data_dict())
         return json.dumps(sl, sort_keys=True, indent=2)
 
-
     def save_selections_to_file(self, filename):
         f = open(filename, 'w')
         f.write(self.serialize_selections())
         f.close()
 
-
     def load_selections_from_file(self, filename):
-        #try:
+        try:
             f = open(filename, 'r')
             p = json.load(f)
             f.close()
@@ -439,13 +388,12 @@ plt.ion()
                     self.set_current_selection(s)
                 else:
                     self.add_selection(s)
-        #except Exception, e:
-        #    self.progress.done()
-        #    QMessageBox.critical(self, 'Error loading selection',
-        #        str(e).decode('utf8'))
-        #finally:
-        #    self.populate_selection_menu()
-
+        except Exception, e:
+            self.progress.done()
+            QMessageBox.critical(self, 'Error loading selection',
+                str(type(e).__name__) + ': ' + str(e).decode('utf8'))
+        finally:
+            self.populate_selection_menu()
 
     def on_menuFile_triggered(self, action):
         if action == self.actionSave_selection:
@@ -473,28 +421,19 @@ plt.ion()
 
             self.load_selections_from_file(filename)
 
-
     def set_current_selection(self, data):
-        """ Set the selection of a provider
-        """
-        if data['type'] == 'DB':
-            self.set_db_selection(data)
-        elif data['type'] == 'Neo':
+        if data['type'] == 'Neo':
             self.set_neo_selection(data)
-
+        else:
+            raise NotImplementedError(
+                'This version of Spyke Viewer only supports Neo selections!')
 
     def add_selection(self, data):
-        """ Add a provider with the given data
-        """
-        if data['type'] == 'DB':
-            self.add_db_selection(data)
-        elif data['type'] == 'Neo':
+        if data['type'] == 'Neo':
             self.add_neo_selection(data)
-
-
-    def set_db_selection(self, data):
-        pass
-
+        else:
+            raise NotImplementedError(
+                'This version of Spyke Viewer only supports Neo selections!')
 
     def closeEvent(self, event):
         """ Saves filters and GUI state
@@ -523,21 +462,18 @@ plt.ion()
 
         super(MainWindow, self).closeEvent(event)
 
-
     def on_consoleDock_visibilityChanged(self, visible):
         if visible and not self.console:
-            self._init_python_tab()
-
+            self._init_python()
 
     def on_variableExplorerDock_visibilityChanged(self, visible):
         if visible:
             if not self.console:
-                self._init_python_tab()
+                self._init_python()
             self.browser.refresh_table()
-
 
     def on_historyDock_visibilityChanged(self, visible):
         if visible:
             if not self.console:
-                self._init_python_tab()
+                self._init_python()
             self.history.set_cursor_position('eof')

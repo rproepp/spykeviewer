@@ -13,24 +13,24 @@ from PyQt4.QtGui import (QFileSystemModel, QHeaderView, QListWidgetItem,
 
 from spykeutils.progress_indicator import ignores_cancel
 from spykeutils.spyke_exception import SpykeException
-
-from plugin_model import PluginModel
 from spykeutils.plugin.data_provider_neo import NeoDataProvider
 from spykeutils.plugin.data_provider_stored import NeoStoredProvider
-from ..plugin_framework.filter_manager import FilterManager
 from spykeutils.plugin.analysis_plugin import AnalysisPlugin
+
 from main_window import MainWindow
 from settings import SettingsWindow
 from filter_dialog import FilterDialog
 from filter_group_dialog import FilterGroupDialog
 from plugin_editor_dock import PluginEditorDock
 from checkable_item_delegate import CheckableItemDelegate
+from plugin_model import PluginModel
+from ..plugin_framework.data_provider_viewer import NeoViewerProvider
+from ..plugin_framework.filter_manager import FilterManager
 
-#noinspection PyCallByClass,PyTypeChecker,PyArgumentList
-from spykeviewer.plugin_framework.data_provider_viewer import NeoViewerProvider
 
 logger = logging.getLogger('spykeviewer')
 
+#noinspection PyCallByClass,PyTypeChecker,PyArgumentList
 class MainWindowNeo(MainWindow):
     """ Implements Neo functionality in the main window
     """
@@ -102,12 +102,24 @@ class MainWindowNeo(MainWindow):
             self.reload_plugins)
         self.update_view_menu()
 
-        self.init_neo_mode()
-        if not hasattr(self, 'internal_database_mode'):
-            self.load_current_selection()
-            self.restore_state()
-            self.reload_plugins()
+        # Initialize Neo navigation
+        self.file_system_model = QFileSystemModel()
+        self.file_system_model.setRootPath('')
+        self.fileTreeView.setModel(self.file_system_model)
+        self.fileTreeView.setCurrentIndex(
+            self.file_system_model.index(self.dir))
+        self.fileTreeView.expand(self.file_system_model.index(self.dir))
 
+        self.fileTreeView.setColumnHidden(1, True)
+        self.fileTreeView.setColumnHidden(2, True)
+        self.fileTreeView.setColumnHidden(3, True)
+
+        self.fileTreeView.header().setResizeMode(QHeaderView.ResizeToContents)
+
+        self.activate_neo_mode()
+        self.restore_state()
+
+        self.reload_plugins()
 
     def load_current_selection(self):
         current_selection = os.path.join(
@@ -131,7 +143,8 @@ class MainWindowNeo(MainWindow):
                 target_group = parent.text(0)
             else:
                 target_top = parent.text(0)
-                if target.data(1, Qt.UserRole) == MainWindowNeo.FilterTreeRoleGroup:
+                if target.data(1, Qt.UserRole) == \
+                   MainWindowNeo.FilterTreeRoleGroup:
                     target_group = target.text(0)
                 else:
                     target_group = None
@@ -145,28 +158,33 @@ class MainWindowNeo(MainWindow):
         pos = event.pos()
         pos.setY((pos.y() - target_height / 2))
         item_above_target = self.filterTreeWidget.itemAt(pos)
-        above_target = item_above_target.text(0) if item_above_target else None
+        above_target = item_above_target.text(0) if item_above_target\
+            else None
 
-        item = self.filter_managers[source_top].get_item(source_name, source_group)
+        item = self.filter_managers[source_top].get_item(source_name,
+            source_group)
         try:
-            self.filter_managers[source_top].remove_item(source_name, source_group)
+            self.filter_managers[source_top].remove_item(source_name,
+                source_group)
             if target_group:
-                self.filter_managers[target_top].add_item(item, source_name, target_group)
+                self.filter_managers[target_top].add_item(item, source_name,
+                    target_group)
             else:
                 self.filter_managers[target_top].add_item(item, source_name)
         except ValueError as e:
             QMessageBox.critical(self, 'Error moving item', str(e))
             return
 
-        self.filter_managers[target_top].move_item(source_name, above_target, target_group)
+        self.filter_managers[target_top].move_item(source_name, above_target,
+            target_group)
 
         self.populate_filter_tree()
-
         self.filter_populate_function[source_top]()
 
         self.set_selection_mutex = QMutex()
 
-    # Method injection into the filter tree (to enable custom drag and drop behavior)
+    # Method injection into the filter tree (to enable custom drag and drop
+    # behavior)
     def _filter_drag_move(self, event):
         QAbstractItemView.dragMoveEvent(self.filterTreeWidget, event)
         source = self.filterTreeWidget.currentItem()
@@ -184,13 +202,15 @@ class MainWindowNeo(MainWindow):
         if target_top.parent():
             target_top = target_top.parent()
 
-        if source_top != target_top: # Drag and Drop is only allowed for the same filter type
+        # Drag and Drop is only allowed for the same filter type
+        if source_top != target_top:
             event.ignore()
             return
 
         # Groups can only be dragged to top level
         if source.data(1, Qt.UserRole) == MainWindowNeo.FilterTreeRoleGroup:
-            if target.data(1, Qt.UserRole) == MainWindowNeo.FilterTreeRoleGroup:
+            if target.data(1, Qt.UserRole) == \
+               MainWindowNeo.FilterTreeRoleGroup:
                 event.ignore()
                 return
             if target.parent() != target_top and target != target_top:
@@ -205,10 +225,12 @@ class MainWindowNeo(MainWindow):
             if target != higher_target:
                 event.ignore()
 
-    # Method injection into the filter tree (to enable custom checkable behavior)
+    # Method injection into the filter tree
+    # (to enable custom checkable behavior)
     def _filter_key_released(self, event):
         index = self.filterTreeWidget.currentIndex()
-        if index.data(CheckableItemDelegate.CheckTypeRole) and event.key() == Qt.Key_Space:
+        if index.data(CheckableItemDelegate.CheckTypeRole) and\
+           event.key() == Qt.Key_Space:
             self._switch_check_state(index)
             event.accept()
             # Hack to repaint the whole current item:
@@ -216,12 +238,15 @@ class MainWindowNeo(MainWindow):
         else:
             QTreeWidget.keyReleaseEvent(self.filterTreeWidget, event)
 
-    # Method injection into the filter tree (to enable custom checkable behavior)
+    # Method injection into the filter tree
+    # (to enable custom checkable behavior)
     def _filter_mouse_released(self, event):
         index = self.filterTreeWidget.indexAt(event.pos())
-        if index.data(CheckableItemDelegate.CheckTypeRole) and event.button() == Qt.LeftButton:
+        if index.data(CheckableItemDelegate.CheckTypeRole) and \
+           event.button() == Qt.LeftButton:
             style = QApplication.instance().style()
-            radio_button_width = style.pixelMetric(QStyle.PM_ExclusiveIndicatorWidth)
+            radio_button_width = style.pixelMetric(
+                QStyle.PM_ExclusiveIndicatorWidth)
             spacing = style.pixelMetric(QStyle.PM_RadioButtonLabelSpacing)
 
             item = self.filterTreeWidget.itemFromIndex(index)
@@ -266,7 +291,8 @@ class MainWindowNeo(MainWindow):
                 siblings = (self.filterTreeWidget.topLevelItem(x) for x in \
                     xrange(self.filterTreeWidget.topLevelItemCount()))
             else:
-                siblings = (parent.child(x) for x in xrange(parent.childCount()))
+                siblings = (parent.child(x) for x in \
+                    xrange(parent.childCount()))
 
             for s in siblings:
                 s.setData(0, CheckableItemDelegate.CheckedRole, s == item)
@@ -275,25 +301,7 @@ class MainWindowNeo(MainWindow):
 
         self.filter_populate_function[top]()
 
-    def init_neo_mode(self):
-        if self.file_system_model:
-            return
-
-        self.file_system_model = QFileSystemModel()
-        self.file_system_model.setRootPath('')
-        self.fileTreeView.setModel(self.file_system_model)
-        self.fileTreeView.setCurrentIndex(self.file_system_model.index(self.dir))
-        self.fileTreeView.expand(self.file_system_model.index(self.dir))
-        self.fileTreeView.setRootIndex(self.file_system_model.index(self.dir + '/neodata')) #Debug
-
-        self.fileTreeView.setColumnHidden(1, True)
-        self.fileTreeView.setColumnHidden(2, True)
-        self.fileTreeView.setColumnHidden(3, True)
-
-        self.fileTreeView.header().setResizeMode(QHeaderView.ResizeToContents)
-
-    def switch_to_neo_mode(self):
-        self.menuDatabase.menuAction().setVisible(False)
+    def activate_neo_mode(self):
         self.provider = NeoViewerProvider(self)
         self.provider_factory = NeoStoredProvider.from_current_selection
 
@@ -340,6 +348,7 @@ class MainWindowNeo(MainWindow):
             id /= 26
         return name[::-1]
 
+
     class LoadWorker(QThread):
         def __init__(self, file_name, indices):
             QThread.__init__(self)
@@ -349,6 +358,7 @@ class MainWindowNeo(MainWindow):
 
         def run(self):
             self.blocks = NeoDataProvider.get_blocks(self.file_name, False)
+
 
     @ignores_cancel
     def load_file_callback(self):
@@ -421,7 +431,8 @@ class MainWindowNeo(MainWindow):
         self.load_worker.start()
 
     def is_filtered(self, item, filters):
-        """ Return if one of the filter functions in the given list applies to the given item
+        """ Return if one of the filter functions in the given list
+        applies to the given item
         """
         for f in filters:
             try:
@@ -490,7 +501,8 @@ class MainWindowNeo(MainWindow):
         self.neoChannelGroupList.clear()
         self.channel_group_names.clear()
 
-        filters = self.filter_managers['Recording Channel Group'].get_active_filters()
+        filters = self.filter_managers[
+                  'Recording Channel Group'].get_active_filters()
 
         for item in self.neoBlockList.selectedItems():
             block = item.data(Qt.UserRole)
@@ -499,7 +511,8 @@ class MainWindowNeo(MainWindow):
                 if self.is_filtered(rcg, filters):
                     continue
 
-                self.channel_group_names[rcg] = '%s-%i' % (self.block_ids[rcg.block], i)
+                self.channel_group_names[rcg] = '%s-%i' % (
+                    self.block_ids[rcg.block], i)
                 if rcg.name:
                     name =  rcg.name + ' (%s)' % self.channel_group_names[rcg]
                 else:
@@ -596,13 +609,6 @@ class MainWindowNeo(MainWindow):
     def on_neoUnitList_itemDoubleClicked(self, item):
         print item.data(Qt.UserRole).annotations
 
-    def neo_spike_trains(self):
-        trains = []
-        for item in self.neoSegmentList.selectedItems():
-            s = item.data(Qt.UserRole)
-            trains.extend(s.spiketrains)
-        return trains
-
     def selected_analysis_changed(self, current):
         enabled = True
         if not current:
@@ -655,10 +661,13 @@ class MainWindowNeo(MainWindow):
                 if isinstance(i[1], manager.FilterGroup):
                     group = QTreeWidgetItem(top)
                     group.setText(0, i[0])
-                    group.setData(1, Qt.UserRole, MainWindowNeo.FilterTreeRoleGroup)
-                    group.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable
-                                   | Qt.ItemIsDropEnabled | Qt.ItemIsDragEnabled)
-                    group.setChildIndicatorPolicy(QTreeWidgetItem.ShowIndicator)
+                    group.setData(1, Qt.UserRole,
+                        MainWindowNeo.FilterTreeRoleGroup)
+                    group.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable |
+                                   Qt.ItemIsDropEnabled |
+                                   Qt.ItemIsDragEnabled)
+                    group.setChildIndicatorPolicy(
+                        QTreeWidgetItem.ShowIndicator)
                     if i[1].list_items():
                         group.setExpanded(True)
                     top.addChild(group)
@@ -667,30 +676,41 @@ class MainWindowNeo(MainWindow):
                         item = QTreeWidgetItem(group)
                         item.setText(0, f[0])
                         if f[1].active:
-                            item.setData(0, CheckableItemDelegate.CheckedRole, True)
+                            item.setData(0, CheckableItemDelegate.CheckedRole,
+                                True)
                         else:
-                            item.setData(0, CheckableItemDelegate.CheckedRole, False)
+                            item.setData(0, CheckableItemDelegate.CheckedRole,
+                                False)
                         if i[1].exclusive:
-                            item.setData(0, CheckableItemDelegate.CheckTypeRole,
+                            item.setData(0,
+                                CheckableItemDelegate.CheckTypeRole,
                                 CheckableItemDelegate.RadioCheckType)
                         else:
-                            item.setData(0, CheckableItemDelegate.CheckTypeRole,
+                            item.setData(0,
+                                CheckableItemDelegate.CheckTypeRole,
                                 CheckableItemDelegate.CheckBoxCheckType)
-                        item.setData(1, Qt.UserRole, MainWindowNeo.FilterTreeRoleFilter)
-                        item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable |
+                        item.setData(1, Qt.UserRole,
+                            MainWindowNeo.FilterTreeRoleFilter)
+                        item.setFlags(Qt.ItemIsEnabled |
+                                      Qt.ItemIsSelectable |
                                       Qt.ItemIsDragEnabled)
                         group.addChild(item)
                 else:
                     item = QTreeWidgetItem(top)
                     item.setText(0, i[0])
                     if i[1].active:
-                        item.setData(0, CheckableItemDelegate.CheckedRole, True)
+                        item.setData(0, CheckableItemDelegate.CheckedRole,
+                            True)
                     else:
-                        item.setData(0, CheckableItemDelegate.CheckedRole, False)
+                        item.setData(0, CheckableItemDelegate.CheckedRole,
+                            False)
                     item.setData(0, CheckableItemDelegate.CheckTypeRole,
                         CheckableItemDelegate.CheckBoxCheckType)
-                    item.setData(1, Qt.UserRole, MainWindowNeo.FilterTreeRoleFilter)
-                    item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDragEnabled)
+                    item.setData(1, Qt.UserRole,
+                        MainWindowNeo.FilterTreeRoleFilter)
+                    item.setFlags(Qt.ItemIsEnabled |
+                                  Qt.ItemIsSelectable |
+                                  Qt.ItemIsDragEnabled)
                     top.addChild(item)
 
     def on_filterTreeWidget_currentItemChanged(self, current):
@@ -782,11 +802,13 @@ class MainWindowNeo(MainWindow):
             group = None
         group_items = None
         if item.data(1, Qt.UserRole) == MainWindowNeo.FilterTreeRoleGroup:
-            group_items = self.filter_managers[top].get_group_filters(item.text(0))
+            group_items = self.filter_managers[top].get_group_filters(
+                item.text(0))
 
         if group_items is None:
             f = self.filter_managers[top].get_item(item.text(0), group)
-            dialog = FilterDialog(self.filter_group_dict(), top, group, item.text(0),
+            dialog = FilterDialog(self.filter_group_dict(), top, group,
+                item.text(0),
                 f.code, f.on_exception, self)
         else:
             g = self.filter_managers[top].get_item(item.text(0))
@@ -796,13 +818,14 @@ class MainWindowNeo(MainWindow):
             try:
                 if not copy and item.text(0) != dialog.name():
                     self.filter_managers[top].remove_item(item.text(0), group)
-                if item.data(1, Qt.UserRole) == MainWindowNeo.FilterTreeRoleFilter:
-                    self.filter_managers[top].add_filter(dialog.name(), dialog.code(),
-                        on_exception=dialog.on_exception(), group_name=dialog.group(),
-                        overwrite=True)
+                if item.data(1, Qt.UserRole) == \
+                   MainWindowNeo.FilterTreeRoleFilter:
+                    self.filter_managers[top].add_filter(dialog.name(),
+                        dialog.code(), on_exception=dialog.on_exception(),
+                        group_name=dialog.group(), overwrite=True)
                 else:
-                    self.filter_managers[top].add_group(dialog.name(), dialog.exclusive(),
-                        group_items, overwrite=True)
+                    self.filter_managers[top].add_group(dialog.name(),
+                        dialog.exclusive(), group_items, overwrite=True)
                 break
             except ValueError as e:
                 QMessageBox.critical(self, 'Error saving filter', str(e))
@@ -824,7 +847,8 @@ class MainWindowNeo(MainWindow):
         dialog = FilterGroupDialog(top, parent=self)
         while dialog.exec_():
             try:
-                self.filter_managers[dialog.type()].add_group(dialog.name(), dialog.exclusive())
+                self.filter_managers[dialog.type()].add_group(dialog.name(),
+                    dialog.exclusive())
                 break
             except ValueError as e:
                 QMessageBox.critical(self, 'Error creating group', str(e))
@@ -879,7 +903,8 @@ class MainWindowNeo(MainWindow):
         # Load blocks which are not currently displayed
         i = len(self.block_names)
         for b in data['blocks']:
-            if unicode(b[1]) in self.block_files.values(): # File already loaded
+            # File already loaded?
+            if unicode(b[1]) in self.block_files.values():
                 self.progress.step()
                 continue
 
@@ -972,6 +997,7 @@ class MainWindowNeo(MainWindow):
             unit_idx = unit.recordingchannelgroup.units.index(unit)
             i.setSelected([unit_idx, rcg_idx] in data['units'])
 
+
     class SaveWorker(QThread):
         def __init__(self, file_name, block):
             QThread.__init__(self)
@@ -989,6 +1015,7 @@ class MainWindowNeo(MainWindow):
             if self.io:
                 self.io.close()
                 self.io = None
+
 
     @pyqtSignature("")
     def on_actionSave_data_triggered(self):
@@ -1011,7 +1038,6 @@ class MainWindowNeo(MainWindow):
         self.worker.finished.connect(self.progress.done)
         self.progress.canceled.connect(self.worker.terminate)
         self.worker.start()
-
 
     def on_refreshAnalysesButton_pressed(self):
         self.reload_plugins()
@@ -1050,7 +1076,8 @@ class MainWindowNeo(MainWindow):
         item = self.neoAnalysesTreeView.currentIndex()
         path = ''
         if item:
-            path = self.analysisModel.data(item, self.analysisModel.FilePathRole)
+            path = self.analysisModel.data(item,
+                self.analysisModel.FilePathRole)
         if not path and self.plugin_paths:
             path = self.plugin_paths[0]
         self.pluginEditorDock.add_file(path)
