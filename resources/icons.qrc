@@ -1,0 +1,18 @@
+<RCC>
+  <qresource prefix="Analyses">
+    <file alias="Remote">icons/remote.png</file>
+    <file alias="Config">icons/config.png</file>
+    <file alias="Run">icons/run.png</file>
+    <file alias="Reload">icons/reload.png</file>
+    <file alias="New">icons/new-plugin.png</file>
+    <file alias="Save">icons/filesave.png</file>
+    <file alias="Edit">icons/edit.png</file>
+  </qresource>
+  <qresource prefix="Filter">
+    <file alias="Edit Filter">icons/edit-filter.png</file>
+    <file alias="Copy Filter">icons/copy-filter.png</file>
+    <file alias="Remove Filter">icons/remove-filter.png</file>
+    <file alias="New Filter Group">icons/new-filter-group.png</file>
+    <file alias="New Filter">icons/new-filter.png</file>
+  </qresource>
+</RCC>

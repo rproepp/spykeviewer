@@ -79,7 +79,7 @@ QGroupBox::title {
     <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="actionPlot_navigation"/>
+    <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuSelections">
     <property name="title">
@@ -410,9 +410,9 @@ QGroupBox::title {
     <string>Load Selection Set...</string>
    </property>
   </action>
-  <action name="actionPlot_navigation">
+  <action name="actionAbout">
    <property name="text">
-    <string>Plot navigation</string>
+    <string>About</string>
    </property>
   </action>
   <action name="actionSwitch_Modes">
@@ -556,7 +556,7 @@ QGroupBox::title {
   <action name="actionNewFilter">
    <property name="icon">
     <iconset resource="../../resources/icons.qrc">
-     <normaloff>:/Filter/icons/new-filter.png</normaloff>:/Filter/icons/new-filter.png</iconset>
+     <normaloff>:/Filter/New Filter</normaloff>:/Filter/New Filter</iconset>
    </property>
    <property name="text">
     <string>New Filter</string>
@@ -568,7 +568,7 @@ QGroupBox::title {
    </property>
    <property name="icon">
     <iconset resource="../../resources/icons.qrc">
-     <normaloff>:/Filter/icons/copy-filter.png</normaloff>:/Filter/icons/copy-filter.png</iconset>
+     <normaloff>:/Filter/Copy Filter</normaloff>:/Filter/Copy Filter</iconset>
    </property>
    <property name="text">
     <string>Copy Filter</string>
@@ -580,7 +580,7 @@ QGroupBox::title {
    </property>
    <property name="icon">
     <iconset resource="../../resources/icons.qrc">
-     <normaloff>:/Filter/icons/edit-filter.png</normaloff>:/Filter/icons/edit-filter.png</iconset>
+     <normaloff>:/Filter/Edit Filter</normaloff>:/Filter/Edit Filter</iconset>
    </property>
    <property name="text">
     <string>Edit Filter</string>
@@ -592,7 +592,7 @@ QGroupBox::title {
    </property>
    <property name="icon">
     <iconset resource="../../resources/icons.qrc">
-     <normaloff>:/Filter/icons/remove-filter.png</normaloff>:/Filter/icons/remove-filter.png</iconset>
+     <normaloff>:/Filter/Remove Filter</normaloff>:/Filter/Remove Filter</iconset>
    </property>
    <property name="text">
     <string>Delete Filter</string>
@@ -601,7 +601,7 @@ QGroupBox::title {
   <action name="actionNewFilterGroup">
    <property name="icon">
     <iconset resource="../../resources/icons.qrc">
-     <normaloff>:/Filter/icons/new-filter-group.png</normaloff>:/Filter/icons/new-filter-group.png</iconset>
+     <normaloff>:/Filter/New Filter Group</normaloff>:/Filter/New Filter Group</iconset>
    </property>
    <property name="text">
     <string>New Filter Group</string>

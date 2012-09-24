@@ -198,13 +198,14 @@ plt.ion()
     def on_actionExit_triggered(self):
         self.close()
 
-    def on_menuHelp_triggered(self):
-        QMessageBox.about(self, 'How to navigate plots',
-            'Zoom:\tHold right mouse button' +
-            '\nTranslate:\tHold middle mouse button' +
-            '\nHome:\tClick middle mouse button' +
-            '\n\nAxis synchronization does not work with some actions. ' +
-            'Zoom or translate changed plot to synchronize.')
+    @pyqtSignature("")
+    def on_actionAbout_triggered(self):
+        QMessageBox.about(self, u'About Spyke Viewer',
+            u'Spyke Viewer is an application for navigating, ' +
+            u'analyzing and visualizing electrophysiological datasets.\n\n' +
+            u'Developed by Robert Pr\xf6pper\n' +
+            u'Neural Information Processing Group\n' +
+            u'TU Berlin, Germany')
 
     def on_menuSelections_mousePressed(self, event):
         if event.button() == Qt.LeftButton:
@@ -384,6 +385,8 @@ plt.ion()
             p = json.load(f)
             f.close()
             for s in p:
+                if not s:
+                    continue
                 if s['name'] == '__current__':
                     self.set_current_selection(s)
                 else:
