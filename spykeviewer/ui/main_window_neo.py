@@ -98,8 +98,7 @@ class MainWindowNeo(MainWindow):
         self.pluginEditorDock.setObjectName('editorDock')
         self.addDockWidget(Qt.RightDockWidgetArea, self.pluginEditorDock)
         self.pluginEditorDock.setVisible(False)
-        self.pluginEditorDock.plugin_saved.connect(
-            self.reload_plugins)
+        self.pluginEditorDock.plugin_saved.connect(self.reload_plugins)
         self.update_view_menu()
 
         # Initialize Neo navigation
@@ -118,7 +117,6 @@ class MainWindowNeo(MainWindow):
 
         self.activate_neo_mode()
         self.restore_state()
-
         self.reload_plugins()
 
     def load_current_selection(self):

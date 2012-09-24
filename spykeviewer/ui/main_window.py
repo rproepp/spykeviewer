@@ -313,7 +313,8 @@ plt.ion()
             m.menuAction().setData(s)
 
             a = m.addAction('Load')
-            a.triggered.connect(lambda sel=s:self.on_selection_load(sel))
+            self.connect(a, SIGNAL('triggered()'),
+                lambda sel=s:self.on_selection_load(sel))
 
             a = m.addAction('Save')
             self.connect(a, SIGNAL('triggered()'),
