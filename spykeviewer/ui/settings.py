@@ -18,27 +18,21 @@ class SettingsWindow(QDialog, Ui_Settings):
         for p in plugin_paths:
             self.pathListWidget.addItem(p)
 
-
     def selection_path(self):
         return self.selectionPath.text()
-
 
     def filter_path(self):
         return self.filterPath.text()
 
-
     def data_path(self):
         return self.dataPath.text()
-
 
     def remote_script(self):
         return self.remoteScriptPath.text()
 
-
     def plugin_paths(self):
         return [i.text() for i in self.pathListWidget.findItems('*',
             Qt.MatchWrap | Qt.MatchWildcard)]
-
 
     def _makeDirDialog(self, name):
         d = QFileDialog(self, name, os.getcwd())
@@ -56,7 +50,6 @@ class SettingsWindow(QDialog, Ui_Settings):
         else:
             return
 
-
     def on_changeFilterPathButton_pressed(self):
         d = self._makeDirDialog('Choose filter path')
         if d.exec_() == d.Accepted:
@@ -64,7 +57,6 @@ class SettingsWindow(QDialog, Ui_Settings):
             self.filterPath.setText(filename)
         else:
             return
-
 
     def on_changeDataPathButton_pressed(self):
         d = self._makeDirDialog('Choose data path')
@@ -74,18 +66,15 @@ class SettingsWindow(QDialog, Ui_Settings):
         else:
             return
 
-
     def on_changeRemoteScriptButton_pressed(self):
         d = QFileDialog(self, 'Choose remote script', self.remote_script())
         d.setAcceptMode(QFileDialog.AcceptOpen)
         d.setFileMode(QFileDialog.ExistingFile)
-        d.setNameFilter("Python Files (*.py)")
         if d.exec_() == d.Accepted:
             filename = str(d.selectedFiles()[0])
-            self.dataPath.setText(filename)
+            self.remoteScriptPath.setText(filename)
         else:
             return
-
 
     def on_addPathButton_pressed(self):
         d = self._makeDirDialog('Choose plugin path')
@@ -95,7 +84,6 @@ class SettingsWindow(QDialog, Ui_Settings):
                 self.pathListWidget.addItem(filename)
         else:
             return
-
 
     def on_removePathButton_pressed(self):
         if not self.pathListWidget.currentItem():

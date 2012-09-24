@@ -45,6 +45,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.selections = []
         self.provider = None
         self.plugin_paths = []
+        self.init_python()
 
         # Drag and Drop for selections menu
         self.menuSelections.setAcceptDrops(True)
@@ -121,10 +122,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if hasattr(sys, 'frozen'):
                 path = os.path.dirname(sys.executable)
             else:
-                file_path = os.path.abspath(os.path.dirname(__file__))
-                path = os.path.dirname(os.path.dirname(file_path))
-                path = os.path.join(path, 'bin')
-            self.remote_script = os.path.join(path, 'start_analysis.py')
+                import spykeutils
+                path = os.path.dirname(spykeutils.__file__)
+                path = os.path.join(os.path.abspath(path), 'bin')
+            self.remote_script = os.path.join(path, 'spykeplugin')
         else:
             self.remote_script = settings.value('remoteScript')
 
@@ -148,13 +149,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tabifyDockWidget(self.consoleDock, self.variableExplorerDock)
         self.tabifyDockWidget(self.variableExplorerDock, self.historyDock)
 
-    def _init_python(self):
+    def init_python(self):
+        class StreamDuplicator():
+            def __init__(self, out_list):
+                self.outs = out_list
+
+            def write(self, s):
+                for o in self.outs:
+                    o.write(s)
+
+
         # Console
         ns = {'current': self.provider, 'selections': self.selections}
         cmds = """
 from __future__ import division
 import scipy as sp
 import numpy as np
+import neo
+import quantities as pq
 import matplotlib.pyplot as plt
 import guiqwt
 import guiqwt.pyplot as guiplt
@@ -162,6 +174,7 @@ import guidata
 import spykeutils
 import spykeviewer
 plt.ion()
+guiplt.ion()
 """.split('\n')
         self.console = InternalShell(self.consoleDock, namespace=ns,
             multithreaded=False, commands=cmds, max_line_count=1000)
@@ -188,6 +201,10 @@ plt.ion()
         self.historyDock.setWidget(self.history)
         self.console.connect(self.console, SIGNAL("refresh()"),
             self._append_python_history)
+
+        # Duplicate stdout and stderr
+        sys.stdout = StreamDuplicator([sys.stdout, sys.__stdout__])
+        sys.stderr = StreamDuplicator([sys.stderr, sys.__stderr__])
 
     def _append_python_history(self):
         self.browser.refresh_table()
@@ -466,18 +483,10 @@ plt.ion()
 
         super(MainWindow, self).closeEvent(event)
 
-    def on_consoleDock_visibilityChanged(self, visible):
-        if visible and not self.console:
-            self._init_python()
-
     def on_variableExplorerDock_visibilityChanged(self, visible):
         if visible:
-            if not self.console:
-                self._init_python()
             self.browser.refresh_table()
 
     def on_historyDock_visibilityChanged(self, visible):
         if visible:
-            if not self.console:
-                self._init_python()
             self.history.set_cursor_position('eof')

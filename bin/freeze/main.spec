@@ -4,10 +4,13 @@ import os
 import sys
 import platform
 
-import spykeviewer
 import guidata
 import guiqwt
 import spyderlib
+
+import spykeutils
+import spykeviewer
+
 
 path = os.path.dirname(os.path.dirname(spykeviewer.__file__))
 
@@ -16,10 +19,12 @@ def dir_files(path, rel):
     for p,d,f in os.walk(path):
         relpath = p.replace(path, '')[1:]
         for fname in f:
-            ret.append((os.path.join(rel, relpath, fname), os.path.join(p, fname), 'DATA'))
+            ret.append((os.path.join(rel, relpath, fname),
+                        os.path.join(p, fname), 'DATA'))
     return ret
 
-a = Analysis([os.path.join(path, 'bin', 'freeze', 'dependencies.py'), os.path.join(path, 'bin', 'spykeview.py')],
+a = Analysis([os.path.join(path, 'bin', 'freeze', 'dependencies.py'),
+              os.path.join(path, 'bin', 'spykeviewer')],
              #pathex=[''],
              hiddenimports=[],
              hookspath=None,
@@ -40,29 +45,21 @@ else:
     sys.exit()
 
 pyz = PYZ(a.pure)
-exe = EXE(pyz,
-          a.scripts,
-          exclude_binaries=1,
-          name=exename,
-          debug=False,
-          strip=None,
-          upx=False,
-          console=False)
+exe = EXE(pyz, a.scripts, exclude_binaries=1, name=exename, debug=False,
+          strip=None, upx=False, console=False)
 
-a.datas.extend(dir_files(os.path.join(os.path.dirname(guidata.__file__), 'images'),
-    os.path.join('guidata', 'images')))
-a.datas.extend(dir_files(os.path.join(os.path.dirname(guiqwt.__file__), 'images'),
-    os.path.join('guiqwt', 'images')))
-a.datas.extend(dir_files(os.path.join(os.path.dirname(spyderlib.__file__), 'images'),
-    os.path.join('spyderlib', 'images')))
+a.datas.extend(dir_files(os.path.join(os.path.dirname(guidata.__file__),
+    'images'), os.path.join('guidata', 'images')))
+a.datas.extend(dir_files(os.path.join(os.path.dirname(guiqwt.__file__),
+    'images'), os.path.join('guiqwt', 'images')))
+a.datas.extend(dir_files(os.path.join(os.path.dirname(spyderlib.__file__),
+    'images'), os.path.join('spyderlib', 'images')))
+a.datas.append(('', os.path.join(os.path.dirname(
+    os.path.dirname(spykeutils.__file__)), 'bin', 'spykeplugin'), 'DATA'))
 a.datas.extend(dir_files(os.path.join(path, 'plugins'), 'plugins'))
-coll = COLLECT(exe,
-               a.binaries,
-               a.zipfiles,
-               a.datas,
-               strip=None,
-               upx=False,
-               name=os.path.join('dist', 'main'))
+print a.datas[-15:]
+coll = COLLECT(exe, a.binaries, a.zipfiles, a.datas, strip=None,
+               upx=False, name=os.path.join('dist', 'main'))
                
 if platform.system() == 'Darwin':
     app = BUNDLE(exe, appname='Spyke Viewer', version='0.1.0')
