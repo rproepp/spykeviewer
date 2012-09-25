@@ -8,6 +8,9 @@
     <file alias="Save">icons/filesave.png</file>
     <file alias="Edit">icons/edit.png</file>
   </qresource>
+  <qresource prefix="Application">
+    <file alias="Main">icons/appicon.png</file>
+  </qresource>
   <qresource prefix="Filter">
     <file alias="Edit Filter">icons/edit-filter.png</file>
     <file alias="Copy Filter">icons/copy-filter.png</file>

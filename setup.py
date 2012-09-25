@@ -27,7 +27,8 @@ if __name__ == "__main__":
         install_requires=['guidata', 'guiqwt', 'spyder',
                           'spykeutils[plot,plugin]=='+version],
         entry_points = {
-            'gui_scripts': ['spyke-viewer = spykeviewer.start:main']
+            'gui_scripts':
+                ['spyke-viewer = spykeviewer.plugin.start_plugin:main']
         },
         author='Robert Pröpper',
         maintainer='Robert Pröpper',

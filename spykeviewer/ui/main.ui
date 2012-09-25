@@ -25,6 +25,10 @@
   <property name="windowTitle">
    <string>Spyke Viewer</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../../resources/icons.qrc">
+    <normaloff>:/Application/Main</normaloff>:/Application/Main</iconset>
+  </property>
   <property name="autoFillBackground">
    <bool>false</bool>
   </property>
