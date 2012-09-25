@@ -12,7 +12,23 @@ import spykeutils
 import spykeviewer
 
 
-path = os.path.dirname(os.path.dirname(spykeviewer.__file__))
+viewer_path = os.path.dirname(os.path.dirname(spykeviewer.__file__))
+
+def find_version(path):
+    try:
+
+        f = open(os.path.join(path, 'spykeviewer', '__init__.py'), 'r')
+        try:
+            for line in f:
+                if line.startswith('__version__'):
+                    rval = line.split()[-1][1:-1]
+                    break
+        finally:
+            f.close()
+    except Exception:
+        rval = '0'
+    return rval
+
 
 def dir_files(path, rel):
     ret = []
@@ -23,8 +39,9 @@ def dir_files(path, rel):
                         os.path.join(p, fname), 'DATA'))
     return ret
 
-a = Analysis([os.path.join(path, 'bin', 'freeze', 'dependencies.py'),
-              os.path.join(path, 'bin', 'spykeviewer')],
+
+a = Analysis([os.path.join(viewer_path, 'bin', 'freeze', 'dependencies.py'),
+              os.path.join(viewer_path, 'bin', 'spyke-viewer')],
              #pathex=[''],
              hiddenimports=[],
              hookspath=None,
@@ -56,10 +73,11 @@ a.datas.extend(dir_files(os.path.join(os.path.dirname(spyderlib.__file__),
     'images'), os.path.join('spyderlib', 'images')))
 a.datas.append(('', os.path.join(os.path.dirname(
     os.path.dirname(spykeutils.__file__)), 'bin', 'spykeplugin'), 'DATA'))
-a.datas.extend(dir_files(os.path.join(path, 'plugins'), 'plugins'))
-print a.datas[-15:]
+a.datas.extend(dir_files(os.path.join(viewer_path, 'plugins'), 'plugins'))
+
 coll = COLLECT(exe, a.binaries, a.zipfiles, a.datas, strip=None,
                upx=False, name=os.path.join('dist', 'main'))
                
 if platform.system() == 'Darwin':
-    app = BUNDLE(exe, appname='Spyke Viewer', version='0.1.0')
+    app = BUNDLE(exe, appname='Spyke Viewer',
+        version=find_version(viewer_path))

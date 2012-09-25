@@ -3,7 +3,7 @@ Overview
 
 Spyke Viewer is a multi-platform GUI application for navigating,
 analyzing and visualizing electrophysiological datasets. Based on the
-`neo <http://packages.python.org/neo/>`_ framework, it works with a
+`Neo <http://packages.python.org/neo/>`_ framework, it works with a
 wide variety of data formats.
 
 Dependencies

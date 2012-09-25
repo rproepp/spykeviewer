@@ -6,7 +6,7 @@ import logging
 from PyQt4.QtGui import (QMainWindow, QMessageBox,
                          QApplication, QFileDialog, QInputDialog,
                          QLineEdit, QMenu, QDrag, QPainter, QPen,
-                         QPalette, QDesktopServices)
+                         QPalette, QDesktopServices, QFont)
 from PyQt4.QtCore import (Qt, pyqtSignature, SIGNAL, QMimeData,
                           QSettings, QCoreApplication)
 
@@ -158,28 +158,62 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 for o in self.outs:
                     o.write(s)
 
+        # Fixing autocompletion bugs in the internal shell
+        class FixedInternalShell(InternalShell):
+            def __init__(self, *args, **kwargs):
+                super(FixedInternalShell, self).__init__(*args, **kwargs)
+
+            def show_completion_list(self, completions,
+                                           completion_text="",
+                                           automatic=True):
+                if completions is None:
+                    return
+                super(FixedInternalShell, self).show_completion_list(
+                    completions, completion_text, automatic)
+
+            def get_dir(self, objtxt):
+                if not isinstance(objtxt, (str, unicode)):
+                    return
+                return super(FixedInternalShell, self).get_dir(objtxt)
 
         # Console
-        ns = {'current': self.provider, 'selections': self.selections}
-        cmds = """
-from __future__ import division
-import scipy as sp
-import numpy as np
-import neo
-import quantities as pq
-import matplotlib.pyplot as plt
-import guiqwt
-import guiqwt.pyplot as guiplt
-import guidata
-import spykeutils
-import spykeviewer
-plt.ion()
-guiplt.ion()
-""".split('\n')
-        self.console = InternalShell(self.consoleDock, namespace=ns,
-            multithreaded=False, commands=cmds, max_line_count=1000)
+        import numpy
+        import scipy
+        try:
+            import matplotlib.pyplot as plt
+            pltmsg = 'matplotlib.pyplot as plt, guiqwt.pyplot as guiplt, '
+        except ImportError:
+            import guiqwt.pyplot as plt
+            pltmsg = 'guiqwt.pyplot as plt, '
+        import guiqwt.pyplot as guiplt
+        import quantities
+        import neo
+        import spykeutils
+        plt.ion()
+        guiplt.ion()
+
+        ns = {'current': self.provider, 'selections': self.selections,
+              'np': numpy, 'sp': scipy, 'plt': plt, 'guiplt': guiplt,
+              'pq': quantities, 'neo': neo, 'spykeutils': spykeutils}
+        msg = ('current and selections can be used as in the start() ' +
+        ' method of a plugin.\n\n' +
+        'Modules imported at startup: numpy as np, scipy as sp, ' +
+        pltmsg + 'quantities as pq, neo, spykeutils')
+
+        self.console = FixedInternalShell(self.consoleDock, namespace=ns,
+            multithreaded=False, message=msg, max_line_count=1000)
+        #self.console.clear_terminal()
+
+        font = QFont("Courier new")
+        font.setStyleHint(font.TypeWriter, font.PreferDefault)
+        font.setPointSize(9)
+        self.console.set_font(font)
+        self.console.set_codecompletion_auto(True)
+        self.console.set_calltips(True)
+        self.console.setup_calltips(size=600, font=font)
+        self.console.setup_completion(size=(370, 240), font=font)
+
         self.consoleDock.setWidget(self.console)
-        self.console.clear_terminal()
 
         # Variable browser
         self.browser = NamespaceBrowser(self.variableExplorerDock)

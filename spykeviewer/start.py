@@ -1,5 +1,3 @@
-#! /usr/bin/env python
-
 import sys
 import os
 import platform
@@ -25,13 +23,9 @@ sip.setapi('QVariant', 2)
 
 from PyQt4 import QtGui
 
-if __name__ == "__main__":
-    # If spykeviewer is not on pythonpath, try parent directory
-    try:
-        from spykeviewer.ui.main_window_neo import MainWindowNeo
-    except ImportError:
-        sys.path.insert(0, os.path.abspath(os.pardir))
-        from spykeviewer.ui.main_window_neo import MainWindowNeo
+# The entry point for Spyke Viewer
+def main():
+    from ui.main_window_neo import MainWindowNeo
 
     app = QtGui.QApplication(sys.argv)
     ui = MainWindowNeo()

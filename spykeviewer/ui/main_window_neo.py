@@ -302,6 +302,7 @@ class MainWindowNeo(MainWindow):
     def activate_neo_mode(self):
         self.provider = NeoViewerProvider(self)
         self.provider_factory = NeoStoredProvider.from_current_selection
+        self.console.interpreter.locals['current'] = self.provider
 
     def reload_plugins(self):
         old_path = None
