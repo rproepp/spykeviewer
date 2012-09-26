@@ -220,9 +220,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.browser.set_shellwidget(self.console)
         self.browser.setup(check_all=True, exclude_private=True,
             exclude_uppercase=False, exclude_capitalized=False,
-            exclude_unsupported=True, excluded_names=[],
-            truncate=False, minmax=False, collvalue=False,
-            remote_editing=False, inplace=False, autorefresh=False)
+            exclude_unsupported=False, truncate=False, minmax=False,
+            collvalue=False, remote_editing=False, inplace=False,
+            autorefresh=False,
+            excluded_names=['execfile', 'guiplt', 'help', 'neo', 'np', 'pq',
+                            'plt', 'guiplt', 'raw_input', 'runfile', 'sp',
+                            'spykeutils'])
         self.variableExplorerDock.setWidget(self.browser)
 
         # History
@@ -254,9 +257,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QMessageBox.about(self, u'About Spyke Viewer',
             u'Spyke Viewer is an application for navigating, ' +
             u'analyzing and visualizing electrophysiological datasets.\n\n' +
-            u'Developed by Robert Pr\xf6pper\n' +
+            u'Copyright 2012 \xa9 Robert Pr\xf6pper\n' +
             u'Neural Information Processing Group\n' +
-            u'TU Berlin, Germany')
+            u'TU Berlin, Germany\n\n' +
+            u'Licensed under the terms of the BSD license.\n\n' +
+            u'Icons from the Crystal Project ' +
+            u'(\xa9 2006-2007 Everaldo Coelho)')
 
     def on_menuSelections_mousePressed(self, event):
         if event.button() == Qt.LeftButton:

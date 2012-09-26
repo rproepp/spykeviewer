@@ -21,14 +21,14 @@ def find_version():
 if __name__ == "__main__":
     version = find_version()
     setup(
-        name="Spyke Viewer",
+        name="spykeviewer",
         version=version,
         packages=find_packages(),
         install_requires=['guidata', 'guiqwt', 'spyder',
                           'spykeutils[plot,plugin]=='+version],
         entry_points = {
             'gui_scripts':
-                ['spyke-viewer = spykeviewer.plugin.start_plugin:main']
+                ['spyke-viewer = spykeviewer.start:main']
         },
         author='Robert Pröpper',
         maintainer='Robert Pröpper',

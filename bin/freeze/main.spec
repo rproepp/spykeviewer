@@ -71,9 +71,8 @@ a.datas.extend(dir_files(os.path.join(os.path.dirname(guiqwt.__file__),
     'images'), os.path.join('guiqwt', 'images')))
 a.datas.extend(dir_files(os.path.join(os.path.dirname(spyderlib.__file__),
     'images'), os.path.join('spyderlib', 'images')))
-a.datas.append(('', os.path.join(os.path.dirname(
-    os.path.dirname(spykeutils.__file__)), 'plugin',
-    'start_plugin.py'), 'DATA'))
+a.datas.append(('', os.path.join(os.path.dirname(spykeutils.__file__),
+    'plugin', 'start_plugin.py'), 'DATA'))
 a.datas.extend(dir_files(os.path.join(viewer_path, 'plugins'), 'plugins'))
 
 coll = COLLECT(exe, a.binaries, a.zipfiles, a.datas, strip=None,

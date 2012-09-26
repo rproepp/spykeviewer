@@ -888,6 +888,12 @@ class MainWindowNeo(MainWindow):
             event.accept()
             super(MainWindowNeo, self).closeEvent(event)
 
+            # Prevent lingering threads
+            self.fileTreeView.setModel(None)
+            del self.file_system_model
+            self.neoAnalysesTreeView.setModel(None)
+            del self.analysisModel
+
     def add_neo_selection(self, data):
         """ Adds a new neo selection provider with the given data
         """
