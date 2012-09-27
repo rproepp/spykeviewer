@@ -429,6 +429,9 @@ class MainWindowNeo(MainWindow):
         self.load_progress.show()
         self.load_worker.start()
 
+    def on_fileTreeView_doubleClicked(self, index):
+        self.on_neoLoadFilesButton_pressed()
+
     def is_filtered(self, item, filters):
         """ Return if one of the filter functions in the given list
         applies to the given item
@@ -443,7 +446,7 @@ class MainWindowNeo(MainWindow):
         return False
 
     def populate_neo_block_list(self):
-        """ Fill the block list with appropriate entries. Data slots:
+        """ Fill the block list with appropriate entries.
             Qt.UserRole: The block itself
         """
         self.neoBlockList.clear()

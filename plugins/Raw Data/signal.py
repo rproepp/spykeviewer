@@ -38,7 +38,7 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
             if ans == QMessageBox.No:
                 return
 
-        current.progress.begin('Loading signals...')
+        current.progress.begin('Creating signal plot...')
         if self.domain == 0: # Channel groups
             signals = current.analog_signal_arrays_by_channelgroup_and_segment()
         else: # Single channels
@@ -65,11 +65,11 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
             current.progress.set_status('Loading spikes')
             spikes = current.spikes_by_segment()
 
-        current.progress.done()
-
         # Create a plot for each segment
         for chandict in signals.itervalues():
             for seg, sig in chandict.iteritems():
+                current.progress.begin('Creating signal plot...')
+                current.progress.set_status('Constructing plot')
                 seg_events = None
                 if events and events.has_key(seg):
                     seg_events = events[seg]
@@ -90,10 +90,12 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
                     plot.signal_array(sig, events=seg_events,
                         epochs=seg_epochs, spike_trains=seg_trains,
                         spike_waveforms=seg_spikes, 
-                        spike_train_waveforms=self.st_mode == 2)
+                        spike_train_waveforms=self.st_mode == 2,
+                        progress = current.progress)
                 else: # Single channels
                     for s in sig:
                         plot.signal(s, events=seg_events,
                             epochs=seg_epochs, spike_trains=seg_trains,
                             spike_waveforms=seg_spikes,
-                            spike_train_waveforms=self.st_mode==2)
+                            spike_train_waveforms=self.st_mode==2,
+                            progress=current.progress)

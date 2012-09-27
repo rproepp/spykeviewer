@@ -23,9 +23,11 @@ class ProgressIndicatorDialog(ProgressIndicator, QProgressDialog):
     def begin(self, title='Processing...'):
         self.setWindowTitle(title)
         self.setLabelText('')
-        self.reset()
         self.setValue(0)
-        self.open()
+
+        if not self.isVisible():
+            self.reset()
+            self.open()
 
     def step(self, num_steps = 1):
         if not self.isVisible():
