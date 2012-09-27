@@ -20,6 +20,11 @@ def find_version():
 
 if __name__ == "__main__":
     version = find_version()
+
+    plugin_files = []
+    for path, dirs, files in os.walk('plugins'):
+        plugin_files.append((path, [os.path.join(path,f) for f in files]))
+
     setup(
         name="spykeviewer",
         version=version,
@@ -30,6 +35,8 @@ if __name__ == "__main__":
             'gui_scripts':
                 ['spyke-viewer = spykeviewer.start:main']
         },
+        data_files = plugin_files,
+        zip_safe=False,
         author='Robert Pröpper',
         maintainer='Robert Pröpper',
         description='A multi-platform GUI application for navigating, analyzing and visualizing electrophysiological datasets',
