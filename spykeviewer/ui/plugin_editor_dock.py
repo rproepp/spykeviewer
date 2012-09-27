@@ -35,9 +35,6 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
 
 
     def setupUi(self):
-        self.saveButton = QPushButton('Save', self)
-        self.saveButton.clicked.connect(self.save_current)
-
         self.tabs = QTabWidget()
         self.tabs.setTabsClosable(True)
         self.tabs.tabCloseRequested.connect(self.close_file)
@@ -45,7 +42,6 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         self.content_widget = QWidget()
         layout = QGridLayout(self.content_widget)
         layout.addWidget(self.tabs)
-        layout.addWidget(self.saveButton)
 
         self.setWidget(self.content_widget)
 
