@@ -85,7 +85,7 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
                 seg_spikes = None
                 if spikes and spikes.has_key(seg):
                     seg_spikes = spikes[seg]
-
+                
                 if self.domain == 0: # Channel groups
                     plot.signal_array(sig, events=seg_events,
                         epochs=seg_epochs, spike_trains=seg_trains,

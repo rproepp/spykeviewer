@@ -1,8 +1,11 @@
 import os
 from collections import OrderedDict
 import logging
+import traceback
+import inspect
 
 import neo
+from neo.io.baseio import BaseIO
 
 from PyQt4.QtCore import (Qt, pyqtSignature, QThread, QMutex,
                           QSettings)
@@ -98,7 +101,7 @@ class MainWindowNeo(MainWindow):
         self.pluginEditorDock.setObjectName('editorDock')
         self.addDockWidget(Qt.RightDockWidgetArea, self.pluginEditorDock)
         self.pluginEditorDock.setVisible(False)
-        self.pluginEditorDock.plugin_saved.connect(self.reload_plugins)
+        self.pluginEditorDock.plugin_saved.connect(self.plugin_saved)
         self.update_view_menu()
 
         # Initialize Neo navigation
@@ -332,8 +335,43 @@ class MainWindowNeo(MainWindow):
         self.neoAnalysesTreeView.selectionModel().currentChanged.connect(
             self.selected_analysis_changed)
         self.selected_analysis_changed(selected_index)
+        self.reload_neo_io_plugins()
 
-    def get_letter_id(self, id):
+    def reload_neo_io_plugins(self):
+        for pp in self.plugin_paths:
+            for f in os.listdir(pp):
+                p = os.path.join(pp, f)
+
+                if os.path.isdir(p):
+                    continue
+                if not p.lower().endswith('io.py'):
+                    continue
+
+                exc_globals = {}
+                try:
+                    execfile(p, exc_globals)
+                except Exception:
+                    logger.warning('Error during execution of ' +
+                                   'potential Neo IO file ' + p + ':\n' +
+                                   traceback.format_exc() + '\n')
+
+                for cl in exc_globals.values():
+                    if not inspect.isclass(cl):
+                        continue
+
+                    # Should be a subclass of AnalysisPlugin...
+                    if not issubclass(cl, BaseIO):
+                        continue
+                    # ...but should not be AnalysisPlugin (can happen
+                    # when directly imported)
+                    if cl == BaseIO:
+                        continue
+
+                    if not cl in neo.io.iolist:
+                        neo.io.iolist.append(cl)
+
+
+    def get_letter_id(self, id, small=False):
         """ Return a name consisting of letters given an integer
         """
         if id < 0:
@@ -341,7 +379,10 @@ class MainWindowNeo(MainWindow):
 
         name = ''
         id += 1
-        start = ord('A') - 1
+        if small:
+            start = ord('a') - 1
+        else:
+            start = ord('A') - 1
         while id >= 1:
             name += str(chr(start + (id%26)))
             id /= 26
@@ -513,8 +554,8 @@ class MainWindowNeo(MainWindow):
                 if self.is_filtered(rcg, filters):
                     continue
 
-                self.channel_group_names[rcg] = '%s-%i' % (
-                    self.block_ids[rcg.block], i)
+                self.channel_group_names[rcg] = '%s-%s' % (
+                    self.block_ids[rcg.block], self.get_letter_id(i, True))
                 if rcg.name:
                     name =  rcg.name + ' (%s)' % self.channel_group_names[rcg]
                 else:
@@ -1128,3 +1169,23 @@ class MainWindowNeo(MainWindow):
 
     def on_neoAnalysesTreeView_customContextMenuRequested(self, pos):
         self.menuPlugins.popup(self.neoAnalysesTreeView.mapToGlobal(pos))
+
+    def plugin_saved(self, path):
+        plugin_path = os.path.realpath(path)
+        in_dirs = False
+        for p in self.plugin_paths:
+            dir = os.path.realpath(p)
+            if os.path.commonprefix([plugin_path, p]) == p:
+                in_dirs = True
+                break
+
+        if in_dirs:
+            self.reload_plugins()
+        else:
+            if QMessageBox.question(self, 'Warning',
+                'The file "%s" is not in the currently ' % plugin_path +
+                'valid plugin directories. Do you want to open the directory' +
+                'settings now?',
+                QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
+                return
+            self.on_actionSettings_triggered()

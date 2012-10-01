@@ -5,6 +5,7 @@ from PyQt4.QtCore import Qt, pyqtSignal
 
 from spyderlib.widgets.sourcecode.codeeditor import CodeEditor
 
+
 class PluginEditorDock(QDockWidget):
     """ A dock for editing plugins.
     """
@@ -20,19 +21,17 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         print 'Plugin started.'
 """
 
-    plugin_saved = pyqtSignal()
+    plugin_saved = pyqtSignal(str)
 
     def __init__(self, title='Plugin Editor', parent=None):
         QDockWidget.__init__(self, title, parent)
         self.setupUi()
-
 
     def populate_groups(self):
         self.filterGroupComboBox.clear()
         self.filterGroupComboBox.addItem('')
         for g in sorted(self.groups[self.filterTypeComboBox.currentText()]):
             self.filterGroupComboBox.addItem(g)
-
 
     def setupUi(self):
         self.tabs = QTabWidget()
@@ -44,7 +43,6 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         layout.addWidget(self.tabs)
 
         self.setWidget(self.content_widget)
-
 
     def add_file(self, file_name):
         font = QFont('Some font that does not exist')
@@ -76,8 +74,6 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         self.setVisible(True)
         self.raise_()
 
-
-    #noinspection PyCallByClass,PyTypeChecker,PyArgumentList
     def close_file(self, tab_index):
         if self.tabs.widget(tab_index).file_was_changed:
             fname = os.path.split(self.tabs.widget(tab_index).file_name)[1]
@@ -93,20 +89,17 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         self.tabs.removeTab(tab_index)
         return True
 
-
     def closeEvent(self, event):
         if not self.close_all():
             event.ignore()
         else:
             event.accept()
 
-
     def close_all(self):
         while self.tabs.count():
             if not self.close_file(0):
                 return False
         return True
-
 
     def file_changed(self, editor):
         editor.file_was_changed = True
@@ -117,7 +110,6 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         text = '*' + fname
 
         self.tabs.setTabText(self.tabs.indexOf(editor), text)
-
 
     def code(self):
         return [self.tabs.currentWidget().get_text_line(l)
@@ -132,8 +124,6 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
             return e.msg + ' (Line %d)' % (e.lineno)
         return None
 
-
-    #noinspection PyCallByClass,PyTypeChecker,PyArgumentList
     def save_file(self, editor):
         if not editor:
             return
@@ -161,9 +151,8 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         editor.file_was_changed = False
         fname = os.path.split(editor.file_name)[1]
         self.tabs.setTabText(self.tabs.indexOf(editor), fname)
-        self.plugin_saved.emit()
+        self.plugin_saved.emit(editor.file_name)
         return True
-
 
     def save_current(self):
         editor = self.tabs.currentWidget()
