@@ -9,15 +9,14 @@ import spykeutils.plot.helper as helper
 class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
     """ Signal Plot
     """
-    domain = gui_data.ChoiceItem('Domain', ('Recording Channel Group',
-                                            'Recording Channel'))
+    subplots = gui_data.BoolItem('Use subplots', default=True)
     show_events = gui_data.BoolItem('Show events', default=True)
     show_epochs = gui_data.BoolItem('Show epochs', default=True)
     show_waveforms = gui_data.BoolItem('Show spike waveforms', default=False)
-    st_mode = gui_data.ChoiceItem('Spike Trains', ('Not used',
-                                                   'Show spike events',
-                                                   'Show spike waveforms'),
-                                 default=2)
+    st_mode = gui_data.ChoiceItem('Spike Trains', 
+                                  ('Not used', 'Show spike events',
+                                   'Show spike waveforms'),
+                                  default=2)
     
     def get_name(self):
         return 'Signal Plot'
@@ -78,16 +77,16 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
                 seg_spikes = spikes[seg]
 
             seg_signals = []
-            #if seg in signals:
-            #    seg_signals.extend(signals[seg])
+            if seg in signals:
+                seg_signals.extend(signals[seg])
             if seg in signal_arrays:
                 for sa in signal_arrays[seg]:
                     seg_signals.extend(
                         convert.analog_signals_from_analog_signal_array(sa))
 
-            for s in seg_signals:
-                plot.signal(s, events=seg_events, epochs=seg_epochs, 
-                        spike_trains=seg_trains,
-                        spike_waveforms=seg_spikes,
-                        spike_train_waveforms=self.st_mode==2,
-                        progress=current.progress)
+            plot.signals(seg_signals, events=seg_events, 
+                         epochs=seg_epochs, spike_trains=seg_trains,
+                         spikes=seg_spikes,
+                         spike_train_waveforms=self.st_mode==2,
+                         use_subplots=self.subplots,
+                         progress=current.progress)
