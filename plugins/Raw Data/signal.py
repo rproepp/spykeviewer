@@ -2,47 +2,43 @@ from PyQt4.QtGui import QMessageBox
 
 from spykeutils.plugin import analysis_plugin, gui_data
 from spykeutils.spyke_exception import SpykeException
+import spykeutils.conversions as convert
 import spykeutils.plot as plot
 import spykeutils.plot.helper as helper
 
 class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
     """ Signal Plot
     """
-    domain = gui_data.ChoiceItem('Domain', ('Recording Channel Group',
-                                            'Recording Channel'))
+    subplots = gui_data.BoolItem('Use subplots', default=True)
+    which_signals = gui_data.ChoiceItem('Included signals',
+                                        ('AnalogSignal',
+                                         'AnalogSignalArray', 'Both'),
+                                        default=2)
     show_events = gui_data.BoolItem('Show events', default=True)
     show_epochs = gui_data.BoolItem('Show epochs', default=True)
     show_waveforms = gui_data.BoolItem('Show spike waveforms', default=False)
-    st_mode = gui_data.ChoiceItem('Spike Trains', ('Not used',
-                                                   'Show spike events',
-                                                   'Show spike waveforms'),
-                                 default=2)
+    st_mode = gui_data.ChoiceItem('Spike Trains', 
+                                  ('Not used', 'Show spike events',
+                                   'Show spike waveforms'),
+                                  default=2)
     
     def get_name(self):
         return 'Signal Plot'
 
     @helper.needs_qt
     def start(self, current, selections):
-        if self.domain == 0: # Channel groups
-            num = current.num_analog_signal_arrays()
-        else: # Single channels
-            num = current.num_analog_signals()
-
-        # Handle too little and too much data
-        if num < 1:
+        num_signals = 0
+        if (self.which_signals == 0 or self.which_signals == 2):
+            num_signals += current.num_analog_signals()
+        if self.which_signals > 0:
+            num_signals += current.num_analog_signal_arrays()
+        if num_signals < 1:
             raise SpykeException('No signals selected!')
-        if num > 1:
-            ans = QMessageBox.question(None, 'Caution!',
-                ('Do you really want to create %d plots ' % num) +
-                '(one for each signal)?', QMessageBox.Yes, QMessageBox.No)
-            if ans == QMessageBox.No:
-                return
 
         current.progress.begin('Creating signal plot...')
-        if self.domain == 0: # Channel groups
-            signals = current.analog_signal_arrays_by_channelgroup_and_segment()
-        else: # Single channels
-            signals = current.analog_signals_by_channel_and_segment()
+
+        signal_arrays = current.analog_signal_arrays_by_segment()
+        signals = current.analog_signals_by_segment()
 
         # Load supplemental data
         events = None
@@ -66,36 +62,39 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
             spikes = current.spikes_by_segment()
 
         # Create a plot for each segment
-        for chandict in signals.itervalues():
-            for seg, sig in chandict.iteritems():
-                current.progress.begin('Creating signal plot...')
-                current.progress.set_status('Constructing plot')
-                seg_events = None
-                if events and events.has_key(seg):
-                    seg_events = events[seg]
+        segments = set(signals.keys())
+        segments = segments.union(set(signal_arrays.keys()))
+        for seg in segments:
+            current.progress.begin('Creating signal plot...')
+            current.progress.set_status('Constructing plot')
+            seg_events = None
+            if events and events.has_key(seg):
+                seg_events = events[seg]
 
-                seg_epochs = None
-                if epochs and epochs.has_key(seg):
-                    seg_epochs = epochs[seg]
+            seg_epochs = None
+            if epochs and epochs.has_key(seg):
+                seg_epochs = epochs[seg]
 
-                seg_trains = None
-                if spike_trains and spike_trains.has_key(seg):
-                    seg_trains = spike_trains[seg]
+            seg_trains = None
+            if spike_trains and spike_trains.has_key(seg):
+                seg_trains = spike_trains[seg]
 
-                seg_spikes = None
-                if spikes and spikes.has_key(seg):
-                    seg_spikes = spikes[seg]
+            seg_spikes = None
+            if spikes and spikes.has_key(seg):
+                seg_spikes = spikes[seg]
 
-                if self.domain == 0: # Channel groups
-                    plot.signal_array(sig, events=seg_events,
-                        epochs=seg_epochs, spike_trains=seg_trains,
-                        spike_waveforms=seg_spikes, 
-                        spike_train_waveforms=self.st_mode == 2,
-                        progress = current.progress)
-                else: # Single channels
-                    for s in sig:
-                        plot.signal(s, events=seg_events,
-                            epochs=seg_epochs, spike_trains=seg_trains,
-                            spike_waveforms=seg_spikes,
-                            spike_train_waveforms=self.st_mode==2,
-                            progress=current.progress)
+            seg_signals = []
+            if (self.which_signals == 0 or self.which_signals == 2)\
+                and seg in signals:
+                seg_signals.extend(signals[seg])
+            if self.which_signals > 0 and seg in signal_arrays:
+                for sa in signal_arrays[seg]:
+                    seg_signals.extend(
+                        convert.analog_signals_from_analog_signal_array(sa))
+
+            plot.signals(seg_signals, events=seg_events, 
+                         epochs=seg_epochs, spike_trains=seg_trains,
+                         spikes=seg_spikes,
+                         spike_train_waveforms=self.st_mode==2,
+                         use_subplots=self.subplots,
+                         progress=current.progress)

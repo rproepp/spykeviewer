@@ -102,6 +102,7 @@ QGroupBox::title {
     <addaction name="actionNewPlugin"/>
     <addaction name="actionEditPlugin"/>
     <addaction name="actionSavePlugin"/>
+    <addaction name="actionSavePluginAs"/>
     <addaction name="actionRefreshPlugins"/>
     <addaction name="actionRemotePlugin"/>
    </widget>
@@ -389,6 +390,7 @@ QGroupBox::title {
    <addaction name="actionNewPlugin"/>
    <addaction name="actionEditPlugin"/>
    <addaction name="actionSavePlugin"/>
+   <addaction name="actionSavePluginAs"/>
    <addaction name="actionRefreshPlugins"/>
    <addaction name="actionConfigurePlugin"/>
    <addaction name="actionRunPlugin"/>
@@ -465,9 +467,6 @@ QGroupBox::title {
    </property>
    <property name="toolTip">
     <string>Create a new plugin</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+N</string>
    </property>
   </action>
   <action name="actionEditPlugin">
@@ -609,6 +608,15 @@ QGroupBox::title {
    </property>
    <property name="text">
     <string>New Filter Group</string>
+   </property>
+  </action>
+  <action name="actionSavePluginAs">
+   <property name="icon">
+    <iconset resource="../../resources/icons.qrc">
+     <normaloff>:/Analyses/Save As</normaloff>:/Analyses/Save As</iconset>
+   </property>
+   <property name="text">
+    <string>Save Plugin as...</string>
    </property>
   </action>
  </widget>

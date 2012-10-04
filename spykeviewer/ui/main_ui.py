@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/rob/Spyke/viewer/spykeviewer/ui/main.ui'
 #
-# Created: Tue Sep 25 17:52:40 2012
+# Created: Thu Oct  4 14:03:31 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -287,6 +287,11 @@ class Ui_MainWindow(object):
         icon12.addPixmap(QtGui.QPixmap(_fromUtf8(":/Filter/New Filter Group")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionNewFilterGroup.setIcon(icon12)
         self.actionNewFilterGroup.setObjectName(_fromUtf8("actionNewFilterGroup"))
+        self.actionSavePluginAs = QtGui.QAction(MainWindow)
+        icon13 = QtGui.QIcon()
+        icon13.addPixmap(QtGui.QPixmap(_fromUtf8(":/Analyses/Save As")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionSavePluginAs.setIcon(icon13)
+        self.actionSavePluginAs.setObjectName(_fromUtf8("actionSavePluginAs"))
         self.menuFile.addAction(self.actionSave_selection)
         self.menuFile.addAction(self.actionLoad_selection)
         self.menuFile.addAction(self.actionSwitch_Modes)
@@ -303,6 +308,7 @@ class Ui_MainWindow(object):
         self.menuPlugins.addAction(self.actionNewPlugin)
         self.menuPlugins.addAction(self.actionEditPlugin)
         self.menuPlugins.addAction(self.actionSavePlugin)
+        self.menuPlugins.addAction(self.actionSavePluginAs)
         self.menuPlugins.addAction(self.actionRefreshPlugins)
         self.menuPlugins.addAction(self.actionRemotePlugin)
         self.menuFilter.addAction(self.actionNewFilter)
@@ -323,6 +329,7 @@ class Ui_MainWindow(object):
         self.pluginToolBar.addAction(self.actionNewPlugin)
         self.pluginToolBar.addAction(self.actionEditPlugin)
         self.pluginToolBar.addAction(self.actionSavePlugin)
+        self.pluginToolBar.addAction(self.actionSavePluginAs)
         self.pluginToolBar.addAction(self.actionRefreshPlugins)
         self.pluginToolBar.addAction(self.actionConfigurePlugin)
         self.pluginToolBar.addAction(self.actionRunPlugin)
@@ -365,7 +372,6 @@ class Ui_MainWindow(object):
         self.actionClearSelections.setText(QtGui.QApplication.translate("MainWindow", "Clear", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNewPlugin.setText(QtGui.QApplication.translate("MainWindow", "New Plugin", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNewPlugin.setToolTip(QtGui.QApplication.translate("MainWindow", "Create a new plugin", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionNewPlugin.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+N", None, QtGui.QApplication.UnicodeUTF8))
         self.actionEditPlugin.setText(QtGui.QApplication.translate("MainWindow", "Edit Plugin", None, QtGui.QApplication.UnicodeUTF8))
         self.actionEditPlugin.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+E", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRefreshPlugins.setText(QtGui.QApplication.translate("MainWindow", "Refresh Plugins", None, QtGui.QApplication.UnicodeUTF8))
@@ -383,5 +389,6 @@ class Ui_MainWindow(object):
         self.actionEditFilter.setText(QtGui.QApplication.translate("MainWindow", "Edit Filter", None, QtGui.QApplication.UnicodeUTF8))
         self.actionDeleteFilter.setText(QtGui.QApplication.translate("MainWindow", "Delete Filter", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNewFilterGroup.setText(QtGui.QApplication.translate("MainWindow", "New Filter Group", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSavePluginAs.setText(QtGui.QApplication.translate("MainWindow", "Save Plugin as...", None, QtGui.QApplication.UnicodeUTF8))
 
 import icons_rc
