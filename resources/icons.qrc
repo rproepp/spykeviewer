@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="Analyses">
+    <file alias="Save As">icons/filesaveas.png</file>
     <file alias="Remote">icons/remote.png</file>
     <file alias="Config">icons/config.png</file>
     <file alias="Run">icons/run.png</file>

@@ -1155,6 +1155,10 @@ class MainWindowNeo(MainWindow):
         self.pluginEditorDock.save_current()
 
     @pyqtSignature("")
+    def on_actionSavePluginAs_triggered(self):
+        self.pluginEditorDock.save_current(True)
+
+    @pyqtSignature("")
     def on_actionRemotePlugin_triggered(self):
         import subprocess
         import pickle

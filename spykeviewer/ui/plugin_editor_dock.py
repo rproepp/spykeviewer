@@ -124,10 +124,10 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
             return e.msg + ' (Line %d)' % (e.lineno)
         return None
 
-    def save_file(self, editor):
+    def save_file(self, editor, force_dialog):
         if not editor:
             return
-        if not editor.file_name.endswith('py'):
+        if force_dialog or not editor.file_name.endswith('py'):
             d = QFileDialog(self, 'Choose where to save plugin',
                 self.tabs.currentWidget().file_name)
             d.setAcceptMode(QFileDialog.AcceptSave)
@@ -154,6 +154,6 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         self.plugin_saved.emit(editor.file_name)
         return True
 
-    def save_current(self):
+    def save_current(self, force_dialog=False):
         editor = self.tabs.currentWidget()
-        self.save_file(editor)
+        self.save_file(editor, force_dialog)

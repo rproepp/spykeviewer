@@ -10,6 +10,10 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
     """ Signal Plot
     """
     subplots = gui_data.BoolItem('Use subplots', default=True)
+    which_signals = gui_data.ChoiceItem('Included signals',
+                                        ('AnalogSignal',
+                                         'AnalogSignalArray', 'Both'),
+                                        default=2)
     show_events = gui_data.BoolItem('Show events', default=True)
     show_epochs = gui_data.BoolItem('Show epochs', default=True)
     show_waveforms = gui_data.BoolItem('Show spike waveforms', default=False)
@@ -23,9 +27,12 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
 
     @helper.needs_qt
     def start(self, current, selections):
-        # Handle too little and too much data
-        if current.num_analog_signal_arrays() + \
-            current.num_analog_signals() < 1:
+        num_signals = 0
+        if (self.which_signals == 0 or self.which_signals == 2):
+            num_signals += current.num_analog_signals()
+        if self.which_signals > 0:
+            num_signals += current.num_analog_signal_arrays()
+        if num_signals < 1:
             raise SpykeException('No signals selected!')
 
         current.progress.begin('Creating signal plot...')
@@ -77,9 +84,10 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
                 seg_spikes = spikes[seg]
 
             seg_signals = []
-            if seg in signals:
+            if (self.which_signals == 0 or self.which_signals == 2)\
+                and seg in signals:
                 seg_signals.extend(signals[seg])
-            if seg in signal_arrays:
+            if self.which_signals > 0 and seg in signal_arrays:
                 for sa in signal_arrays[seg]:
                     seg_signals.extend(
                         convert.analog_signals_from_analog_signal_array(sa))
