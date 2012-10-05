@@ -24,7 +24,7 @@ import spykeviewer
 # -- Mocking modules for Read the Docs compatibility ---------------------------
 from mock import MagicMock
 
-MOCK_MODULES = ['neo', 'quantities', 'tables', 'guiqwt', 'guiqwt.builder',
+MOCK_MODULES = ['neo', 'tables', 'guiqwt', 'guiqwt.builder',
                 'guiqwt.baseplot', 'guiqwt.plot', 'guiqwt.curve',
                 'guiqwt.image', 'guiqwt.tools', 'guiqwt.signals',
                 'guiqwt.config', 'PyQt4', 'PyQt4.QtCore', 'PyQt4.QtGui',
