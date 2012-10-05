@@ -16,7 +16,8 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
                                         default=2)
     show_events = gui_data.BoolItem('Show events', default=True)
     show_epochs = gui_data.BoolItem('Show epochs', default=True)
-    show_waveforms = gui_data.BoolItem('Show spike waveforms', default=False)
+    show_waveforms = gui_data.BoolItem('Show spike waveforms', 
+                                       default=False)
     st_mode = gui_data.ChoiceItem('Spike Trains', 
                                   ('Not used', 'Show spike events',
                                    'Show spike waveforms'),
@@ -91,10 +92,17 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
                 for sa in signal_arrays[seg]:
                     seg_signals.extend(
                         convert.analog_signals_from_analog_signal_array(sa))
-
+            
+            if self.st_mode==2:
+                if seg_spikes is None:
+                    seg_spikes = []
+                for st in seg_trains:
+                    if st.waveforms is not None:
+                        seg_spikes.extend(
+                            convert.spikes_from_spike_train(st))
+                seg_trains = None
+                    
             plot.signals(seg_signals, events=seg_events, 
                          epochs=seg_epochs, spike_trains=seg_trains,
-                         spikes=seg_spikes,
-                         spike_train_waveforms=self.st_mode==2,
-                         use_subplots=self.subplots,
+                         spikes=seg_spikes, use_subplots=self.subplots,
                          progress=current.progress)

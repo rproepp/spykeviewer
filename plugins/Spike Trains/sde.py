@@ -62,9 +62,11 @@ class SDEPlugin(analysis_plugin.AnalysisPlugin):
         maximum_kernel = self.maximum_kernel * self.unit
 
         # Load data
-        trains = current.spike_trains_by_unit_and_segment()
+        trains = current.spike_trains_by_unit()
         if self.align_enabled:
             events = current.labeled_events(self.align)
+            for s in events: # Align on first event in each segment
+                events[s] = events[s][0]
         else:
             events = None
 

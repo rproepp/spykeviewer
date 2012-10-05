@@ -1048,21 +1048,27 @@ class MainWindowNeo(MainWindow):
 
 
     class SaveWorker(QThread):
-        def __init__(self, file_name, block):
+        def __init__(self, file_name, blocks):
             QThread.__init__(self)
             self.file_name = file_name
-            self.block = block
+            self.blocks = blocks
             self.io = None
             self.terminated.connect(self.cleanup)
             self.finished.connect(self.cleanup)
 
         def run(self):
-            self.io = neo.io.hdf5io.NeoHdf5IO(filename=self.file_name)
-            self.io.save(self.block)
+            if self.file_name.endswith('.mat'):
+                self.io = neo.io.NeoMatlabIO(filename=self.file_name)
+                self.io.write_block(self.blocks[0])
+            else:
+                self.io = neo.io.NeoHdf5IO(filename=self.file_name)
+                for block in self.blocks:
+                    self.io.save(self.block)
 
         def cleanup(self):
             if self.io:
-                self.io.close()
+                if hasattr(self.io, 'close'):
+                    self.io.close()
                 self.io = None
 
 
@@ -1070,20 +1076,27 @@ class MainWindowNeo(MainWindow):
     def on_actionSave_data_triggered(self):
         d = QFileDialog(self, 'Choose where to save selected data')
         d.setAcceptMode(QFileDialog.AcceptSave)
-        d.setNameFilter("HDF5 files (*.h5)")
-        d.setDefaultSuffix('h5')
-        d.setConfirmOverwrite(False) # No overwrites, just append to HDF5
+        d.setNameFilters(['HDF5 files (*.h5)', 'Matlab files (*.mat)'])
+        #d.setDefaultSuffix('h5')
+        d.setConfirmOverwrite(True)
         if d.exec_():
             file_name = unicode(d.selectedFiles()[0])
         else:
             return
 
         self.progress.begin('Collecting data to save...')
-        block = self.provider.selection_blocks()[0]
+        blocks = self.provider.selection_blocks()
         self.progress.set_ticks(0)
         self.progress.setWindowTitle('Writing data...')
         self.progress.set_status('')
-        self.worker = self.SaveWorker(file_name, block)
+
+        if not file_name.endswith('.h5') and not file_name.endswith('.mat'):
+            if d.selectedFilter().endswith('.mat)'):
+                file_name += '.mat'
+            else:
+                file_name += '.h5'
+
+        self.worker = self.SaveWorker(file_name, blocks)
         self.worker.finished.connect(self.progress.done)
         self.progress.canceled.connect(self.worker.terminate)
         self.worker.start()

@@ -43,9 +43,11 @@ class PSTHPlugin(analysis_plugin.AnalysisPlugin):
 
         # Load data
         current.progress.begin()
-        trains = current.spike_trains_by_unit_and_segment()
+        trains = current.spike_trains_by_unit()
         if self.align_enabled:
             events = current.labeled_events(self.align)
+            for s in events: # Align on first event in each segment
+                events[s] = events[s][0]
         else:
             events = None
 
