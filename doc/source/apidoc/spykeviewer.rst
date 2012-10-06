@@ -11,5 +11,3 @@ Subpackages
 
 .. toctree::
 
-    spykeviewer.plugin_framework
-
