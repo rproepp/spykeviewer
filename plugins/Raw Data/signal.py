@@ -93,7 +93,7 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
                     seg_signals.extend(
                         convert.analog_signals_from_analog_signal_array(sa))
             
-            if self.st_mode==2:
+            if self.st_mode==2 and seg_trains:
                 if seg_spikes is None:
                     seg_spikes = []
                 for st in seg_trains:
