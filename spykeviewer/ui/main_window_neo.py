@@ -15,7 +15,7 @@ from PyQt4.QtGui import (QFileSystemModel, QHeaderView, QListWidgetItem,
                          QFileDialog, QDesktopServices)
 
 from spykeutils.progress_indicator import ignores_cancel
-from spykeutils.spyke_exception import SpykeException
+from spykeutils import SpykeException
 from spykeutils.plugin.data_provider_neo import NeoDataProvider
 from spykeutils.plugin.data_provider_stored import NeoStoredProvider
 from spykeutils.plugin.analysis_plugin import AnalysisPlugin
