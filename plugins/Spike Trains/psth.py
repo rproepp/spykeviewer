@@ -1,7 +1,7 @@
 import quantities as pq
 
 from spykeutils.plugin import analysis_plugin, gui_data
-from spykeutils.plot.psth import psth
+from spykeutils import plot
 
 # Needed for activatable parameters
 stop_prop = gui_data.ValueProp(False)
@@ -51,5 +51,5 @@ class PSTHPlugin(analysis_plugin.AnalysisPlugin):
         else:
             events = None
 
-        psth(trains, events, start, stop, bin_size, self.diagram_type == 0,
-            progress=current.progress)
+        plot.psth(trains, events, start, stop, bin_size, True,
+             self.diagram_type == 0, progress=current.progress)

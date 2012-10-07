@@ -2,7 +2,7 @@ import quantities as pq
 from PyQt4.Qt import QMessageBox
 
 from spykeutils.plugin import analysis_plugin, gui_data
-import spykeutils.plot as plot
+from spykeutils import plot
 
 # Needed for activatable parameters
 stop_prop = gui_data.ValueProp(False)

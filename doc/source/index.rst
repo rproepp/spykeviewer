@@ -1,21 +1,28 @@
 Welcome to the Spyke Viewer documentation!
 ==========================================
 
-Spyke Viewer is a multi-platform GUI application for navigating,
-analyzing and visualizing electrophysiological datasets. Based on the
-:mod:`neo` framework, it works with a wide variety of data formats.
+Spyke Viewer is a multi-platform GUI application for navigating, analyzing and
+visualizing electrophysiological datasets. It is based on the
+`Neo <http://neo.readthedocs.org>`_ framework, which enables it to load a wide
+variety of data formats used in electrophysiology. At its core, Spyke Viewer
+includes functionality for navigating Neo object hierarchies and performing
+operations on them.
 
-Spyke Viewer is written in Python and features a plugin system which
-makes it very easy for users to add new functionality. It already contains
-a number of plugins for common visualizations used in the analysis of
-electrophysiological data.
+A central design goal of Spyke Viewer is flexibility. For this purpose, it
+includes an embedded Python console and a plugin system. It comes with a
+variety of plugins implementing common neuroscientific analyses and plots
+(e.g. rasterplot, peristimulus time histogram, correlogram and signal plot).
+Plugins can be easily created and modified using the integrated Python editor
+or external editors.
 
 Contents:
 
 .. toctree::
    :maxdepth: 2
 
-   intro
+   installation
+   usage
+   extending
    apidoc/spykeviewer
 
 Indices and tables

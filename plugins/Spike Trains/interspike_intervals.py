@@ -1,7 +1,7 @@
 import quantities as pq
 
 from spykeutils.plugin import analysis_plugin, gui_data
-import spykeutils.plot as plot
+from spykeutils import plot
 
 class ISIPlugin(analysis_plugin.AnalysisPlugin):
     bin_size = gui_data.FloatItem('Bin size', 1.0, 0.1, 10000.0, unit='ms')
@@ -19,3 +19,4 @@ class ISIPlugin(analysis_plugin.AnalysisPlugin):
             self.cut_off*pq.ms, self.diagram_type == 0, pq.ms)
 
 
+

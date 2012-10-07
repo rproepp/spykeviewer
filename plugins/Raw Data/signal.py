@@ -1,10 +1,7 @@
-from PyQt4.QtGui import QMessageBox
-
 from spykeutils.plugin import analysis_plugin, gui_data
-from spykeutils.spyke_exception import SpykeException
+from spykeutils import SpykeException
 import spykeutils.conversions as convert
-import spykeutils.plot as plot
-import spykeutils.plot.helper as helper
+from spykeutils import plot
 
 class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
     """ Signal Plot
@@ -26,7 +23,6 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
     def get_name(self):
         return 'Signal Plot'
 
-    @helper.needs_qt
     def start(self, current, selections):
         num_signals = 0
         if (self.which_signals == 0 or self.which_signals == 2):
@@ -106,3 +102,6 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
                          epochs=seg_epochs, spike_trains=seg_trains,
                          spikes=seg_spikes, use_subplots=self.subplots,
                          progress=current.progress)
+            
+            # Only do one plot
+            break

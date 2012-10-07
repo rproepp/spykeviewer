@@ -1,5 +1,5 @@
 from spykeutils.plugin import analysis_plugin, gui_data
-import spykeutils.plot
+from spykeutils import plot
 import spykeutils.conversions as convert
 
 class SpikePlotPlugin(analysis_plugin.AnalysisPlugin):
@@ -40,6 +40,6 @@ class SpikePlotPlugin(analysis_plugin.AnalysisPlugin):
                 else:
                     spikes[u].extend(s)
 
-        spykeutils.plot.spikes(spikes, self.plot_type + 1,
-                               anti_alias=self.anti_aliased, 
-                               progress=current.progress)
+        plot.spikes(spikes, self.plot_type + 1,
+                    anti_alias=self.anti_aliased, 
+                    progress=current.progress)

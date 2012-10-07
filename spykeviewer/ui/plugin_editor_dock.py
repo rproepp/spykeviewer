@@ -44,7 +44,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
 
         self.setWidget(self.content_widget)
 
-    def add_file(self, file_name):
+    def _setup_editor(self):
         font = QFont('Some font that does not exist')
         font.setStyleHint(font.TypeWriter, font.PreferDefault)
         editor = CodeEditor()
@@ -56,15 +56,9 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         editor.setCursor(Qt.IBeamCursor)
         editor.horizontalScrollBar().setCursor(Qt.ArrowCursor)
         editor.verticalScrollBar().setCursor(Qt.ArrowCursor)
-        editor.file_name = file_name
+        return editor
 
-        if file_name.endswith('py'):
-            editor.set_text_from_file(file_name)
-            tab_name = os.path.split(file_name)[1]
-        else:
-            editor.set_text(self.template_code)
-            tab_name = 'New Plugin'
-
+    def _finanlize_new_editor(self, editor, tab_name):
         editor.file_was_changed = False
         editor.textChanged.connect(lambda: self.file_changed(editor))
 
@@ -73,6 +67,24 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
 
         self.setVisible(True)
         self.raise_()
+
+    def new_file(self, path):
+        editor = self._setup_editor()
+        editor.file_name = path
+        editor.set_text(self.template_code)
+        self._finanlize_new_editor(editor, 'New Plugin')
+
+    def add_file(self, file_name):
+        if file_name and not file_name.endswith('py'):
+            QMessageBox.warning(self, 'Cannot load file',
+                'Only Python files are supported for editing')
+            return
+
+        editor = self._setup_editor()
+        editor.file_name = file_name
+        editor.set_text_from_file(file_name)
+        tab_name = os.path.split(file_name)[1]
+        self._finanlize_new_editor(editor, tab_name)
 
     def close_file(self, tab_index):
         if self.tabs.widget(tab_index).file_was_changed:
@@ -83,7 +95,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
                 'Do you want to save "%s" before closing?' % fname,
                 QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
             if ans == QMessageBox.Yes:
-                return self.save_file(self.tabs.widget(tab_index))
+                return self.save_file(self.tabs.widget(tab_index), False)
             elif ans == QMessageBox.Cancel:
                 return False
         self.tabs.removeTab(tab_index)

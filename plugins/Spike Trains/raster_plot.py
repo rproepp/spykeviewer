@@ -1,7 +1,7 @@
 import quantities as pq
 
 from spykeutils.plugin import analysis_plugin, gui_data
-import spykeutils.plot as plot
+from spykeutils import plot
 
 
 class RasterPlotPlugin(analysis_plugin.AnalysisPlugin):
@@ -50,4 +50,4 @@ class RasterPlotPlugin(analysis_plugin.AnalysisPlugin):
                 epochs = [e for seg_epochs in current.epochs().values()
                           for e in seg_epochs]
 
-        plot.raster_plot(d, self.unit, self.show_lines, events, epochs)
+        plot.raster(d, self.unit, self.show_lines, events, epochs)

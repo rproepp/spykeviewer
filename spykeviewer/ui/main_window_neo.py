@@ -104,6 +104,9 @@ class MainWindowNeo(MainWindow):
         self.pluginEditorDock.plugin_saved.connect(self.plugin_saved)
         self.update_view_menu()
 
+        self.consoleDock.edit_script = lambda (path):\
+            self.pluginEditorDock.add_file(path)
+
         # Initialize Neo navigation
         self.file_system_model = QFileSystemModel()
         self.file_system_model.setRootPath('')
@@ -1161,7 +1164,7 @@ class MainWindowNeo(MainWindow):
         path = ''
         if self.plugin_paths:
             path = self.plugin_paths[0]
-        self.pluginEditorDock.add_file(path)
+        self.pluginEditorDock.new_file(path)
 
     @pyqtSignature("")
     def on_actionSavePlugin_triggered(self):

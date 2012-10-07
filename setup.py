@@ -17,6 +17,13 @@ def find_version():
         rval = '0'
     return rval
 
+DESC = """Spyke Viewer is a multi-platform GUI application for navigating,
+analyzing and visualizing electrophysiological datasets. Based on the
+`Neo <http://packages.python.org/neo/>`_ framework, it works with a
+wide variety of data formats.
+
+For more information, see the documentation at
+http://spyke-viewer.readthedocs.org"""
 
 if __name__ == "__main__":
     version = find_version()
@@ -41,7 +48,7 @@ if __name__ == "__main__":
         author='Robert Pröpper',
         maintainer='Robert Pröpper',
         description='A multi-platform GUI application for navigating, analyzing and visualizing electrophysiological datasets',
-        long_description=open('README.rst', 'r').read(),
+        long_description=DESC,
         license='BSD',
         url='https://github.com/rproepp/spykeviewer',
         classifiers=[
