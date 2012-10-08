@@ -1066,7 +1066,7 @@ class MainWindowNeo(MainWindow):
             else:
                 self.io = neo.io.NeoHdf5IO(filename=self.file_name)
                 for block in self.blocks:
-                    self.io.save(self.block)
+                    self.io.save(block)
 
         def cleanup(self):
             if self.io:

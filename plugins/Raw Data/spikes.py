@@ -32,13 +32,10 @@ class SpikePlotPlugin(analysis_plugin.AnalysisPlugin):
                 s = []
                 for st in trains:
                     if st.waveforms is not None:
-                        s.extend(convert.spikes_from_spike_train(st))
+                        s.extend(convert.spike_train_to_spikes(st))
                 if not s:
                     continue
-                if u not in spikes:
-                    spikes[u] = s
-                else:
-                    spikes[u].extend(s)
+                spikes.setdefault(u, []).extend(s)
 
         plot.spikes(spikes, self.plot_type + 1,
                     anti_alias=self.anti_aliased, 

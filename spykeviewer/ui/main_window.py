@@ -7,8 +7,9 @@ from PyQt4.QtGui import (QMainWindow, QMessageBox,
                          QApplication, QFileDialog, QInputDialog,
                          QLineEdit, QMenu, QDrag, QPainter, QPen,
                          QPalette, QDesktopServices, QFont)
+from PyQt4.QtWebKit import QWebView
 from PyQt4.QtCore import (Qt, pyqtSignature, SIGNAL, QMimeData,
-                          QSettings, QCoreApplication)
+                          QSettings, QCoreApplication, QUrl)
 
 from spyderlib.widgets.internalshell import InternalShell
 from spyderlib.widgets.externalshell.namespacebrowser import NamespaceBrowser
@@ -38,7 +39,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QCoreApplication.setApplicationName('Spyke Viewer')
 
         self.setupUi(self)
+        self.web_view = None
         self.dir = os.getcwd()
+
+        # Python console
         self.console = None
         self.progress = ProgressIndicatorDialog(self)
         self.provider_factory = DataProvider
@@ -263,6 +267,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             u'Licensed under the terms of the BSD license.\n\n' +
             u'Icons from the Crystal Project ' +
             u'(\xa9 2006-2007 Everaldo Coelho)')
+
+    @pyqtSignature("")
+    def on_actionDocumentation_triggered(self):
+        if not self.web_view:
+            self.web_view = QWebView(None)
+            self.web_view.setWindowTitle("Spyke Viewer Documentation")
+        self.web_view.load(QUrl("http://spyke-viewer.readthedocs.org"))
+        self.web_view.show()
 
     def on_menuSelections_mousePressed(self, event):
         if event.button() == Qt.LeftButton:

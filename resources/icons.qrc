@@ -10,6 +10,8 @@
     <file alias="Edit">icons/edit.png</file>
   </qresource>
   <qresource prefix="Application">
+    <file alias="Help">icons/help.png</file>
+    <file alias="Info">icons/info.png</file>
     <file alias="Main">icons/appicon.png</file>
   </qresource>
   <qresource prefix="Filter">

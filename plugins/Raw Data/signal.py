@@ -87,7 +87,7 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
             if self.which_signals > 0 and seg in signal_arrays:
                 for sa in signal_arrays[seg]:
                     seg_signals.extend(
-                        convert.analog_signals_from_analog_signal_array(sa))
+                        convert.analog_signal_array_to_analog_signals(sa))
             
             if self.st_mode==2 and seg_trains:
                 if seg_spikes is None:
@@ -95,7 +95,7 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
                 for st in seg_trains:
                     if st.waveforms is not None:
                         seg_spikes.extend(
-                            convert.spikes_from_spike_train(st))
+                            convert.spike_train_to_spikes(st))
                 seg_trains = None
                     
             plot.signals(seg_signals, events=seg_events, 

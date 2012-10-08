@@ -9,11 +9,12 @@ https://github.com/downloads/rproepp/spykeviewer/sampledata.zip
 When you start Spyke Viewer for the first time, you will see the following
 layout:
 
-.. image:: /img/screenshot-initial.png
+.. image:: /img/initial-layout.png
 
 All elements of the user interface are contained in docks and can be
 rearranged to suit your needs. Their layout is saved when you close Spyke
-Viewer.
+Viewer. The "View" menu shows all available docks and panels, you can also
+hide and show them from this menu.
 
 Loading Data
 ------------
@@ -37,13 +38,104 @@ Now that a file was loaded, some entries have appeared in the ``Navigation``
 dock. To understand how to navigate data with Spyke Viewer, you need to know
 the Neo object model. The following picture is a complete representation:
 
+.. image:: /img/neo.svg
 
+The rectangular objects are containers, rounded corners indicate a data
+object. The arrows represent a "contains zero or more" relationship. Note that
+all data objects belong to a segment and some also belong to other objects.
+For example, a SpikeTrain is referenced by both Segment and Unit. A unit often
+represents a single neuron (it is named unit because putative neurons from
+spike sorting are called units), but it could also represent the results of
+a spike detection algorithm and therefore include multiple neurons. Each
+SpikeTrain is specific to one Segment and one Unit, and each Segment or Unit
+could contain many SpikeTrains. For more detailed information on the Neo
+object model, see the
+`Neo documentation <http://neo.readthedocs.org/en/latest/core.html>`_.
+
+In Spyke Viewer, you use the ``Navigation`` dock to select container objects.
+There is a list for each type of container where you can select an arbitrary
+set of entries. You can select multiple entries by clicking and dragging or
+using the control key when clicking. Each list will only show those
+objects of the respective type that are contained in select objects further
+up in the hierarchy. For example, try selecting a different recording channel
+group and observe how the channels and units list change.
+
+.. sidebar:: Rearranging selections
+
+    .. image:: /img/selections-menu.png
+
+The sets of selected objects from all container types is called a selection.
+The selected items you see in the ``Navigation`` dock are called the current
+selection. Selections determine which data will be analyzed by plugins (see
+:ref:`plugins`) and can be accessed by the internal console (see
+:ref:`console`). You can save a selection using the
+"Selections" menu: Click on the menu and then on "New". An additional entry in
+the "Selections" menu called "Selection 1" will appear. Each selection entry
+has a submenu where you can load, save, rename or delete the selection. Try
+selecting something else in the ``Navigation`` dock and creating a new
+selection again. Now try to load your first selection and observe how the
+``Navigation`` dock changes to reflect what you have loaded. If you use the
+entry "Save" from a selection, it will be overwritten with the current
+selection. You can also change the order of the saved selections by dragging
+the entries in the "Selections" menu.
+
+
+
+All saved selections together with the current selection are called a
+selection set. You can save your current selection set as a file (in
+`JSON <http://www.json.org>`_ format, so it can easily be read or edited
+by humans) using "Save Selection Set..." in the "File" menu. When you load
+a selection set, your current selection is replaced by the current selection
+from the file. The other selections in the file are added to your current
+saved selections. If a selection set includes files that are not
+currently loaded, they are opened automatically. When you exit Spyke Viewer,
+your current selection set is saved and will be restored on your next start.
 
 Filters
 -------
 
+.. sidebar:: Example filters
+
+    .. image:: /img/filterdock.png
+
+When dealing with large datasets, it can be inconvenient to create a selection
+from the full lists of containers. The filter system provides a solution to
+this problem. By creating filters, you can determine what objects are
+shown in the ``Navigation`` tab. For example, you might want to temporarily
+exclude RecordingChannelGroups that have no attached units or only display
+Segments with a certain stimulus. Creating filters requires basic knowledge
+of Python and the Neo object model.
+
+You can manage your filters with the ``Filter`` dock and toolbar (which is
+positioned on the upper left in the initial layout). When you start Spyke
+Viewer for the first time, the ``Filter`` dock will be empty. You can create
+a new filter by clicking on "New Filter" in the toolbar (right clicking the
+``Filter`` dock also brings up a menu with available actions). You can choose
+what kind of container objects the filter applies to, the name of the filter
+and its content: a Python function that returns ``True`` if an object should
+be displayed and ``False`` if not. The signature of the function is fixed, so
+you only have to write the body. The "True on exception" checkbox determines
+what happens when the filter function raises an exception: If it is checked,
+an exception will not cause an element to be filtered out, otherwise it will.
+The following picture shows how you would create a filter that hides all units
+that do not have at least two SpikeTrains attached:
+
+.. image:: /img/newfilter.png
+
+You can also create filter groups. They can be used to organize your filters,
+but also have an important second function: You can define groups in which
+only one filter can be active. If another filter in the group is activated,
+the previously active filter will be deactivated. You can choose which filters
+are active in the ``Filter`` dock. The ``Navigation`` dock will be updated
+each time the set of active filters changes. You can also drag and drop
+filters inside the ``Filter`` dock.
+
+.. _plugins:
+
 Using Plugins
 -------------
+
+.. _console:
 
 Using the Console
 -----------------

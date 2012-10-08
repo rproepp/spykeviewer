@@ -38,21 +38,22 @@ their respective dependencies need to be installed:
 * scipy_
 * guiqwt_
 * guidata_
-* tables_ (also known as PyTables)
+* tables_
 * spyder_
 
 Please see the respective websites for instructions on how to install them if
 they are not present on your computer.
 
-**Note:** The current version of Neo in the Python Package Index contains
-some bugs that prevent it from working properly with spykeutils in some
-situations. Please install the latest version directly from GitHub:
-https://github.com/NeuralEnsemble/python-neo
+.. Note::
+    The current version of Neo in the Python Package Index contains
+    some bugs that prevent it from working properly with Spyke Viewer in some
+    situations. Please install the latest version directly from GitHub:
+    https://github.com/rproepp/python-neo
 
-You can download the repository from the GitHub page or clone it using
-git and then install from the resulting folder::
+    You can download the repository from the GitHub page or clone it using
+    git and then install from the resulting folder::
 
-$ python setup.py install
+    $ python setup.py install
 
 spykeviewer
 ###########
