@@ -60,10 +60,6 @@ objects of the respective type that are contained in select objects further
 up in the hierarchy. For example, try selecting a different recording channel
 group and observe how the channels and units list change.
 
-.. sidebar:: Rearranging selections
-
-    .. image:: /img/selections-menu.png
-
 The sets of selected objects from all container types is called a selection.
 The selected items you see in the ``Navigation`` dock are called the current
 selection. Selections determine which data will be analyzed by plugins (see
@@ -77,9 +73,9 @@ selection again. Now try to load your first selection and observe how the
 ``Navigation`` dock changes to reflect what you have loaded. If you use the
 entry "Save" from a selection, it will be overwritten with the current
 selection. You can also change the order of the saved selections by dragging
-the entries in the "Selections" menu.
+the entries in the "Selections" menu:
 
-
+.. image:: /img/selections-menu.png
 
 All saved selections together with the current selection are called a
 selection set. You can save your current selection set as a file (in
@@ -94,9 +90,7 @@ your current selection set is saved and will be restored on your next start.
 Filters
 -------
 
-.. sidebar:: Example filters
-
-    .. image:: /img/filterdock.png
+.. image:: /img/filterdock.png
 
 When dealing with large datasets, it can be inconvenient to create a selection
 from the full lists of containers. The filter system provides a solution to
@@ -109,7 +103,7 @@ of Python and the Neo object model.
 You can manage your filters with the ``Filter`` dock and toolbar (which is
 positioned on the upper left in the initial layout). When you start Spyke
 Viewer for the first time, the ``Filter`` dock will be empty. You can create
-a new filter by clicking on "New Filter" in the toolbar (right clicking the
+a new filter by clicking on "New Filter" in the toolbar (right-clicking the
 ``Filter`` dock also brings up a menu with available actions). You can choose
 what kind of container objects the filter applies to, the name of the filter
 and its content: a Python function that returns ``True`` if an object should
@@ -134,6 +128,14 @@ filters inside the ``Filter`` dock.
 
 Using Plugins
 -------------
+
+Once you have selected data, it is time to analyze it. Spyke Viewer includes
+a number of plugins that enable you to create various plots from your data.
+Select the ``Plugins`` dock (located next to the ``Filter`` dock in the
+initial layout) to see the list of available plugins. To start a plugin,
+simply double-click it or select it and then click on "Run Plugin" in the
+plugin toolbar or menu. You can change the configuration of a plugin by
+clicking on "Configure Plugin" on the plugin toolbar or menu.
 
 .. _console:
 
