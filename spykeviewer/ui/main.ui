@@ -380,7 +380,7 @@ QGroupBox::title {
   </widget>
   <widget class="QToolBar" name="pluginToolBar">
    <property name="windowTitle">
-    <string>Analysis Toolbar</string>
+    <string>Plugin Toolbar</string>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>

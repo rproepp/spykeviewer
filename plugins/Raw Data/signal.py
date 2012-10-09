@@ -2,6 +2,8 @@ from spykeutils.plugin import analysis_plugin, gui_data
 from spykeutils import SpykeException
 import spykeutils.conversions as convert
 from spykeutils import plot
+import neo
+from copy import copy
 
 class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
     """ Signal Plot
@@ -15,6 +17,7 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
     show_epochs = gui_data.BoolItem('Show epochs', default=True)
     show_waveforms = gui_data.BoolItem('Show spike waveforms', 
                                        default=False)
+    template_mode = gui_data.BoolItem('Use first spike as template')
     st_mode = gui_data.ChoiceItem('Spike Trains', 
                                   ('Not used', 'Show spike events',
                                    'Show spike waveforms'),
@@ -80,6 +83,7 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
             if spikes and spikes.has_key(seg):
                 seg_spikes = spikes[seg]
 
+            # Prepare AnalogSignals
             seg_signals = []
             if (self.which_signals == 0 or self.which_signals == 2)\
                 and seg in signals:
@@ -89,13 +93,26 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
                     seg_signals.extend(
                         convert.analog_signal_array_to_analog_signals(sa))
             
+            # Prepare Spike waveforms
             if self.st_mode==2 and seg_trains:
                 if seg_spikes is None:
                     seg_spikes = []
+
+                template_spikes = {}
+                if self.template_mode:
+                    for s in seg_spikes:
+                        if s.unit not in template_spikes:
+                            template_spikes[s.unit] = s
+                    
                 for st in seg_trains:
                     if st.waveforms is not None:
                         seg_spikes.extend(
                             convert.spike_train_to_spikes(st))
+                    elif st.unit in template_spikes:
+                        for t in st:
+                            s = copy(template_spikes[st.unit])
+                            s.time = t
+                            seg_spikes.append(s)
                 seg_trains = None
                     
             plot.signals(seg_signals, events=seg_events, 
@@ -105,3 +122,4 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
             
             # Only do one plot
             break
+        

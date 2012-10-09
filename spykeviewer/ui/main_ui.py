@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/rob/Spyke/viewer/spykeviewer/ui/main.ui'
 #
-# Created: Mon Oct  8 19:06:00 2012
+# Created: Tue Oct  9 13:02:04 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -368,7 +368,7 @@ class Ui_MainWindow(object):
         self.neoFilesDock.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Files", None, QtGui.QApplication.UnicodeUTF8))
         self.neoLoadFilesButton.setText(QtGui.QApplication.translate("MainWindow", "Load", None, QtGui.QApplication.UnicodeUTF8))
         self.filterToolbar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Filter Toolbar", None, QtGui.QApplication.UnicodeUTF8))
-        self.pluginToolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Analysis Toolbar", None, QtGui.QApplication.UnicodeUTF8))
+        self.pluginToolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Plugin Toolbar", None, QtGui.QApplication.UnicodeUTF8))
         self.actionExit.setText(QtGui.QApplication.translate("MainWindow", "Exit", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_selection.setText(QtGui.QApplication.translate("MainWindow", "Save Selection Set...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionLoad_selection.setText(QtGui.QApplication.translate("MainWindow", "Load Selection Set...", None, QtGui.QApplication.UnicodeUTF8))
