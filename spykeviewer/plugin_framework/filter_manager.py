@@ -258,8 +258,16 @@ class FilterManager:
                 raise ValueError('A filter with this name already exists!')
             if not overwrite:
                 raise ValueError('A filter group with this name already exists!')
+
         g = self.FilterGroup(exclusive)
-        g.filters = group_filters if group_filters else OrderedDict()
+        if group_filters:
+            if exclusive:
+                for f in group_filters.itervalues():
+                    f.active = False
+                group_filters.values()[0].active = True
+            g.filters = group_filters
+        else:
+            g.filters = OrderedDict()
         self.filters[name] = g
 
     def add_filter(self, name, code, active=True, on_exception=True, group_name=None, overwrite=False):
