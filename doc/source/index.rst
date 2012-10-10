@@ -22,6 +22,7 @@ Contents:
 
    installation
    usage
+   plugins
    extending
    apidoc/spykeviewer
 

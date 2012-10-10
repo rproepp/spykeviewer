@@ -4,7 +4,10 @@ Usage
 =====
 This section gives a tutorial of the main functionality of Spyke Viewer. To
 follow the examples, you need to download and unpack the sample data file:
-https://github.com/downloads/rproepp/spykeviewer/sampledata.zip
+https://github.com/downloads/rproepp/spykeviewer/sampledata.zip. It contains
+simulated data for two Tetrodes over 4 Trials. For each tetrode, there are
+5 simulated neurons with corresponding spike trains and template waveforms
+included.
 
 When you start Spyke Viewer for the first time, you will see the following
 layout:
@@ -38,7 +41,7 @@ Now that a file was loaded, some entries have appeared in the ``Navigation``
 dock. To understand how to navigate data with Spyke Viewer, you need to know
 the Neo object model. The following picture is a complete representation:
 
-.. image:: /img/neo.svg
+.. image:: /img/neo.png
 
 The rectangular objects are containers, rounded corners indicate a data
 object. The arrows represent a "contains zero or more" relationship. Note that
@@ -79,13 +82,14 @@ the entries in the "Selections" menu:
 
 All saved selections together with the current selection are called a
 selection set. You can save your current selection set as a file (in
-`JSON <http://www.json.org>`_ format, so it can easily be read or edited
-by humans) using "Save Selection Set..." in the "File" menu. When you load
-a selection set, your current selection is replaced by the current selection
-from the file. The other selections in the file are added to your current
-saved selections. If a selection set includes files that are not
-currently loaded, they are opened automatically. When you exit Spyke Viewer,
-your current selection set is saved and will be restored on your next start.
+`JSON <http://www.json.org>`_ format, so it can easily be read and edited
+by humans or other software) using "Save Selection Set..." in the "File" menu.
+When you load a selection set, your current selection is replaced by the
+current selection from the file. The other selections in the file are added
+to your current saved selections. If a selection set includes files that are
+not currently loaded, they are opened automatically. When you exit Spyke
+Viewer, your current selection set is saved and will be restored on your
+next start.
 
 Filters
 -------
@@ -122,9 +126,10 @@ only one filter can be active. If another filter in the group is activated,
 the previously active filter will be deactivated. You can choose which filters
 are active in the ``Filter`` dock. The ``Navigation`` dock will be updated
 each time the set of active filters changes. You can also drag and drop
-filters inside the ``Filter`` dock.
+filters inside the ``Filter`` dock. All your filters and their activation are
+saved when you exit Spyke Viewer.
 
-.. _plugins:
+.. _usingplugins:
 
 Using Plugins
 -------------
@@ -134,8 +139,20 @@ a number of plugins that enable you to create various plots from your data.
 Select the ``Plugins`` dock (located next to the ``Filter`` dock in the
 initial layout) to see the list of available plugins. To start a plugin,
 simply double-click it or select it and then click on "Run Plugin" in the
-plugin toolbar or menu. You can change the configuration of a plugin by
-clicking on "Configure Plugin" on the plugin toolbar or menu.
+plugin toolbar or menu.
+
+For example, if you start the "Signal Plot" plugin, it will create a plot of
+selected analog signals. Try selecting Segment 3, Tetrode 2 and Channels 3
+and 4. When you now start the plugin, you will see the signals of the selected
+channels in Segment 3. Now select some units and then open the plugin
+configuration by clicking on "Configure Plugin" on the plugin toolbar or
+menu. Select "Show Spikes" and set "Display" to "Lines". When you now start
+the plugin, you will see the analog signals and the spike times of your
+selected units. Go to the configuration again, set "Display" to  "Waveforms"
+and check "Use first spike as template". After another run of the plugin,
+you will see the template spike waveforms overlaid on the analog signals. To
+learn more about the included plugins and how to use them, go to
+:ref:`plugins`.
 
 .. _console:
 
