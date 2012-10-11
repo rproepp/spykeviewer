@@ -29,8 +29,9 @@ if __name__ == "__main__":
     version = find_version()
 
     plugin_files = []
-    for path, dirs, files in os.walk('plugins'):
-        plugin_files.append((path, [os.path.join(path,f) for f in files]))
+    for path, dirs, files in os.walk(os.path.join('spykeviewer', 'plugins')):
+        p = path.split(os.sep, 1)[1]
+        plugin_files.extend([os.path.join(p,f) for f in files])
 
     setup(
         name="spykeviewer",
@@ -43,7 +44,7 @@ if __name__ == "__main__":
             'gui_scripts':
                 ['spyke-viewer = spykeviewer.start:main']
         },
-        data_files = plugin_files,
+        package_data = {'': plugin_files},
         zip_safe=False,
         author='Robert Pröpper',
         maintainer='Robert Pröpper',

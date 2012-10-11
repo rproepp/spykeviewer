@@ -97,8 +97,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 module_path = os.path.dirname(sys.executable)
             else:
                 file_path = os.path.abspath(os.path.dirname(__file__))
-                module_path = os.path.dirname(os.path.dirname(file_path))
+                module_path = os.path.dirname(file_path)
             plugin_path = os.path.join(module_path, 'plugins')
+
             if os.path.isdir(plugin_path):
                 self.plugin_paths.append(plugin_path)
         else:
@@ -257,14 +258,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     @pyqtSignature("")
     def on_actionAbout_triggered(self):
-        QMessageBox.about(self, u'About Spyke Viewer',
-            u'Spyke Viewer is an application for navigating, ' +
-            u'analyzing and visualizing electrophysiological datasets.\n\n' +
-            u'Copyright 2012 \xa9 Robert Pr\xf6pper\n' +
-            u'Neural Information Processing Group\n' +
-            u'TU Berlin, Germany\n\n' +
-            u'Licensed under the terms of the BSD license.\n\n' +
-            u'Icons from the Crystal Project ' +
+        from .. import __version__
+
+        QMessageBox.about(self, u'About Spyke Viewer ' + __version__,
+            u'Spyke Viewer is an application for navigating, '
+            u'analyzing and visualizing electrophysiological datasets.\n\n'
+            u'Copyright 2012 \xa9 Robert Pr\xf6pper\n'
+            u'Neural Information Processing Group\n'
+            u'TU Berlin, Germany\n\n'
+            u'Licensed under the terms of the BSD license.\n\n'
+            u'Icons from the Crystal Project '
             u'(\xa9 2006-2007 Everaldo Coelho)')
 
     @pyqtSignature("")

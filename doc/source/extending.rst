@@ -2,11 +2,15 @@
 
 Extending Spyke Viewer
 ======================
-How to make it do more!
+There are two ways of extending Spyke Viewer: Analysis plugins and IO plugins.
+Both are created by placing a Python file with an appropriate class into one
+of the plugin directories defined in the :ref:`settings`. This section
+describes how to create them.
 
 Analysis plugins
 ----------------
-Creating a plugin by example. Links to spykeutils docs.
+
+Guide with example coming soon...
 
 .. _ioplugins:
 

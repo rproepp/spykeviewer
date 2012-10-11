@@ -8,11 +8,3 @@ wide variety of data formats.
 
 For more information, see the documentation at
 http://spyke-viewer.readthedocs.org
-
-Dependencies
-============
-* A least Python 2.7
-* spykeutils
-* guiqwt
-* guidata
-* PyTables
