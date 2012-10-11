@@ -137,7 +137,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.load_current_selection()
 
     def set_initial_layout(self):
-        self.setGeometry(self.x(), self.y(), 800, 750)
+        self.resize(800, 750)
         self.navigationNeoDock.setVisible(True)
 
         self.removeDockWidget(self.filterDock)

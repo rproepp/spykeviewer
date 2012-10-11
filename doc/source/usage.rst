@@ -200,8 +200,9 @@ Note that the variables used in these lines have now appeared in the
 Settings
 --------
 
-The Spyke Viewer settings can be accessed by opening the "View" menu and
-selecting "Settings". You can adjust various paths in the settings:
+The Spyke Viewer settings can be accessed by opening the "File" menu and
+selecting "Settings" (on OS X, open the "Spyke Viewer" menu and select
+"Preferences"). You can adjust various paths in the settings:
 
 **Selection path**
     The path where your selections are stored when you exit Spyke Viewer. This

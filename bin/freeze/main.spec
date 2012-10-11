@@ -12,7 +12,8 @@ import spykeutils
 import spykeviewer
 
 
-viewer_path = os.path.dirname(os.path.dirname(spykeviewer.__file__))
+module_path = os.path.dirname(spykeviewer.__file__)
+viewer_path = os.path.dirname(module_path)
 
 def find_version(path):
     try:
@@ -73,7 +74,7 @@ a.datas.extend(dir_files(os.path.join(os.path.dirname(spyderlib.__file__),
     'images'), os.path.join('spyderlib', 'images')))
 a.datas.append(('', os.path.join(os.path.dirname(spykeutils.__file__),
     'plugin', 'start_plugin.py'), 'DATA'))
-a.datas.extend(dir_files(os.path.join(viewer_path, 'plugins'), 'plugins'))
+a.datas.extend(dir_files(os.path.join(module_path, 'plugins'), 'plugins'))
 
 coll = COLLECT(exe, a.binaries, a.zipfiles, a.datas, strip=None,
                upx=False, name=os.path.join('dist', 'main'))
