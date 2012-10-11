@@ -140,6 +140,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.resize(800, 750)
         self.navigationNeoDock.setVisible(True)
 
+        self.neoFilesDock.setMinimumSize(100, 100)
         self.removeDockWidget(self.filterDock)
         self.removeDockWidget(self.analysisDock)
         self.addDockWidget(Qt.RightDockWidgetArea, self.filterDock)
