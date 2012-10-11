@@ -35,6 +35,8 @@ formats that have a
 to use a file format that is not supported by Neo, you can write a plugin:
 :ref:`ioplugins`.
 
+.. _selections:
+
 Selections
 ----------
 Now that a file was loaded, some entries have appeared in the ``Navigation``
@@ -139,7 +141,9 @@ a number of plugins that enable you to create various plots from your data.
 Select the ``Plugins`` dock (located next to the ``Filter`` dock in the
 initial layout) to see the list of available plugins. To start a plugin,
 simply double-click it or select it and then click on "Run Plugin" in the
-plugin toolbar or menu.
+plugin toolbar or menu. You can also start a plugin in a different process
+(so that you can continue using Spyke Viewer while the plugin is busy) by
+selecting "Start with Remote Script" in the "Plugins" menu.
 
 For example, if you start the "Signal Plot" plugin, it will create a plot of
 selected analog signals. Try selecting Segment 3, Tetrode 2 and Channels 3
@@ -159,7 +163,75 @@ learn more about the included plugins and how to use them, go to
 Using the Console
 -----------------
 
+With the integrated console, you can use the full power of Python in Spyke
+Viewer, with access to your selected data. Open the ``Console`` dock by
+clicking on the "View" menu and selecting "Console". You can explore your
+workspace using the ``Variable Explorer`` dock and view your previous
+commands with the ``Command History`` dock. Some packages like scipy_ and
+:mod:`neo` are imported on startup, the message in the console shows which.
+The console features autocompletion (press the Tab key to complete with the
+selected entry) and docstring popups.
+
+The most important objects in the console environment are ``current`` and
+``selections``. ``current`` gives you access to your currently selected data,
+``selections`` contains all stored selections (which you can manage using
+the "Selections" menu, see selections_). For example,
+
+>>> current.spike_trains()
+
+gives a list of your currently selected spike trains. Both ``current`` and
+the entries of ``selections`` are
+:class:`spykeutils.plugin.data_provider.DataProvider` objects, refer to the
+documentation for details of the methods provided by this class.
+
+As an example, to view the total amount of spikes in your selected spike
+trains for each trial, enter the following lines:
+
+>>> trains = current.spike_trains_by_segment()
+>>> for s, st in trains.iteritems():
+...     print s.name, '-', sum((len(train) for train in st)), 'spikes'
+
+Note that the variables used in these lines have now appeared in the
+``Variable Explorer`` dock.
+
+
 .. _settings:
 
 Settings
 --------
+
+The Spyke Viewer settings can be accessed by opening the "View" menu and
+selecting "Settings". You can adjust various paths in the settings:
+
+**Selection path**
+    The path where your selections are stored when you exit Spyke Viewer. This
+    is also the default directory when using "Save Selection Set..." or
+    "Load Selection Set.." in the "File" menu.
+
+**Filter path**
+    The directory where your filter hierarchy and activation states are stored
+    when you exit Spyke Viewer. Your filters are stored as regular Python
+    files with some special annotation comments, so you can edit them in your
+    favourite editor.
+
+**Data path**
+    This directory is important when you are using the data storage features
+    of :class:`spykeutils.plugin.analysis_plugin.AnalysisPlugin`.
+
+**Remote script**
+    A script file that is executed when you use "Start with remote script"
+    action for a plugin. The default script simply starts the plugin locally,
+    but you can write a different script for other purposes, e.g. starting it
+    on a server.
+
+**Plugin paths**
+    These are the search paths for plugins. They will be recursively searched
+    for Python files containing AnalysisPlugin classes. Subdirectories will be
+    displayed as nodes in the ``Plugins`` dock.
+
+    In addition, your IO plugins also have to stored be in one of the plugin
+    paths. The search for IO plugins is not recursive, so you have to put
+    them directly into one of the paths in this list.
+
+
+.. _`scipy`: http://scipy.org/

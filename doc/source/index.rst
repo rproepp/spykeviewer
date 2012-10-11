@@ -24,7 +24,6 @@ Contents:
    usage
    plugins
    extending
-   apidoc/spykeviewer
 
 Indices and tables
 ==================

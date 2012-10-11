@@ -73,7 +73,7 @@ https://github.com/rproepp/spykeviewer.
 The master branch (selected by default) always contains the current stable
 version. If you want the latest development version (not recommended unless
 you need some features that do not exist in the stable version yet), select
-the development branch. You can download the repository from the GitHub page
+the develop branch. You can download the repository from the GitHub page
 or clone it using git and then install from the resulting folder::
 
 $ python setup.py install

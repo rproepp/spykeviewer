@@ -199,9 +199,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ns = {'current': self.provider, 'selections': self.selections,
               'np': numpy, 'sp': scipy, 'plt': plt, 'guiplt': guiplt,
               'pq': quantities, 'neo': neo, 'spykeutils': spykeutils}
-        msg = ('current and selections can be used as in the start() ' +
-        ' method of a plugin.\n\n' +
-        'Modules imported at startup: numpy as np, scipy as sp, ' +
+        msg = ('current and selections can be used to access selected data'
+        '\n\nModules imported at startup: numpy as np, scipy as sp, ' +
         pltmsg + 'quantities as pq, neo, spykeutils')
 
         self.console = FixedInternalShell(self.consoleDock, namespace=ns,
