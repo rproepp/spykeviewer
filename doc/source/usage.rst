@@ -63,7 +63,16 @@ set of entries. You can select multiple entries by clicking and dragging or
 using the control key when clicking. Each list will only show those
 objects of the respective type that are contained in select objects further
 up in the hierarchy. For example, try selecting a different recording channel
-group and observe how the channels and units list change.
+group and observe how the channels and units list change. To help you
+navigate, all objects in the ``Navigation`` tab are automatically assigned a
+unique identifier which includes the identifier of containing objects. The
+identifiers are shown in parentheses after the objects name (if an object has
+no name, only the identifier is shown). Blocks use capital letters; recording
+channel groups use small letters; recording channels, units and segments use
+numbers. For example, a unit might have an identifier "A-b-2": This denotes
+unit number 2 of recording channel group "b" of block "A". The identifiers are
+recreated whenever you load data - they are just a visual aid to help with
+navigation and ensure that unnamed objects have a reasonable label.
 
 The sets of selected objects from all container types is called a selection.
 The selected items you see in the ``Navigation`` dock are called the current
@@ -206,7 +215,7 @@ selecting "Settings". You can adjust various paths in the settings:
 **Selection path**
     The path where your selections are stored when you exit Spyke Viewer. This
     is also the default directory when using "Save Selection Set..." or
-    "Load Selection Set.." in the "File" menu.
+    "Load Selection Set..." in the "File" menu.
 
 **Filter path**
     The directory where your filter hierarchy and activation states are stored

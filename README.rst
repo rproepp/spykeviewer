@@ -8,3 +8,7 @@ wide variety of data formats.
 
 For more information, see the documentation at
 http://spyke-viewer.readthedocs.org
+
+Spyke Viewer was created by Robert Pröpper at the Neural Information
+Processing Group (TU Berlin), supported by the Research Training Group
+GRK 1589/1.

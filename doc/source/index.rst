@@ -24,6 +24,7 @@ Contents:
    usage
    plugins
    extending
+   acknowledgements
 
 Indices and tables
 ==================
