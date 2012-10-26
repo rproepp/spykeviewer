@@ -137,9 +137,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.load_current_selection()
 
     def set_initial_layout(self):
-        self.setGeometry(self.x(), self.y(), 800, 750)
+        self.resize(800, 750)
         self.navigationNeoDock.setVisible(True)
-
+        
+        self.neoFilesDock.setMinimumSize(100, 100)
+        self.removeDockWidget(self.neoFilesDock)
+        self.addDockWidget(Qt.RightDockWidgetArea, self.neoFilesDock)
         self.removeDockWidget(self.filterDock)
         self.removeDockWidget(self.analysisDock)
         self.addDockWidget(Qt.RightDockWidgetArea, self.filterDock)
@@ -147,6 +150,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tabifyDockWidget(self.filterDock, self.analysisDock)
         self.filterDock.setVisible(True)
         self.analysisDock.setVisible(True)
+        self.neoFilesDock.setVisible(True)
 
         self.consoleDock.setVisible(False)
         self.variableExplorerDock.setVisible(False)

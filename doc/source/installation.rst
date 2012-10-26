@@ -8,7 +8,8 @@ management and visualization.
 
 On the other hand, there are also binary packages available for Windows and
 OS X. These packages do not have any additional requirements and can be
-started immediately (form an App in OS X or an executable file in Windows).
+started immediately (from an app in OS X or an executable file in Windows,
+please use the source installation for Linux).
 However, as they are independent of an existing Python installation, you will
 not be able to use installed additional packages from your Python environment.
 The binary packages are especially useful if you do not normally use Python
