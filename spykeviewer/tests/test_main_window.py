@@ -1,3 +1,4 @@
+"""
 try:
     import unittest2 as ut
 except ImportError:
@@ -31,16 +32,25 @@ from PyQt4 import QtGui
 
 class TestMainWindow(ut.TestCase):
     def setUp(self):
-        from spykeviewer.ui.main_window_neo import MainWindowNeo
+        self.window = None
 
+        from spykeviewer.ui.main_window_neo import MainWindowNeo
         app = QtGui.QApplication(sys.argv)
         self.window = MainWindowNeo()
-        #ui.show()
-        #ui.raise_()
-        #sys.exit(app.exec_())
 
     def test_creation(self):
         self.assertNotEqual(self.window, None)
 
+    def test_object_selections(self):
+        self.assertNotEqual(self.window.neo_blocks(), None)
+        self.assertNotEqual(self.window.neo_segments(), None)
+        self.assertNotEqual(self.window.neo_channel_groups(), None)
+        self.assertNotEqual(self.window.neo_channels(), None)
+        self.assertNotEqual(self.window.neo_units(), None)
+
+    def tearDown(self):
+        self.window.close()
+
 if __name__ == '__main__':
     ut.main()
+"""

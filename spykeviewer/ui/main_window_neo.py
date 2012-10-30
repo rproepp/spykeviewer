@@ -239,6 +239,8 @@ class MainWindowNeo(MainWindow):
             event.accept()
             # Hack to repaint the whole current item:
             self.filterTreeWidget.currentItem().setExpanded(False)
+        elif event.key() == Qt.Key_Delete:
+            self.on_actionDeleteFilter_triggered()
         else:
             QTreeWidget.keyReleaseEvent(self.filterTreeWidget, event)
 
