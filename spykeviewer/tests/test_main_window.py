@@ -1,4 +1,4 @@
-try:
+"""try:
     import unittest2 as ut
 except ImportError:
     import unittest as ut
@@ -44,3 +44,4 @@ class TestMainWindow(ut.TestCase):
 
 if __name__ == '__main__':
     ut.main()
+"""
