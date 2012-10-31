@@ -1,0 +1,40 @@
+Source: spykeviewer
+Section: python
+Priority: extra
+Maintainer: NeuroDebian Team <team@neuro.debian.net>
+Uploaders:  Robert Pröpper <robert.proepper@gmail.com>,
+            Michael Hanke <michael.hanke@gmail.com>,
+            Yaroslav Halchenko <debian@onerussian.com>,
+Build-Depends: debhelper (>= 7.2.18),
+               python-all (>= 2.7),
+               python-neo (>= 0.2.1),
+               python-nose,
+               python-scipy,
+               python-sphinx,
+               python-guidata,
+               python-guiqwt,
+               python-tables,
+               python-spykeutils (= 0.2.0)
+Standards-Version: 3.9.3.1
+Homepage: https://github.com/rproepp/spykeviewer
+Vcs-Browser: https://github.com/rproepp/spykeviewer
+Vcs-Git: git://github.com/rproepp/spykeviewer.git
+X-Python-Version: >= 2.7
+
+Package: spykeviewer
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends},
+         python-neo,
+         python-nose,
+         python-scipy,
+         python-sphinx
+         python-guidata,
+         python-guiqwt,
+         python-tables,
+         python-spykeutils,
+         libjs-jquery,
+Provides: ${python:Provides}
+Description: graphical utility for analyzing electrophysiological data
+ Spyke Viewer is a multi-platform GUI application for navigating, analyzing
+ and visualizing electrophysiological datasets. Based on the Neo framework,
+ it works with a wide variety of data formats.
