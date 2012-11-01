@@ -5,6 +5,8 @@ from spykeutils import plot
 
 
 class RasterPlotPlugin(analysis_plugin.AnalysisPlugin):
+    """ Raster Plot
+    """
     domain = gui_data.ChoiceItem('Domain', ('Units', 'Segments'))
     show_lines = gui_data.BoolItem('Show lines', default=True)
     show_events = gui_data.BoolItem('Show events', default=True)

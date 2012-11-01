@@ -165,7 +165,8 @@ selected units. Go to the configuration again, set "Display" to  "Waveforms"
 and check "Use first spike as template". After another run of the plugin,
 you will see the template spike waveforms overlaid on the analog signals. To
 learn more about the included plugins and how to use them, go to
-:ref:`plugins`.
+:ref:`plugins`. When you want to create your own plugins, go to
+:ref:`analysisplugins`.
 
 .. _console:
 

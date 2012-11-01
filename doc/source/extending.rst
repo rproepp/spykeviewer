@@ -7,6 +7,8 @@ Both are created by placing a Python file with an appropriate class into one
 of the plugin directories defined in the :ref:`settings`. This section
 describes how to create them.
 
+.. _analysisplugins:
+
 Analysis plugins
 ----------------
 

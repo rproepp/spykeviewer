@@ -4,6 +4,8 @@ from spykeutils.plugin import analysis_plugin, gui_data
 from spykeutils import plot
 
 class CorrelogramPlugin(analysis_plugin.AnalysisPlugin):
+    """ Correlogram
+    """
     bin_size = gui_data.FloatItem('Bin size', 1.0, 0.1, 10000.0, unit='ms')
     cut_off = gui_data.FloatItem('Cut off', 50.0, 2.0, 10000.0, unit='ms')
     data_source = gui_data.ChoiceItem('Data source', ('Units', 'Selections'))
@@ -26,4 +28,7 @@ class CorrelogramPlugin(analysis_plugin.AnalysisPlugin):
             self.cut_off*pq.ms, self.border_correction,
             progress=current.progress)
 
-
+
+
+
+
