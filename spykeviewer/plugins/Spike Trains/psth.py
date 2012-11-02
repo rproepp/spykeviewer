@@ -9,7 +9,7 @@ align_prop = gui_data.ValueProp(False)
 optimize_prop = gui_data.ValueProp(False)
 
 class PSTHPlugin(analysis_plugin.AnalysisPlugin):
-    """ PSTH Plugin
+    """ Peristimulus Time Histogram
     """
     # Configurable parameters
     bin_size = gui_data.FloatItem('Bin size', min=1.0, default=500.0, unit='ms')

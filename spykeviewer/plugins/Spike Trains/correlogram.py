@@ -1,9 +1,12 @@
 import quantities as pq
+import neo
 
 from spykeutils.plugin import analysis_plugin, gui_data
 from spykeutils import plot
 
 class CorrelogramPlugin(analysis_plugin.AnalysisPlugin):
+    """ Correlogram
+    """
     bin_size = gui_data.FloatItem('Bin size', 1.0, 0.1, 10000.0, unit='ms')
     cut_off = gui_data.FloatItem('Cut off', 50.0, 2.0, 10000.0, unit='ms')
     data_source = gui_data.ChoiceItem('Data source', ('Units', 'Selections'))
@@ -20,10 +23,13 @@ class CorrelogramPlugin(analysis_plugin.AnalysisPlugin):
             # One entry of spike trains for each selection
             d = {}
             for i,s in enumerate(selections):
-                d[plot.create_unit(s.name, i)] = s.spike_trains()
+                d[neo.Unit(s.name)] = s.spike_trains()
 
         plot.cross_correlogram(d, self.bin_size*pq.ms,
             self.cut_off*pq.ms, self.border_correction,
             progress=current.progress)
 
-
+
+
+
+

@@ -4,6 +4,8 @@ from spykeutils.plugin import analysis_plugin, gui_data
 from spykeutils import plot
 
 class ISIPlugin(analysis_plugin.AnalysisPlugin):
+    """ Interspike Interval Histogram
+    """
     bin_size = gui_data.FloatItem('Bin size', 1.0, 0.1, 10000.0, unit='ms')
     cut_off = gui_data.FloatItem('Cut off', 50.0, 2.0, 10000.0, unit='ms')
     diagram_type = gui_data.ChoiceItem('Type', ('Bar', 'Line'))
@@ -19,4 +21,6 @@ class ISIPlugin(analysis_plugin.AnalysisPlugin):
             self.cut_off*pq.ms, self.diagram_type == 0, pq.ms)
 
 
-
+
+
+
