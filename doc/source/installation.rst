@@ -103,4 +103,4 @@ $ spyke-viewer
 .. _`scipy`: http://scipy.org/
 .. _`setuptools`: http://pypi.python.org/pypi/setuptools
 .. _`spyder`: http://packages.python.org/spyder/
-.. _`Python(x,y)`: http://www.python.org/
+.. _`Python(x,y)`: http://www.pythonxy.com/
