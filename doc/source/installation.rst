@@ -28,7 +28,11 @@ go to :ref:`usage` to learn how to use Spyke Viewer.
 Source
 ------
 If you want to install Spyke Viewer to your Python environment, there are a
-few requirements that need to be fulfilled.
+few requirements that need to be fulfilled. If you use Linux, you might not
+have access rights to your Python package installation directory, depending
+on your configuration. In this case, you will have to execute all shell
+commands in this section with administrator privileges, e.g. by using
+``sudo``.
 
 Dependencies
 ############
@@ -43,7 +47,14 @@ their respective dependencies need to be installed:
 * spyder_
 
 Please see the respective websites for instructions on how to install them if
-they are not present on your computer.
+they are not present on your computer. On a recent version of Debian/Ubuntu,
+you can install all of the dependencies (except spykeutils) with::
+
+    $ sudo apt-get install python-guiqwt python-tables
+
+On windows, you can use `Python(x,y)`_ if you do yet not have a Python
+distribution installed. It also includes all dependencies (except
+spykeutils).
 
 .. Note::
     The current version of Neo in the Python Package Index contains
@@ -92,3 +103,4 @@ $ spyke-viewer
 .. _`scipy`: http://scipy.org/
 .. _`setuptools`: http://pypi.python.org/pypi/setuptools
 .. _`spyder`: http://packages.python.org/spyder/
+.. _`Python(x,y)`: http://www.python.org/

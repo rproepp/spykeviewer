@@ -22,7 +22,7 @@ hide and show them from this menu.
 Loading Data
 ------------
 The first thing you want to do when using Spyke Viewer is to load your data.
-The ``Files`` dock contains a view of all the files on your system. You can
+The *Files* dock contains a view of all the files on your system. You can
 use it to select one or more files, then click on the "Load" button below to
 load the selected files into Spyke Viewer. For each selected file, the
 filetype is selected automatically from the extension (folder-based formats
@@ -39,7 +39,7 @@ to use a file format that is not supported by Neo, you can write a plugin:
 
 Selections
 ----------
-Now that a file was loaded, some entries have appeared in the ``Navigation``
+Now that a file was loaded, some entries have appeared in the *Navigation*
 dock. To understand how to navigate data with Spyke Viewer, you need to know
 the Neo object model. The following picture is a complete representation:
 
@@ -57,14 +57,14 @@ could contain many SpikeTrains. For more detailed information on the Neo
 object model, see the
 `Neo documentation <http://neo.readthedocs.org/en/latest/core.html>`_.
 
-In Spyke Viewer, you use the ``Navigation`` dock to select container objects.
+In Spyke Viewer, you use the *Navigation* dock to select container objects.
 There is a list for each type of container where you can select an arbitrary
 set of entries. You can select multiple entries by clicking and dragging or
 using the control key when clicking. Each list will only show those
 objects of the respective type that are contained in select objects further
 up in the hierarchy. For example, try selecting a different recording channel
 group and observe how the channels and units list change. To help you
-navigate, all objects in the ``Navigation`` tab are automatically assigned a
+navigate, all objects in the *Navigation* dock are automatically assigned a
 unique identifier which includes the identifier of containing objects. The
 identifiers are shown in parentheses after the objects name (if an object has
 no name, only the identifier is shown). Blocks use capital letters; recording
@@ -75,16 +75,16 @@ recreated whenever you load data - they are just a visual aid to help with
 navigation and ensure that unnamed objects have a reasonable label.
 
 The sets of selected objects from all container types is called a selection.
-The selected items you see in the ``Navigation`` dock are called the current
+The selected items you see in the *Navigation* dock are called the current
 selection. Selections determine which data will be analyzed by plugins (see
 :ref:`plugins`) and can be accessed by the internal console (see
 :ref:`console`). You can save a selection using the
 "Selections" menu: Click on the menu and then on "New". An additional entry in
 the "Selections" menu called "Selection 1" will appear. Each selection entry
 has a submenu where you can load, save, rename or delete the selection. Try
-selecting something else in the ``Navigation`` dock and creating a new
+selecting something else in the *Navigation* dock and creating a new
 selection again. Now try to load your first selection and observe how the
-``Navigation`` dock changes to reflect what you have loaded. If you use the
+*Navigation* dock changes to reflect what you have loaded. If you use the
 entry "Save" from a selection, it will be overwritten with the current
 selection. You can also change the order of the saved selections by dragging
 the entries in the "Selections" menu:
@@ -110,16 +110,16 @@ Filters
 When dealing with large datasets, it can be inconvenient to create a selection
 from the full lists of containers. The filter system provides a solution to
 this problem. By creating filters, you can determine what objects are
-shown in the ``Navigation`` tab. For example, you might want to temporarily
+shown in the *Navigation* dock. For example, you might want to temporarily
 exclude RecordingChannelGroups that have no attached units or only display
 Segments with a certain stimulus. Creating filters requires basic knowledge
 of Python and the Neo object model.
 
-You can manage your filters with the ``Filter`` dock and toolbar (which is
+You can manage your filters with the *Filter* dock and toolbar (which is
 positioned on the upper left in the initial layout). When you start Spyke
-Viewer for the first time, the ``Filter`` dock will be empty. You can create
+Viewer for the first time, the *Filter* dock will be empty. You can create
 a new filter by clicking on "New Filter" in the toolbar (right-clicking the
-``Filter`` dock also brings up a menu with available actions). You can choose
+*Filter* dock also brings up a menu with available actions). You can choose
 what kind of container objects the filter applies to, the name of the filter
 and its content: a Python function that returns ``True`` if an object should
 be displayed and ``False`` if not. The signature of the function is fixed, so
@@ -135,9 +135,9 @@ You can also create filter groups. They can be used to organize your filters,
 but also have an important second function: You can define groups in which
 only one filter can be active. If another filter in the group is activated,
 the previously active filter will be deactivated. You can choose which filters
-are active in the ``Filter`` dock. The ``Navigation`` dock will be updated
+are active in the *Filter* dock. The *Navigation* dock will be updated
 each time the set of active filters changes. You can also drag and drop
-filters inside the ``Filter`` dock. All your filters and their activation are
+filters inside the *Filter* dock. All your filters and their activation are
 saved when you exit Spyke Viewer.
 
 .. _usingplugins:
@@ -147,7 +147,7 @@ Using Plugins
 
 Once you have selected data, it is time to analyze it. Spyke Viewer includes
 a number of plugins that enable you to create various plots from your data.
-Select the ``Plugins`` dock (located next to the ``Filter`` dock in the
+Select the *Plugins* dock (located next to the *Filter* dock in the
 initial layout) to see the list of available plugins. To start a plugin,
 simply double-click it or select it and then click on "Run Plugin" in the
 plugin toolbar or menu. You can also start a plugin in a different process
@@ -174,10 +174,10 @@ Using the Console
 -----------------
 
 With the integrated console, you can use the full power of Python in Spyke
-Viewer, with access to your selected data. Open the ``Console`` dock by
+Viewer, with access to your selected data. Open the *Console* dock by
 clicking on the "View" menu and selecting "Console". You can explore your
-workspace using the ``Variable Explorer`` dock and view your previous
-commands with the ``Command History`` dock. Some packages like scipy_ and
+workspace using the *Variable Explorer* dock and view your previous
+commands with the *Command History* dock. Some packages like scipy_ and
 :mod:`neo` are imported on startup, the message in the console shows which.
 The console features autocompletion (press the Tab key to complete with the
 selected entry) and docstring popups.
@@ -195,14 +195,14 @@ the entries of ``selections`` are
 documentation for details of the methods provided by this class.
 
 As an example, to view the total amount of spikes in your selected spike
-trains for each trial, enter the following lines:
+trains for each segment, enter the following lines:
 
 >>> trains = current.spike_trains_by_segment()
 >>> for s, st in trains.iteritems():
 ...     print s.name, '-', sum((len(train) for train in st)), 'spikes'
 
 Note that the variables used in these lines have now appeared in the
-``Variable Explorer`` dock.
+*Variable Explorer* dock.
 
 
 .. _settings:
@@ -238,7 +238,7 @@ selecting "Settings" (on OS X, open the "Spyke Viewer" menu and select
 **Plugin paths**
     These are the search paths for plugins. They will be recursively searched
     for Python files containing AnalysisPlugin classes. Subdirectories will be
-    displayed as nodes in the ``Plugins`` dock.
+    displayed as nodes in the *Plugins* dock.
 
     In addition, your IO plugins also have to stored be in one of the plugin
     paths. The search for IO plugins is not recursive, so you have to put
