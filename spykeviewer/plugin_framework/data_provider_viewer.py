@@ -36,3 +36,8 @@ class NeoViewerProvider(NeoDataProvider):
         data = NeoViewerProvider._get_data_from_viewer(self.viewer)
         data['name'] = self.name
         return data
+
+    def refresh_view(self):
+        """ Refresh associated views of the data.
+        """
+        self.viewer.refresh_neo_view()

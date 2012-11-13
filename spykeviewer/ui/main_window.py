@@ -167,6 +167,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 for o in self.outs:
                     o.write(s)
 
+            def flush(self):
+                pass
+
         # Fixing autocompletion bugs in the internal shell
         class FixedInternalShell(InternalShell):
             def __init__(self, *args, **kwargs):

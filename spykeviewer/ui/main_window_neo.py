@@ -3,6 +3,7 @@ from collections import OrderedDict
 import logging
 import traceback
 import inspect
+import sys
 
 import neo
 from neo.io.baseio import BaseIO
@@ -49,6 +50,7 @@ class MainWindowNeo(MainWindow):
         self.block_names = OrderedDict() # Just for the display order
         self.block_files = {}
         self.channel_group_names = {}
+        self.show_filter_exceptions = True
 
         # Initialize filter sytem
         self.filter_domain_mappings = {'Block':0, 'Recording Channel':1,
@@ -480,16 +482,45 @@ class MainWindowNeo(MainWindow):
 
     def is_filtered(self, item, filters):
         """ Return if one of the filter functions in the given list
-        applies to the given item
+            applies to the given item. Combined filters are ignored.
         """
-        for f in filters:
+        for f, n in filters:
+            if f.combined:
+                continue
             try:
                 if not f.function()(item):
                     return True
-            except Exception:
+            except Exception, e:
+                if self.show_filter_exceptions:
+                    sys.stderr.write(
+                        'Exception in filter ' + n + ':\n' + str(e))
                 if not f.on_exception:
                     return True
         return False
+
+    def filter_list(self, items, filters):
+        """ Return a filtered list of the given list with the given filter
+            functions. Only combined filters are used.
+        """
+        if not items:
+            return items
+        item_type = type(items[0])
+        for f, n in filters:
+            if not f.combined:
+                continue
+            try:
+                items = [i for i in f.function()(items)
+                         if isinstance(i, item_type)]
+            except Exception, e:
+                if self.show_filter_exceptions:
+                    sys.stderr.write(
+                        'Exception in filter ' + n + ':\n' + str(e))
+                if not f.on_exception:
+                    return []
+        return items
+
+    def refresh_neo_view(self):
+        self.set_current_selection(self.provider.data_dict())
 
     def populate_neo_block_list(self):
         """ Fill the block list with appropriate entries.
@@ -499,11 +530,12 @@ class MainWindowNeo(MainWindow):
 
         filters = self.filter_managers['Block'].get_active_filters()
 
-        for b,n in self.block_names.iteritems():
+        blocks = self.filter_list(self.block_names.keys(), filters)
+        for b in blocks:
             if self.is_filtered(b, filters):
                 continue
 
-            item = QListWidgetItem(n)
+            item = QListWidgetItem(self.block_names[b])
             item.setData(Qt.UserRole, b)
             self.neoBlockList.addItem(item)
 
@@ -526,7 +558,8 @@ class MainWindowNeo(MainWindow):
         for item in self.neoBlockList.selectedItems():
             block = item.data(Qt.UserRole)
 
-            for i,s in enumerate(block.segments):
+            segments = self.filter_list(block.segments, filters)
+            for i,s in enumerate(segments):
                 if self.is_filtered(s, filters):
                     continue
 
@@ -555,7 +588,8 @@ class MainWindowNeo(MainWindow):
         for item in self.neoBlockList.selectedItems():
             block = item.data(Qt.UserRole)
 
-            for i,rcg in enumerate(block.recordingchannelgroups):
+            rcgs = self.filter_list(block.recordingchannelgroups, filters)
+            for i,rcg in enumerate(rcgs):
                 if self.is_filtered(rcg, filters):
                     continue
 
@@ -583,7 +617,8 @@ class MainWindowNeo(MainWindow):
         for item in self.neoChannelGroupList.selectedItems():
             rcg = item.data(Qt.UserRole)
 
-            for i,u in enumerate(rcg.units):
+            units = self.filter_list(rcg.units, filters)
+            for i,u in enumerate(units):
                 if self.is_filtered(u, filters):
                     continue
                 if u.name:
@@ -613,7 +648,8 @@ class MainWindowNeo(MainWindow):
         for item in self.neoChannelGroupList.selectedItems():
             channel_group = item.data(Qt.UserRole)
 
-            for rc in channel_group.recordingchannels:
+            rcs = self.filter_list(channel_group.recordingchannels, filters)
+            for rc in rcs:
                 if self.is_filtered(rc, filters):
                     continue
 
@@ -856,8 +892,7 @@ class MainWindowNeo(MainWindow):
         if group_items is None:
             f = self.filter_managers[top].get_item(item.text(0), group)
             dialog = FilterDialog(self.filter_group_dict(), top, group,
-                item.text(0),
-                f.code, f.on_exception, self)
+                item.text(0), f.code, f.combined, f.on_exception, self)
         else:
             g = self.filter_managers[top].get_item(item.text(0))
             dialog = FilterGroupDialog(top, item.text(0), g.exclusive, self)
@@ -869,7 +904,8 @@ class MainWindowNeo(MainWindow):
                 if item.data(1, Qt.UserRole) == \
                    MainWindowNeo.FilterTreeRoleFilter:
                     self.filter_managers[top].add_filter(dialog.name(),
-                        dialog.code(), on_exception=dialog.on_exception(),
+                        dialog.code(), combined=dialog.combined(),
+                        on_exception=dialog.on_exception(),
                         group_name=dialog.group(), overwrite=True)
                 else:
                     self.filter_managers[top].add_group(dialog.name(),

@@ -34,7 +34,7 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
 
     def start(self, current, selections):
         num_signals = 0
-        if (self.which_signals == 0 or self.which_signals == 2):
+        if self.which_signals == 0 or self.which_signals == 2:
             num_signals += current.num_analog_signals()
         if self.which_signals > 0:
             num_signals += current.num_analog_signal_arrays()
@@ -67,7 +67,7 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
             current.progress.set_status('Loading spikes')
             spikes = current.spikes_by_segment()
 
-        # Create a plot for each segment
+        # Create plot
         segments = set(signals.keys())
         segments = segments.union(set(signal_arrays.keys()))
         for seg in segments:
@@ -126,6 +126,7 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
                          show_waveforms=(self.spike_form==0),
                          progress=current.progress)
             
-            # Only do one plot
+            # Only do one plot - remove this line to 
+            # create one plot per segment
             break
         

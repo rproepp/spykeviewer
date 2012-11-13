@@ -34,21 +34,21 @@ class RasterPlotPlugin(analysis_plugin.AnalysisPlugin):
         
         events = None
         if self.show_events:
-            if self.domain == 0: # Only events for displayed trial
+            if self.domain == 0: # Only events for displayed segment
                 ev = current.events()
                 if ev:
                     events = ev.values()[0]
-            else: # Events for all trials
+            else: # Events for all segments
                 events = [e for seg_events in current.events().values()
                           for e in seg_events]
 
         epochs = None
         if self.show_epochs:
-            if self.domain == 0: # Only events for displayed trial
+            if self.domain == 0: # Only epochs for displayed segment
                 ep = current.epochs()
                 if ep:
                     epochs = ep.values()[0]
-            else: # Events for all trials
+            else: # Epochs for all segments
                 epochs = [e for seg_epochs in current.epochs().values()
                           for e in seg_epochs]
 
