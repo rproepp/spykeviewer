@@ -72,7 +72,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         editor = self._setup_editor()
         editor.file_name = path
         editor.set_text(self.template_code)
-        self._finanlize_new_editor(editor, 'New Plugin')
+        self._finanlize_new_editor(editor, '*New Plugin')
 
     def add_file(self, file_name):
         if file_name and not file_name.endswith('py'):
@@ -139,6 +139,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
     def save_file(self, editor, force_dialog):
         if not editor:
             return
+
         if force_dialog or not editor.file_name.endswith('py'):
             d = QFileDialog(self, 'Choose where to save plugin',
                 self.tabs.currentWidget().file_name)
@@ -146,9 +147,11 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
             d.setNameFilter("Python files (*.py)")
             d.setDefaultSuffix('py')
             if d.exec_():
-                editor.file_name = str(d.selectedFiles()[0])
+                file_name = str(d.selectedFiles()[0])
             else:
                 return False
+        else:
+            file_name = editor.file_name
 
         err = self.code_has_errors()
         if err:
@@ -156,10 +159,16 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
                 'Compile error:\n' + err)
             return False
 
-        f = open(editor.file_name, 'w')
-        f.write('\n'.join(self.code()))
-        f.close()
+        try:
+            f = open(file_name, 'w')
+            f.write('\n'.join(self.code()))
+            f.close()
+        except IOError, e:
+            QMessageBox.critical(self, 'Error saving plugin',
+                str(e))
+            return False
 
+        editor.file_name = file_name
         editor.file_was_changed = False
         fname = os.path.split(editor.file_name)[1]
         self.tabs.setTabText(self.tabs.indexOf(editor), fname)
