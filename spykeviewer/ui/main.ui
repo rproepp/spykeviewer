@@ -75,7 +75,8 @@ QGroupBox::title {
     <addaction name="actionLoad_selection"/>
     <addaction name="actionSwitch_Modes"/>
     <addaction name="actionClearCache"/>
-    <addaction name="actionSave_data"/>
+    <addaction name="actionSave_Data"/>
+    <addaction name="actionSave_Selected_Data"/>
     <addaction name="actionSettings"/>
     <addaction name="actionExit"/>
    </widget>
@@ -447,7 +448,7 @@ QGroupBox::title {
     <bool>true</bool>
    </property>
   </action>
-  <action name="actionSave_data">
+  <action name="actionSave_Selected_Data">
    <property name="text">
     <string>Save Selected Data as...</string>
    </property>
@@ -635,6 +636,11 @@ QGroupBox::title {
    <property name="toolTip">
     <string>Open documentation website
 (requires Internet access)</string>
+   </property>
+  </action>
+  <action name="actionSave_Data">
+   <property name="text">
+    <string>Save Data as...</string>
    </property>
   </action>
  </widget>

@@ -545,6 +545,9 @@ class MainWindowNeo(MainWindow):
         return [t.data(Qt.UserRole) for t in
                 self.neoBlockList.selectedItems()]
 
+    def all_neo_blocks(self):
+        return self.block_names.keys()
+
     def neo_block_file_names(self):
         """ Return a dictionary of filenames, indexed by blocks
         """
@@ -1112,9 +1115,45 @@ class MainWindowNeo(MainWindow):
                     self.io.close()
                 self.io = None
 
+    def _save_blocks(self, blocks, file_name, selected_filter):
+        if not blocks:
+            QMessageBox.warning(self, 'Cannot save data',
+                'No data to save found!')
+            self.progress.done()
+            return
+        self.progress.set_ticks(0)
+        self.progress.setWindowTitle('Writing data...')
+        self.progress.set_status('')
+
+        if not file_name.endswith('.h5') and not file_name.endswith('.mat'):
+            if selected_filter.endswith('.mat)'):
+                file_name += '.mat'
+            else:
+                file_name += '.h5'
+
+        self.worker = self.SaveWorker(file_name, blocks)
+        self.worker.finished.connect(self.progress.done)
+        self.progress.canceled.connect(self.worker.terminate)
+        self.worker.start()
 
     @pyqtSignature("")
-    def on_actionSave_data_triggered(self):
+    def on_actionSave_Data_triggered(self):
+        d = QFileDialog(self, 'Choose where to save data')
+        d.setAcceptMode(QFileDialog.AcceptSave)
+        d.setNameFilters(['HDF5 files (*.h5)', 'Matlab files (*.mat)'])
+        #d.setDefaultSuffix('h5')
+        d.setConfirmOverwrite(True)
+        if d.exec_():
+            file_name = unicode(d.selectedFiles()[0])
+        else:
+            return
+
+        self.progress.begin('Collecting data to save...')
+        blocks = self.all_neo_blocks()
+        self._save_blocks(blocks, file_name, d.selectedFilter())
+
+    @pyqtSignature("")
+    def on_actionSave_Selected_Data_triggered(self):
         d = QFileDialog(self, 'Choose where to save selected data')
         d.setAcceptMode(QFileDialog.AcceptSave)
         d.setNameFilters(['HDF5 files (*.h5)', 'Matlab files (*.mat)'])
@@ -1127,20 +1166,7 @@ class MainWindowNeo(MainWindow):
 
         self.progress.begin('Collecting data to save...')
         blocks = self.provider.selection_blocks()
-        self.progress.set_ticks(0)
-        self.progress.setWindowTitle('Writing data...')
-        self.progress.set_status('')
-
-        if not file_name.endswith('.h5') and not file_name.endswith('.mat'):
-            if d.selectedFilter().endswith('.mat)'):
-                file_name += '.mat'
-            else:
-                file_name += '.h5'
-
-        self.worker = self.SaveWorker(file_name, blocks)
-        self.worker.finished.connect(self.progress.done)
-        self.progress.canceled.connect(self.worker.terminate)
-        self.worker.start()
+        self._save_blocks(blocks, file_name, d.selectedFilter())
 
     def on_refreshAnalysesButton_pressed(self):
         self.reload_plugins()

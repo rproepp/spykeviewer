@@ -18,15 +18,16 @@ class SpectrogramPlugin(analysis_plugin.AnalysisPlugin):
         return 'Signal Spectogram'
 
     def start(self, current, selections):
+        current.progress.begin('Creating Spectogram')
         signals = current.analog_signals()
         if not signals:
+            current.progress.done()
             return
             
         num_signals = len(signals)
 
         columns = int(round(sp.sqrt(num_signals)))
     
-        current.progress.begin()
         current.progress.set_ticks(num_signals)
         samples = self.nfft_index[self.fft_samples]
         win = PlotDialog(toolbar=True, 

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/rob/Spyke/viewer/spykeviewer/ui/main.ui'
 #
-# Created: Tue Oct  9 13:02:04 2012
+# Created: Wed Nov 14 12:17:51 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -216,8 +216,8 @@ class Ui_MainWindow(object):
         self.actionClearCache = QtGui.QAction(MainWindow)
         self.actionClearCache.setVisible(True)
         self.actionClearCache.setObjectName(_fromUtf8("actionClearCache"))
-        self.actionSave_data = QtGui.QAction(MainWindow)
-        self.actionSave_data.setObjectName(_fromUtf8("actionSave_data"))
+        self.actionSave_Selected_Data = QtGui.QAction(MainWindow)
+        self.actionSave_Selected_Data.setObjectName(_fromUtf8("actionSave_Selected_Data"))
         self.actionSettings = QtGui.QAction(MainWindow)
         self.actionSettings.setObjectName(_fromUtf8("actionSettings"))
         self.actionClearSelections = QtGui.QAction(MainWindow)
@@ -300,11 +300,14 @@ class Ui_MainWindow(object):
         icon15.addPixmap(QtGui.QPixmap(_fromUtf8(":/Application/Help")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionDocumentation.setIcon(icon15)
         self.actionDocumentation.setObjectName(_fromUtf8("actionDocumentation"))
+        self.actionSave_Data = QtGui.QAction(MainWindow)
+        self.actionSave_Data.setObjectName(_fromUtf8("actionSave_Data"))
         self.menuFile.addAction(self.actionSave_selection)
         self.menuFile.addAction(self.actionLoad_selection)
         self.menuFile.addAction(self.actionSwitch_Modes)
         self.menuFile.addAction(self.actionClearCache)
-        self.menuFile.addAction(self.actionSave_data)
+        self.menuFile.addAction(self.actionSave_Data)
+        self.menuFile.addAction(self.actionSave_Selected_Data)
         self.menuFile.addAction(self.actionSettings)
         self.menuFile.addAction(self.actionExit)
         self.menuHelp.addAction(self.actionDocumentation)
@@ -376,7 +379,7 @@ class Ui_MainWindow(object):
         self.actionSwitch_Modes.setText(QtGui.QApplication.translate("MainWindow", "Switch Modes", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNewSelection.setText(QtGui.QApplication.translate("MainWindow", "New", None, QtGui.QApplication.UnicodeUTF8))
         self.actionClearCache.setText(QtGui.QApplication.translate("MainWindow", "Clear Cache", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionSave_data.setText(QtGui.QApplication.translate("MainWindow", "Save Selected Data as...", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSave_Selected_Data.setText(QtGui.QApplication.translate("MainWindow", "Save Selected Data as...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSettings.setText(QtGui.QApplication.translate("MainWindow", "Settings...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionClearSelections.setText(QtGui.QApplication.translate("MainWindow", "Clear", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNewPlugin.setText(QtGui.QApplication.translate("MainWindow", "New Plugin", None, QtGui.QApplication.UnicodeUTF8))
@@ -402,5 +405,6 @@ class Ui_MainWindow(object):
         self.actionDocumentation.setText(QtGui.QApplication.translate("MainWindow", "Documentation", None, QtGui.QApplication.UnicodeUTF8))
         self.actionDocumentation.setToolTip(QtGui.QApplication.translate("MainWindow", "Open documentation website\n"
 "(requires Internet access)", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSave_Data.setText(QtGui.QApplication.translate("MainWindow", "Save Data as...", None, QtGui.QApplication.UnicodeUTF8))
 
 import icons_rc
