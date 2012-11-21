@@ -29,7 +29,7 @@ MOCK_MODULES = ['neo', 'tables', 'guiqwt', 'guiqwt.builder',
                 'guiqwt.image', 'guiqwt.tools', 'guiqwt.signals',
                 'guiqwt.config', 'PyQt4', 'PyQt4.QtCore', 'PyQt4.QtGui',
                 'spykeutils', 'spykeutils.plot', 'spykeutils.plugin',
-                'scipy']
+                'scipy', 'matplotlib']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = MagicMock()
 
