@@ -19,7 +19,7 @@ installation at any time.
 Binary
 ------
 If you want to install the binary version, go to the
-`download page on GitHub <https://github.com/rproepp/spykeviewer/downloads>`_
+`homepage <http://www.ni.tu-berlin.de/software/spykeviewer>`_
 and select the most recent version for your operating system. The downloaded
 file contains an installer (for OS X) or executable (main\\spykeviewer.exe
 for Windows). The rest of this page deals with source installation, you can
@@ -36,7 +36,7 @@ commands in this section with administrator privileges, e.g. by using
 
 Dependencies
 ############
-First you need at least Python 2.7. In addition, the following packages and
+First you need Python 2.7. In addition, the following packages and
 their respective dependencies need to be installed:
 
 * spykeutils_

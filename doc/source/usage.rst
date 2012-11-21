@@ -3,11 +3,11 @@
 Usage
 =====
 This section gives a tutorial of the main functionality of Spyke Viewer. To
-follow the examples, you need to download and unpack the sample data file:
-https://github.com/downloads/rproepp/spykeviewer/sampledata.zip. It contains
-simulated data for two tetrodes over 4 trials. For each tetrode, there are
-5 simulated neurons with corresponding spike trains and template waveforms
-included.
+follow the examples, you need to download and unpack the `sample data file
+<http://www.ni.tu-berlin.de/fileadmin/fg215/software/SPYKE/sampledata.zip>`_.
+It contains simulated data for two tetrodes over 4 trials. For each tetrode,
+there are 5 simulated neurons with corresponding spike trains and prototypical
+template waveforms included.
 
 When you start Spyke Viewer for the first time, you will see the following
 layout:
