@@ -2,14 +2,15 @@ import os
 import sys
 import json
 import logging
+import webbrowser
 
 from PyQt4.QtGui import (QMainWindow, QMessageBox,
                          QApplication, QFileDialog, QInputDialog,
                          QLineEdit, QMenu, QDrag, QPainter, QPen,
                          QPalette, QDesktopServices, QFont)
-from PyQt4.QtWebKit import QWebView
+#from PyQt4.QtWebKit import QWebView
 from PyQt4.QtCore import (Qt, pyqtSignature, SIGNAL, QMimeData,
-                          QSettings, QCoreApplication, QUrl)
+                          QSettings, QCoreApplication)
 
 from spyderlib.widgets.internalshell import InternalShell
 from spyderlib.widgets.externalshell.namespacebrowser import NamespaceBrowser
@@ -267,23 +268,29 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_actionAbout_triggered(self):
         from .. import __version__
 
-        QMessageBox.about(self, u'About Spyke Viewer ' + __version__,
-            u'Spyke Viewer is an application for navigating, '
-            u'analyzing and visualizing electrophysiological datasets.\n\n'
-            u'Copyright 2012 \xa9 Robert Pr\xf6pper\n'
-            u'Neural Information Processing Group\n'
-            u'TU Berlin, Germany\n\n'
-            u'Licensed under the terms of the BSD license.\n\n'
+        about = QMessageBox(self)
+        about.setWindowTitle(u'About Spyke Viewer ' + __version__)
+        about.setTextFormat(Qt.RichText)
+        about.setText(u'Spyke Viewer is an application for navigating, '
+            u'analyzing and visualizing electrophysiological datasets.<br>'
+            u'<br><a href=http://www.ni.tu-berlin.de/software/spykeviewer>'
+            u'www.ni.tu-berlin.de/software/spykeviewer</a>'
+            u'<br><br>Copyright 2012 \xa9 Robert Pr\xf6pper<br>'
+            u'Neural Information Processing Group<br>'
+            u'TU Berlin, Germany<br><br>'
+            u'Licensed under the terms of the BSD license.<br>'
             u'Icons from the Crystal Project '
             u'(\xa9 2006-2007 Everaldo Coelho)')
+        about.show()
 
     @pyqtSignature("")
     def on_actionDocumentation_triggered(self):
-        if not self.web_view:
-            self.web_view = QWebView(None)
-            self.web_view.setWindowTitle("Spyke Viewer Documentation")
-        self.web_view.load(QUrl("http://spyke-viewer.readthedocs.org"))
-        self.web_view.show()
+        #if not self.web_view:
+        #    self.web_view = QWebView(None)
+        #    self.web_view.setWindowTitle("Spyke Viewer Documentation")
+        #self.web_view.load(QUrl("http://spyke-viewer.readthedocs.org"))
+        #self.web_view.show()
+        webbrowser.open('http://spyke-viewer.readthedocs.org')
 
     def on_menuSelections_mousePressed(self, event):
         if event.button() == Qt.LeftButton:

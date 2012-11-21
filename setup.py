@@ -9,13 +9,11 @@ def find_version():
         try:
             for line in f:
                 if line.startswith('__version__'):
-                    rval = line.split()[-1][1:-1]
-                    break
+                    return line.split()[-1][1:-1]
         finally:
             f.close()
     except Exception:
-        rval = '0'
-    return rval
+        return '0'
 
 DESC = """Spyke Viewer is a multi-platform GUI application for navigating,
 analyzing and visualizing electrophysiological datasets. Based on the
@@ -37,9 +35,9 @@ if __name__ == "__main__":
         name="spykeviewer",
         version=version,
         packages=find_packages(),
-        install_requires=['guidata', 'guiqwt', 'spyder',
+        install_requires=['guidata', 'guiqwt', 'spyder>=2.1.0',
                           'spykeutils[plot,plugin]=='+version,
-                          'neo'],
+                          'neo', 'matplotlib'],
         entry_points = {
             'gui_scripts':
                 ['spyke-viewer = spykeviewer.start:main']

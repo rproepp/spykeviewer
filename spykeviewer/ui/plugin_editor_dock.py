@@ -1,6 +1,6 @@
 import os.path
-from PyQt4.QtGui import (QDockWidget, QWidget, QFileDialog, QPushButton,
-                         QGridLayout, QMessageBox, QFont, QTabWidget)
+from PyQt4.QtGui import (QDockWidget, QWidget, QFileDialog, QGridLayout,
+                         QMessageBox, QFont, QTabWidget)
 from PyQt4.QtCore import Qt, pyqtSignal
 
 from spyderlib.widgets.sourcecode.codeeditor import CodeEditor
@@ -79,6 +79,11 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
             QMessageBox.warning(self, 'Cannot load file',
                 'Only Python files are supported for editing')
             return
+
+        for i in xrange(self.tabs.count()):
+            if file_name == self.tabs.widget(i).file_name:
+                self.tabs.setCurrentIndex(i)
+                return
 
         editor = self._setup_editor()
         editor.file_name = file_name
