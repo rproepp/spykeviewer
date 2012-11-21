@@ -19,8 +19,6 @@ import sys, os
 sys.path.insert(0, os.path.abspath(
     os.path.join(os.pardir,os.pardir)))
 
-import spykeviewer
-
 # -- Mocking modules for Read the Docs compatibility ---------------------------
 from mock import MagicMock
 
@@ -32,6 +30,8 @@ MOCK_MODULES = ['neo', 'tables', 'guiqwt', 'guiqwt.builder',
                 'scipy', 'matplotlib']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = MagicMock()
+
+import spykeviewer
 
 # -- General configuration -----------------------------------------------------
 
