@@ -8,6 +8,14 @@ from spykeutils.plugin.analysis_plugin import AnalysisPlugin
 
 logger = logging.getLogger('spykeviewer')
 
+def _compare_nodes(x, y):
+    """ Directory Nodes should come first, then sort alphabetically
+    """
+    ret = int(isinstance(y, PluginManager.DirNode)) - \
+          int(isinstance(x, PluginManager.DirNode))
+    return ret or (1 - 2 * int(x.name < y.name))
+
+
 class PluginManager:
     """ Manages plugins loaded from a directory
     """
@@ -25,6 +33,7 @@ class PluginManager:
             if self.parent:
                 return self.parent.children.index(self)
             return 0
+
 
     class DirNode(Node):
         def __init__(self, parent, data, path = ''):
@@ -67,7 +76,8 @@ class PluginManager:
                         new_node.addPath(p)
                     else:
                         new_node = PluginManager.DirNode(self, None, p)
-                        self.children.append(new_node)
+                        if new_node.childCount():
+                            self.children.append(new_node)
                 else:
                     if not f.endswith('.py'):
                         continue
@@ -102,6 +112,9 @@ class PluginManager:
                             raise etype, evalue, etb
                         self.children.append(PluginManager.Node(self,
                             instance, p, instance.get_name()))
+
+            self.children.sort(cmp=_compare_nodes)
+
 
     def __init__(self):
         self.root = self.DirNode(None, None)
