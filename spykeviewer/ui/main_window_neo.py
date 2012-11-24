@@ -1255,11 +1255,11 @@ class MainWindowNeo(MainWindow):
         self.menuPlugins.popup(self.neoAnalysesTreeView.mapToGlobal(pos))
 
     def plugin_saved(self, path):
-        plugin_path = os.path.realpath(path)
+        plugin_path = os.path.normpath(os.path.realpath(path))
         in_dirs = False
         for p in self.plugin_paths:
-            dir = os.path.realpath(p)
-            if os.path.commonprefix([plugin_path, p]) == p:
+            dir = os.path.normpath(os.path.realpath(p))
+            if os.path.commonprefix([plugin_path, dir]) == dir:
                 in_dirs = True
                 break
 
