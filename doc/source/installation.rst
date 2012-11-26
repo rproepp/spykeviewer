@@ -97,7 +97,7 @@ $ spyke-viewer
 .. _`Python`: http://python.org/
 .. _`spykeutils`: http://spykeutils.readthedocs.org/
 .. _`guiqwt`: http://packages.python.org/guiqwt/
-.. _`guidata`: http://packages.python.org/guidata/
+.. _`tables`: http://www.pytables.org/
 .. _`neo`: http://neo.readthedocs.org/
 .. _`pip`: http://pypi.python.org/pypi/pip
 .. _`scipy`: http://scipy.org/
