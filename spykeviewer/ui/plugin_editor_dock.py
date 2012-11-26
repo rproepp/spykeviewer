@@ -134,7 +134,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
 
 
     def code_has_errors(self):
-        code = '\n'.join(self.code())
+        code = '\n'.join(self.code()).encode('UTF-8')
         try:
             compile(code, '<filter>', 'exec')
         except SyntaxError as e:
@@ -152,7 +152,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
             d.setNameFilter("Python files (*.py)")
             d.setDefaultSuffix('py')
             if d.exec_():
-                file_name = str(d.selectedFiles()[0])
+                file_name = unicode(d.selectedFiles()[0])
             else:
                 return False
         else:
@@ -166,7 +166,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
 
         try:
             f = open(file_name, 'w')
-            f.write('\n'.join(self.code()))
+            f.write('\n'.join(self.code()).encode('UTF-8'))
             f.close()
         except IOError, e:
             QMessageBox.critical(self, 'Error saving plugin',

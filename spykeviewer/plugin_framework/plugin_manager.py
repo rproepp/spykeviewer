@@ -3,6 +3,7 @@ import sys
 import inspect
 import traceback
 import logging
+import re
 
 from spykeutils.plugin.analysis_plugin import AnalysisPlugin
 
@@ -85,7 +86,16 @@ class PluginManager:
                     # Found a Python file, execute it and look for plugins
                     exc_globals = {}
                     try:
-                        execfile(p, exc_globals)
+                        # We turn all encodings to UTF-8, so remove encoding
+                        # comments manually
+                        f = open(p.encode('UTF-8'), 'r')
+                        lines  = f.readlines()
+                        if re.findall('coding[:=]\s*([-\w.]+)', lines[0]):
+                            lines.pop(0)
+                        elif re.findall('coding[:=]\s*([-\w.]+)', lines[1]):
+                            lines.pop(1)
+                        code = ''.join(lines).decode('utf-8')
+                        exec(code, exc_globals)
                     except Exception:
                         logger.warning('Error during execution of ' +
                             'potential plugin file ' + p + ':\n' +

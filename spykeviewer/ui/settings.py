@@ -46,7 +46,7 @@ class SettingsWindow(QDialog, Ui_Settings):
     def on_changeSelectionPathButton_pressed(self):
         d = self._makeDirDialog('Choose selection path')
         if d.exec_() == d.Accepted:
-            filename = osp.realpath(str(d.selectedFiles()[0]))
+            filename = osp.realpath(unicode(d.selectedFiles()[0]))
             self.selectionPath.setText(osp.normpath(filename))
         else:
             return
@@ -54,7 +54,7 @@ class SettingsWindow(QDialog, Ui_Settings):
     def on_changeFilterPathButton_pressed(self):
         d = self._makeDirDialog('Choose filter path')
         if d.exec_() == d.Accepted:
-            filename = str(d.selectedFiles()[0])
+            filename = osp.realpath(unicode(d.selectedFiles()[0]))
             self.filterPath.setText(osp.normpath(filename))
         else:
             return
@@ -62,7 +62,7 @@ class SettingsWindow(QDialog, Ui_Settings):
     def on_changeDataPathButton_pressed(self):
         d = self._makeDirDialog('Choose data path')
         if d.exec_() == d.Accepted:
-            filename = osp.realpath(str(d.selectedFiles()[0]))
+            filename = osp.realpath(unicode(d.selectedFiles()[0]))
             self.dataPath.setText(osp.normpath(filename))
         else:
             return
@@ -72,7 +72,7 @@ class SettingsWindow(QDialog, Ui_Settings):
         d.setAcceptMode(QFileDialog.AcceptOpen)
         d.setFileMode(QFileDialog.ExistingFile)
         if d.exec_() == d.Accepted:
-            filename = osp.realpath(str(d.selectedFiles()[0]))
+            filename = osp.realpath(unicode(d.selectedFiles()[0]))
             self.remoteScriptPath.setText(osp.normpath(filename))
         else:
             return
@@ -80,7 +80,7 @@ class SettingsWindow(QDialog, Ui_Settings):
     def on_addPathButton_pressed(self):
         d = self._makeDirDialog('Choose plugin path')
         if d.exec_() == d.Accepted:
-            filename = osp.realpath(str(d.selectedFiles()[0]))
+            filename = osp.realpath(unicode(d.selectedFiles()[0]))
             if filename not in self.plugin_paths():
                 self.pathListWidget.addItem(osp.normpath(filename))
         else:
