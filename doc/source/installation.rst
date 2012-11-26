@@ -42,13 +42,14 @@ their respective dependencies need to be installed:
 * spykeutils_
 * scipy_
 * guiqwt_
-* guidata_
 * tables_
 * spyder_
+* neo_ >= 0.2.1
 
 Please see the respective websites for instructions on how to install them if
-they are not present on your computer. On a recent version of Debian/Ubuntu,
-you can install all of the dependencies (except spykeutils) with::
+they are not present on your computer. On a recent version of Debian/Ubuntu
+(e.g. Ubuntu 12.04 or newer), you can install all dependencies that are not
+automatically installed by ``pip`` or ``easy_install`` with::
 
     $ sudo apt-get install python-guiqwt python-tables
 
@@ -56,16 +57,15 @@ On windows, you can use `Python(x,y)`_ if you do yet not have a Python
 distribution installed. It also includes all dependencies (except
 spykeutils).
 
-.. Note::
-    The current version of Neo in the Python Package Index contains
-    some bugs that prevent it from working properly with Spyke Viewer in some
-    situations. Please install the latest version directly from GitHub:
-    https://github.com/rproepp/python-neo
+.. note::
+    If you have installed neo_ before, please make sure you have the most
+    recent version of the package, e.g. by running::
 
-    You can download the repository from the GitHub page or clone it using
-    git and then install from the resulting folder::
+    $ pip install -U neo
 
-    $ python setup.py install
+    or::
+
+    $ easy_install -U neo
 
 spykeviewer
 ###########
@@ -98,7 +98,7 @@ $ spyke-viewer
 .. _`spykeutils`: http://spykeutils.readthedocs.org/
 .. _`guiqwt`: http://packages.python.org/guiqwt/
 .. _`guidata`: http://packages.python.org/guidata/
-.. _`tables`: http://www.pytables.org/
+.. _`neo`: http://neo.readthedocs.org/
 .. _`pip`: http://pypi.python.org/pypi/pip
 .. _`scipy`: http://scipy.org/
 .. _`setuptools`: http://pypi.python.org/pypi/setuptools

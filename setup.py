@@ -37,7 +37,7 @@ if __name__ == "__main__":
         packages=find_packages(),
         install_requires=['guidata', 'guiqwt', 'spyder>=2.1.0',
                           'spykeutils[plot,plugin]=='+version,
-                          'neo', 'matplotlib'],
+                          'neo>=0.2.1', 'matplotlib'],
         entry_points = {
             'gui_scripts':
                 ['spyke-viewer = spykeviewer.start:main']
