@@ -834,7 +834,7 @@ class MainWindowNeo(MainWindow):
             try:
                 self.filter_managers[dialog.type()].add_filter(dialog.name(),
                     dialog.code(), on_exception=dialog.on_exception(),
-                    group_name=dialog.group())
+                    group_name=dialog.group(), combined=dialog.combined())
                 break
             except ValueError as e:
                 QMessageBox.critical(self, 'Error creating filter', str(e))

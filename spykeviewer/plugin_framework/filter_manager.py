@@ -237,7 +237,7 @@ class FilterManager:
             if not group_name in self.filters:
                 raise ValueError('No filter group named "%s" exists!' % str(group_name))
             g = self.filters[group_name]
-            if overwrite and name in g.filters:
+            if not overwrite and name in g.filters:
                 raise ValueError('A filter named "%s" already exists in group "%s"!' % (str(name), str(group_name)))
             if g.exclusive and not self.currently_loading:
                 if any(f.active for f in g.filters.itervalues()):
