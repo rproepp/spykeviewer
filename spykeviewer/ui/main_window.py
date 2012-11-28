@@ -251,7 +251,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.console.connect(self.console, SIGNAL("refresh()"),
             self._append_python_history)
 
-        # Duplicate stdout and stderr
+        # Duplicate stdout, stderr and logging
+        ch = logging.StreamHandler(sys.stderr)
+        ch.setLevel(logging.WARNING)
+        logger.addHandler(ch)
         sys.stdout = StreamDuplicator([sys.stdout, sys.__stdout__])
         sys.stderr = StreamDuplicator([sys.stderr, sys.__stderr__])
 

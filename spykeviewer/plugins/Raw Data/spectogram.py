@@ -4,6 +4,7 @@ import matplotlib.mlab as mlab
 from guiqwt.plot import BaseImageWidget
 from guiqwt.builder import make
 from spykeutils.plot.dialog import PlotDialog
+import spykeutils.plot.helper as helper
 
 class SpectrogramPlugin(analysis_plugin.AnalysisPlugin):
     """ Spectrogram """
@@ -17,6 +18,7 @@ class SpectrogramPlugin(analysis_plugin.AnalysisPlugin):
     def get_name(self):
         return 'Signal Spectogram'
 
+    @helper.needs_qt
     def start(self, current, selections):
         current.progress.begin('Creating Spectogram')
         signals = current.analog_signals()
