@@ -1227,7 +1227,7 @@ class MainWindowNeo(MainWindow):
     def on_actionNewPlugin_triggered(self):
         path = ''
         if self.plugin_paths:
-            path = self.plugin_paths[0]
+            path = self.plugin_paths[-1]
         self.pluginEditorDock.new_file(path)
 
     @pyqtSignature("")
