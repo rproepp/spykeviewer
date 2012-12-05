@@ -9,7 +9,7 @@ import neo
 from neo.io.baseio import BaseIO
 
 from PyQt4.QtCore import (Qt, pyqtSignature, QThread, QMutex,
-                          QSettings)
+                          QSettings, SIGNAL)
 from PyQt4.QtGui import (QFileSystemModel, QHeaderView, QListWidgetItem,
                          QMessageBox, QTreeWidgetItem, QAbstractItemView,
                          QStyle, QApplication, QTreeWidget, QProgressDialog,
@@ -20,6 +20,7 @@ from spykeutils import SpykeException
 from spykeutils.plugin.data_provider_neo import NeoDataProvider
 from spykeutils.plugin.data_provider_stored import NeoStoredProvider
 from spykeutils.plugin.analysis_plugin import AnalysisPlugin
+from spykeutils.hierarchy import sever_hierarchy
 
 from main_window import MainWindow
 from settings import SettingsWindow
@@ -108,6 +109,16 @@ class MainWindowNeo(MainWindow):
 
         self.consoleDock.edit_script = lambda (path):\
             self.pluginEditorDock.add_file(path)
+
+        from spyderlib.utils.misc import get_error_match
+        def p(x):
+            match = get_error_match(unicode(x))
+            if match:
+                fname, lnb = match.groups()
+                self.pluginEditorDock.show_position(fname, int(lnb))
+        self.connect(self.console, SIGNAL("go_to_error(QString)"),
+            p)
+
 
         # Initialize Neo navigation
         self.file_system_model = QFileSystemModel()
@@ -947,7 +958,6 @@ class MainWindowNeo(MainWindow):
     @pyqtSignature("")
     def on_actionClearCache_triggered(self):
         NeoDataProvider.clear()
-
         self.neoBlockList.clear()
         self.block_ids.clear()
         self.block_files.clear()
@@ -1182,6 +1192,8 @@ class MainWindowNeo(MainWindow):
             self.filter_path = settings.filter_path()
             self.remote_script = settings.remote_script()
             self.plugin_paths = settings.plugin_paths()
+            if self.plugin_paths:
+                self.pluginEditorDock.set_default_path(self.plugin_paths[-1])
             self.reload_plugins()
 
     @pyqtSignature("")
@@ -1196,6 +1208,13 @@ class MainWindowNeo(MainWindow):
         except SpykeException, err:
             self.progress.done()
             QMessageBox.critical(self, 'Error executing analysis', str(err))
+        except Exception, e:
+            # Only print stack trace from plugin on
+            tb = sys.exc_info()[2]
+            while not ('self' in tb.tb_frame.f_locals and
+                tb.tb_frame.f_locals['self'] == ana):
+                tb = tb.tb_next
+            traceback.print_exception(type(e), e, tb)
 
     def on_neoAnalysesTreeView_doubleClicked(self, index):
         self.on_actionRunPlugin_triggered()
@@ -1225,10 +1244,7 @@ class MainWindowNeo(MainWindow):
 
     @pyqtSignature("")
     def on_actionNewPlugin_triggered(self):
-        path = ''
-        if self.plugin_paths:
-            path = self.plugin_paths[-1]
-        self.pluginEditorDock.new_file(path)
+        self.pluginEditorDock.new_file()
 
     @pyqtSignature("")
     def on_actionSavePlugin_triggered(self):

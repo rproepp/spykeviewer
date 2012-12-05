@@ -135,6 +135,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.remote_script = settings.value('remoteScript')
 
+        if self.plugin_paths:
+            self.pluginEditorDock.set_default_path(self.plugin_paths[-1])
+
         self.load_current_selection()
 
     def set_initial_layout(self):

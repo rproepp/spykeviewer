@@ -70,7 +70,7 @@ class PluginManager:
                 if f.startswith('.'):
                     continue
 
-                p = os.path.join(path, f)
+                p = os.path.join(path, f).encode('utf-8')
                 if os.path.isdir(p):
                     new_node = self.get_dir_child(p)
                     if new_node:
@@ -88,13 +88,14 @@ class PluginManager:
                     try:
                         # We turn all encodings to UTF-8, so remove encoding
                         # comments manually
-                        f = open(p.encode('UTF-8'), 'r')
+                        f = open(p, 'r')
                         lines  = f.readlines()
                         if re.findall('coding[:=]\s*([-\w.]+)', lines[0]):
                             lines.pop(0)
                         elif re.findall('coding[:=]\s*([-\w.]+)', lines[1]):
                             lines.pop(1)
-                        code = ''.join(lines).decode('utf-8')
+                        source = ''.join(lines).decode('utf-8')
+                        code = compile(source, p, 'exec')
                         exec(code, exc_globals)
                     except Exception:
                         logger.warning('Error during execution of ' +
