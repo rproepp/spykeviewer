@@ -20,7 +20,6 @@ from spykeutils import SpykeException
 from spykeutils.plugin.data_provider_neo import NeoDataProvider
 from spykeutils.plugin.data_provider_stored import NeoStoredProvider
 from spykeutils.plugin.analysis_plugin import AnalysisPlugin
-from spykeutils.hierarchy import sever_hierarchy
 
 from main_window import MainWindow
 from settings import SettingsWindow
