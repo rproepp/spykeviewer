@@ -160,12 +160,13 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         self.show_position(fname, lineno)
 
     def show_position(self, file_name, line):
-        if not file_name:
+        if not file_name or file_name == '<console>':
             return
-        self.add_file(file_name)
-
+        if not self.add_file(file_name):
+            return
         if line is None:
             return
+
         editor = self.tabs.currentWidget()
         cursor = editor.textCursor()
         cursor.setPosition(0,QTextCursor.MoveAnchor)
@@ -201,18 +202,19 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         if file_name and not file_name.endswith('py'):
             QMessageBox.warning(self, 'Cannot load file',
                 'Only Python files are supported for editing')
-            return
+            return False
 
         for i in xrange(self.tabs.count()):
             if file_name == self.tabs.widget(i).file_name:
                 self.tabs.setCurrentIndex(i)
-                return
+                return True
 
         editor = self._setup_editor()
         editor.file_name = file_name
         editor.set_text_from_file(file_name)
         tab_name = os.path.split(file_name.decode('utf-8'))[1]
         self._finalize_new_editor(editor, tab_name)
+        return True
 
     def close_file(self, tab_index):
         if self.tabs.widget(tab_index).file_was_changed:

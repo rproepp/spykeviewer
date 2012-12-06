@@ -323,6 +323,8 @@ class MainWindowNeo(MainWindow):
         self.provider = NeoViewerProvider(self)
         self.provider_factory = NeoStoredProvider.from_current_selection
         self.console.interpreter.locals['current'] = self.provider
+        if self.ipy_kernel:
+            self.ipy_kernel.get_user_namespace()['current'] = self.provider
 
     def reload_plugins(self):
         old_path = None

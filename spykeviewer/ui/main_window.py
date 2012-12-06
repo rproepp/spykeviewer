@@ -7,10 +7,9 @@ import webbrowser
 from PyQt4.QtGui import (QMainWindow, QMessageBox,
                          QApplication, QFileDialog, QInputDialog,
                          QLineEdit, QMenu, QDrag, QPainter, QPen,
-                         QPalette, QDesktopServices, QFont)
-#from PyQt4.QtWebKit import QWebView
+                         QPalette, QDesktopServices, QFont, QAction)
 from PyQt4.QtCore import (Qt, pyqtSignature, SIGNAL, QMimeData,
-                          QSettings, QCoreApplication)
+                          QSettings, QCoreApplication, QTimer)
 
 from spyderlib.widgets.internalshell import InternalShell
 from spyderlib.widgets.externalshell.namespacebrowser import NamespaceBrowser
@@ -21,6 +20,45 @@ from spykeutils.plugin.analysis_plugin import AnalysisPlugin
 
 from main_ui import Ui_MainWindow
 from progress_indicator_dialog import ProgressIndicatorDialog
+
+try:
+    from IPython.zmq.ipkernel import IPKernelApp
+    from IPython.frontend.qt.kernelmanager import QtKernelManager
+    from IPython.frontend.qt.console.rich_ipython_widget \
+        import RichIPythonWidget
+    from IPython.config.application import catch_config_error
+    from IPython.lib.kernel import connect_qtconsole
+
+    class IPythonLocalKernelApp(IPKernelApp):
+        """ A version of the IPython kernel that does not block the Qt event
+            loop.
+        """
+        @catch_config_error
+        def initialize(self, argv=None):
+            if argv is None:
+                argv = []
+            super(IPythonLocalKernelApp, self).initialize(argv)
+            self.kernel.eventloop = self.loop_qt4_nonblocking
+            self.kernel.start()
+            self.start()
+
+        def loop_qt4_nonblocking(self, kernel):
+            """ Non-blocking version of the ipython qt4 kernel loop """
+            kernel.timer = QTimer()
+            kernel.timer.timeout.connect(kernel.do_one_iteration)
+            kernel.timer.start(1000*kernel._poll_interval)
+
+        def get_connection_file(self):
+            """ Return current kernel connection file. """
+            return self.connection_file
+
+        def get_user_namespace(self):
+            """ Returns current kernel userspace dict. """
+            return self.kernel.shell.user_ns
+
+    ipython_available = True
+except ImportError:
+    ipython_available = False
 
 
 logger = logging.getLogger('spykeviewer')
@@ -40,7 +78,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QCoreApplication.setApplicationName('Spyke Viewer')
 
         self.setupUi(self)
-        self.web_view = None
         self.dir = os.getcwd()
 
         # Python console
@@ -51,6 +88,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.provider = None
         self.plugin_paths = []
         self.init_python()
+
+        # IPython menu option
+        self.ipy_kernel = None
+        if ipython_available:
+            a = QAction('New IPython console', self.menuFile)
+            self.menuFile.insertAction(self.actionSettings, a)
+            self.connect(a, SIGNAL('triggered()'),
+                self.on_actionIPython_triggered)
 
         # Drag and Drop for selections menu
         self.menuSelections.setAcceptDrops(True)
@@ -254,17 +299,71 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.console.connect(self.console, SIGNAL("refresh()"),
             self._append_python_history)
 
-        # Duplicate stdout, stderr and logging
+        # Duplicate stdout, stderr and logging for console
         ch = logging.StreamHandler(sys.stderr)
         ch.setLevel(logging.WARNING)
         logger.addHandler(ch)
-        sys.stdout = StreamDuplicator([sys.stdout, sys.__stdout__])
+        #sys.stdout = StreamDuplicator([sys.stdout, sys.__stdout__])
         sys.stderr = StreamDuplicator([sys.stderr, sys.__stderr__])
 
     def _append_python_history(self):
         self.browser.refresh_table()
         self.history.append('\n' + self.console.history[-1])
         self.history.set_cursor_position('eof')
+
+    def create_ipython_kernel(self):
+        if not ipython_available or self.ipy_kernel:
+            return
+
+        stdout = sys.stdout
+        stderr = sys.stderr
+        dishook = sys.displayhook
+
+        # Don't print message about kernel to console
+        sys.stderr = sys.__stderr__
+
+        self.ipy_kernel = IPythonLocalKernelApp.instance()
+        self.ipy_kernel.initialize()
+
+        ns = self.ipy_kernel.get_user_namespace()
+        ns['current'] = self.provider
+        ns['selections'] = self.selections
+
+        # OMG it's a hack! (to duplicate stdout, stderr)
+        ipyout = sys.stdout
+        ipyerr = sys.stderr
+        ipydishook = sys.displayhook
+
+        def write_stdout(s):
+            ipyout._oldwrite(s)
+            ipyout.flush()
+            stdout.write(s)
+
+        def write_stderr(s):
+            ipyerr._oldwrite(s)
+            ipyerr.flush()
+            stderr.write(s)
+
+        def displayhook(s):
+            ipydishook(s)
+            dishook(s)
+
+        ch = logging.StreamHandler(ipyerr)
+        ch.setLevel(logging.WARNING)
+        logger.addHandler(ch)
+
+        sys.stdout._oldwrite = sys.stdout.write
+        sys.stdout.write = write_stdout
+        sys.stderr._oldwrite = sys.stderr.write
+        sys.stderr.write = write_stderr
+        sys.displayhook = displayhook
+
+    @pyqtSignature("")
+    def on_actionIPython_triggered(self):
+        if not ipython_available:
+            return
+        self.create_ipython_kernel()
+        connect_qtconsole(self.ipy_kernel.connection_file)
 
     @pyqtSignature("")
     def on_actionExit_triggered(self):
@@ -291,11 +390,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     @pyqtSignature("")
     def on_actionDocumentation_triggered(self):
-        #if not self.web_view:
-        #    self.web_view = QWebView(None)
-        #    self.web_view.setWindowTitle("Spyke Viewer Documentation")
-        #self.web_view.load(QUrl("http://spyke-viewer.readthedocs.org"))
-        #self.web_view.show()
         webbrowser.open('http://spyke-viewer.readthedocs.org')
 
     def on_menuSelections_mousePressed(self, event):
