@@ -14,6 +14,10 @@ class SpectrogramPlugin(analysis_plugin.AnalysisPlugin):
     interpolate = gui_data.BoolItem('Interpolate', default=True)
     show_color_bar = gui_data.BoolItem('Show color bar', default=False)
     fft_samples = gui_data.ChoiceItem('FFT samples', nfft_names, default=3)
+    which_signals = gui_data.ChoiceItem('Included signals',
+                                        ('AnalogSignal',
+                                         'AnalogSignalArray', 'Both'),
+                                        default=2)
     
     def get_name(self):
         return 'Signal Spectogram'
@@ -21,7 +25,7 @@ class SpectrogramPlugin(analysis_plugin.AnalysisPlugin):
     @helper.needs_qt
     def start(self, current, selections):
         current.progress.begin('Creating Spectogram')
-        signals = current.analog_signals()
+        signals = current.analog_signals(self.which_signals + 1)
         if not signals:
             current.progress.done()
             return

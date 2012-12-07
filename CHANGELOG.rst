@@ -3,9 +3,9 @@ Changelog
 
 Version 0.2.1
 -------------
-* New features for plugin editor: Calltips, autocompletion and "jump to" (
-  definitions in code or errors displayed in integrated console).
-* Experimental: IPython console supported (File->New IPython console). Needs
+* New features for plugin editor: Calltips, autocompletion and "jump to"
+  (definitions in code or errors displayed in integrated console).
+* Experimental support for IPython console (File->New IPython console). Needs
   IPython >= 0.12
 * New spectrogram plugin
 * Combined filters for filtering (or sorting) a whole list of objects

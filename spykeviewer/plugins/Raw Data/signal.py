@@ -33,18 +33,15 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
         return 'Signal Plot'
 
     def start(self, current, selections):
-        num_signals = 0
-        if self.which_signals == 0 or self.which_signals == 2:
-            num_signals += current.num_analog_signals()
-        if self.which_signals > 0:
-            num_signals += current.num_analog_signal_arrays()
+        num_signals = current.num_analog_signals(self.which_signals + 1)
+        
         if num_signals < 1:
             raise SpykeException('No signals selected!')
 
         current.progress.begin('Creating signal plot...')
 
         signal_arrays = current.analog_signal_arrays_by_segment()
-        signals = current.analog_signals_by_segment()
+        signals = current.analog_signals_by_segment(self.which_signals + 1)
 
         # Load supplemental data
         events = None
@@ -69,7 +66,6 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
 
         # Create plot
         segments = set(signals.keys())
-        segments = segments.union(set(signal_arrays.keys()))
         for seg in segments:
             current.progress.begin('Creating signal plot...')
             current.progress.set_status('Constructing plot')
@@ -88,16 +84,6 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
             seg_spikes = None
             if spikes and spikes.has_key(seg):
                 seg_spikes = spikes[seg]
-
-            # Prepare AnalogSignals
-            seg_signals = []
-            if (self.which_signals == 0 or self.which_signals == 2)\
-                and seg in signals:
-                seg_signals.extend(signals[seg])
-            if self.which_signals > 0 and seg in signal_arrays:
-                for sa in signal_arrays[seg]:
-                    seg_signals.extend(
-                        convert.analog_signal_array_to_analog_signals(sa))
             
             # Prepare template spikes
             if self.spike_form == 0 and self.template_mode:
@@ -120,7 +106,7 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
                         seg_spikes.append(s)
                     seg_trains.remove(st)
 
-            plot.signals(seg_signals, events=seg_events, 
+            plot.signals(signals[seg], events=seg_events, 
                          epochs=seg_epochs, spike_trains=seg_trains,
                          spikes=seg_spikes, use_subplots=self.subplots, 
                          show_waveforms=(self.spike_form==0),

@@ -101,7 +101,6 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
                 automatic=automatic)
             return
         else:
-            print editor.file_name or self.rope_temp_path
             textlist = self.rope_project.get_completion_list(source_code,
                 offset, editor.file_name or self.rope_temp_path)
             if textlist:
