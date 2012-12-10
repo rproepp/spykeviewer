@@ -42,8 +42,9 @@ their respective dependencies need to be installed:
 * spykeutils_
 * scipy_
 * guiqwt_
+* matplotlib_
 * tables_
-* spyder_
+* spyder_ >= 2.1.0
 * neo_ >= 0.2.1
 
 Please see the respective websites for instructions on how to install them if
@@ -51,21 +52,10 @@ they are not present on your computer. On a recent version of Debian/Ubuntu
 (e.g. Ubuntu 12.04 or newer), you can install all dependencies that are not
 automatically installed by ``pip`` or ``easy_install`` with::
 
-    $ sudo apt-get install python-guiqwt python-tables
+    $ sudo apt-get install python-guiqwt python-tables python-matplotlib
 
 On windows, you can use `Python(x,y)`_ if you do yet not have a Python
-distribution installed. It also includes all dependencies (except
-spykeutils).
-
-.. note::
-    If you have installed neo_ before, please make sure you have the most
-    recent version of the package, e.g. by running::
-
-    $ pip install -U neo
-
-    or::
-
-    $ easy_install -U neo
+distribution installed. It includes the same dependencies.
 
 spykeviewer
 ###########
@@ -104,3 +94,4 @@ $ spyke-viewer
 .. _`setuptools`: http://pypi.python.org/pypi/setuptools
 .. _`spyder`: http://packages.python.org/spyder/
 .. _`Python(x,y)`: http://www.pythonxy.com/
+.. _`matplotlib`: http://matplotlib.org/

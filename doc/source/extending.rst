@@ -43,7 +43,7 @@ dock. Replace the string "New Plugin" by a name for your plugin, for example
 
 The ``start`` method gets called whenever you start a plugin. The two
 parameters are the same objects as the identically named objects that can be
-used in the console (see :ref:``console``): ``current`` gives access to the
+used in the console (see :ref:`console`): ``current`` gives access to the
 currently selected data, ``selections`` is a list containing the stored
 selections. Both ``current`` and the entries of ``selections`` are
 :class:`spykeutils.plugin.data_provider.DataProvider` objects, refer to the
@@ -81,12 +81,6 @@ using ``matplotlib`` for the plot, you first have to import it by adding::
     import numpy as np
 
 at the top of the plugin file.
-
-.. Note::
-    matplotlib is not part of the requirements for Spyke Viewer, so it might
-    not be installed on your machine. If you use a packaged version of Spyke
-    Viewer for Windows or OS X, matplotlib will be present. Otherwise, you
-    might need to install it (see http://matplotlib.org/users/installing.html).
 
 Next, replace the code in the ``start`` method by::
 

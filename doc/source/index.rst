@@ -24,6 +24,7 @@ Contents:
    usage
    plugins
    extending
+   CHANGELOG
    acknowledgements
 
 Indices and tables

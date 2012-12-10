@@ -30,10 +30,6 @@ Included signals
   including both will work well (you probably never need to change it if you
   do not know the difference between the signal objects).
 
-  Note that while only AnalogSignals for selected channels are be included in
-  the plot, all channels for AnalogSignalArrays are always included as these
-  objects are directly attached to RecordingChannelGroups.
-
 Show events
   When this is checked, events in the selected trial will be shown in the
   plot.
@@ -61,6 +57,29 @@ Show spikes
     each unit has a SpikeTrain and a single Spike. The waveform from the
     Spike object is used for every spike in the SpikeTrain. The data in the
     example file is structured in this way.
+
+Spectrogram
+-----------
+Shows spectrograms of the selected analog signals.
+
+.. image:: /img/plugin-spectrogram.png
+
+Interpolate
+  Determines whether the dipslayed spectrogram is interpolated.
+
+Show color bar
+  If this is checked, a colorbar will be shown with each plot, illustrating
+  the logarithmic power represented by the colors.
+
+FFT samples
+  The number of signal samples used in each FFT window.
+
+Included signals
+  This option can be used to tune which type of signals are shown:
+  AnalogSignal objects, AnalogSignalArray objects or both. In most cases, a
+  file will only include one of the signal types, so the default option of
+  including both will work well (you probably never need to change it if you
+  do not know the difference between the signal objects).
 
 Spike Waveform Plot
 -------------------
