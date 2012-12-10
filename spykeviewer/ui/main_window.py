@@ -121,6 +121,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setCentralWidget(None)
         self.update_view_menu()
 
+        # Hide "Clear cache" entry - not useful for now because of
+        # Neo memory leak
+        self.actionClearCache.setVisible(False)
+
     def update_view_menu(self):
         if hasattr(self, 'menuView'):
             a = self.menuView.menuAction()

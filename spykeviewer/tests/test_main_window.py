@@ -53,12 +53,6 @@ class TestMainWindow(ut.TestCase):
     def test_filter_tree(self):
         self.assertEqual(self.win.filterTreeWidget.topLevelItemCount(), 5)
 
-    def test_help_dialog(self):
-        self.assertEqual(self.win.web_view, None)
-        self.win.actionDocumentation.trigger()
-        self.assertNotEqual(self.win.web_view, None)
-        self.win.web_view.close()
-
     def test_file_tree(self):
         self.assert_(self.win.fileTreeView.model().hasIndex(0,0),
             'Filesystem model is empty')
