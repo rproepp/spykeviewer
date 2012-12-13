@@ -15,7 +15,7 @@ from PyQt4.QtGui import (QFileSystemModel, QHeaderView, QListWidgetItem,
                          QStyle, QApplication, QTreeWidget, QProgressDialog,
                          QFileDialog, QDesktopServices)
 
-from spykeutils.progress_indicator import ignores_cancel
+from spykeutils.progress_indicator import ignores_cancel, CancelException
 from spykeutils import SpykeException
 from spykeutils.plugin.data_provider_neo import NeoDataProvider
 from spykeutils.plugin.data_provider_stored import NeoStoredProvider
@@ -1198,7 +1198,6 @@ class MainWindowNeo(MainWindow):
             self.reload_plugins()
 
     @pyqtSignature("")
-    @ignores_cancel
     def on_actionRunPlugin_triggered(self):
         ana = self.current_plugin()
         if not ana:
@@ -1209,6 +1208,8 @@ class MainWindowNeo(MainWindow):
         except SpykeException, err:
             self.progress.done()
             QMessageBox.critical(self, 'Error executing analysis', str(err))
+        except CancelException:
+            pass
         except Exception, e:
             # Only print stack trace from plugin on
             tb = sys.exc_info()[2]
@@ -1266,7 +1267,8 @@ class MainWindowNeo(MainWindow):
         subprocess.Popen(['python', '-c', '%s' % code,
                           type(self.current_plugin()).__name__,
                           self.current_plugin_path(),
-                          selections, '-cf', '-c', config])
+                          selections, '-cf', '-c', config,
+                          '-dd', AnalysisPlugin.data_dir])
 
     def on_neoAnalysesTreeView_customContextMenuRequested(self, pos):
         self.menuPlugins.popup(self.neoAnalysesTreeView.mapToGlobal(pos))
