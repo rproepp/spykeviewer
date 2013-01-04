@@ -71,7 +71,7 @@ class SDEPlugin(analysis_plugin.AnalysisPlugin):
             events = None
 
         plot.sde(trains, events, start, stop, kernel_size, optimize_steps,
-            minimum_kernel, maximum_kernel, self.unit, current.progress)
+            minimum_kernel, maximum_kernel, None, self.unit, current.progress)
 
     def configure(self):
         super(SDEPlugin, self).configure()
