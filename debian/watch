@@ -1,4 +1,4 @@
 # Compulsory line, this is a version 3 file
 version=3
-opts="filenamemangle=s/.*\/(.*)/spykeviewer-$1\.tar\.gz/" \
-  http://github.com/rproepp/spykeviewer/tags .*tarball/(\d[\d\.a-z]+)
+opts="filenamemangle=s/.*\/(.*)/spykeviewer-$1/" \
+  http://github.com/rproepp/spykeviewer/tags .*archive/(\d[\d\.a-z]+)\.tar\.gz

@@ -1,0 +1,9 @@
+Document: spykeviewer
+Title: Spyke Viewer documentation
+Author: Robert Pröpper <robert.proepper@gmail.com>
+Abstract: Documentation of Spyke Viewer, a GUI tool for analyzing electrophysiological data
+Section: Science/Data Analysis
+
+Format: HTML
+Index: /usr/share/doc/spykeviewer/html/index.html
+Files: /usr/share/doc/spykeviewer/html/*

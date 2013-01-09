@@ -14,9 +14,11 @@ Build-Depends: debhelper (>= 7.2.18),
                python-guidata,
                python-guiqwt,
                python-tables,
-               python-spykeutils (= 0.2.0)
+               python-spykeutils (>= 0.2.0),
+               python-spykeutils (<< 0.2.1),
+               xvfb,
 Standards-Version: 3.9.3.1
-Homepage: https://github.com/rproepp/spykeviewer
+Homepage: http://www.ni.tu-berlin.de/software/spykeviewer
 Vcs-Browser: https://github.com/rproepp/spykeviewer
 Vcs-Git: git://github.com/rproepp/spykeviewer.git
 X-Python-Version: >= 2.7
@@ -24,15 +26,18 @@ X-Python-Version: >= 2.7
 Package: spykeviewer
 Architecture: all
 Depends: ${misc:Depends}, ${python:Depends},
-         python-neo,
+         python-neo (>= 0.2.1),
          python-nose,
          python-scipy,
-         python-sphinx
+         python-sphinx,
          python-guidata,
          python-guiqwt,
          python-tables,
-         python-spykeutils,
+         python-spykeutils (>= 0.2.0),
+         python-spykeutils (<< 0.2.1)
+Recommends:
          libjs-jquery,
+         libjs-underscore,
 Provides: ${python:Provides}
 Description: graphical utility for analyzing electrophysiological data
  Spyke Viewer is a multi-platform GUI application for navigating, analyzing
