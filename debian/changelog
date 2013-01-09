@@ -1,5 +1,5 @@
-spykeviewer (0.2.0-1) unstable; urgency=low
+spykeviewer (0.2.0-1) experimental; urgency=low
 
-  * Initial public release.
+  * Initial public release. (Closes: #687703).
 
  -- Robert Pröpper <robert.proepper@gmail.com>  Tue, 08 Jan 2013 18:47:09 +0100

@@ -6,23 +6,29 @@ export http_proxy = http://127.0.9.1:9
 
 # one rule to rule them all ...
 %:
-	dh $@ --buildsystem=python_distutils
+	dh $@ --buildsystem=python_distutils --with python2
 
 override_dh_auto_build:
 	dh_auto_build
 	# and docs
 	$(MAKE) -C doc html
 	# but remove jquery copy (later on link to Debian's version)
-	-rm build/html/_static/jquery.js
+	-rm doc/build/html/_static/jquery.js
+	-rm doc/build/html/_static/underscore.js
 	# objects inventory is of no use for the package
-	-rm build/html/objects.inv
+	-rm doc/build/html/objects.inv
+	: # also doc source files only consume space
+	-rm -r doc/build/html/_sources
+
+override_dh_installchangelogs:
+	dh_installchangelogs doc/CHANGELOG.rst
 
 # enable when we believe that the tests should pass
 override_dh_auto_test:
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
 	for buildver in $(shell pyversions -vr); do \
 		echo "I: Running spykeviewer unittests using python$$buildver"; \
-		#xvfb-run -s "-screen 0 1280x1024x24 -noreset" \
+		xvfb-run -s "-screen 0 1280x1024x24 -noreset" \
 		python$$buildver /usr/bin/nosetests spykeviewer || exit 1 ;\
 	done
 endif
