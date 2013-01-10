@@ -29,15 +29,20 @@ sip.setapi('QVariant', 2)
 from PyQt4 import QtGui
 from PyQt4.QtTest import QTest
 from PyQt4.QtCore import Qt
+from spykeviewer.ui.main_window_neo import MainWindowNeo
 
 
 class TestMainWindow(ut.TestCase):
-    def setUp(self):
-        self.window = None
+    @classmethod
+    def setUpClass(cls):
+        print 'warte mal'
+        cls.app = QtGui.QApplication(sys.argv)
+        print "It's a setup!"
+        cls.win = MainWindowNeo()
 
-        from spykeviewer.ui.main_window_neo import MainWindowNeo
-        self.app = QtGui.QApplication(sys.argv)
-        self.win = MainWindowNeo()
+    @classmethod
+    def tearDownClass(cls):
+        cls.win.close()
 
     def test_object_selections(self):
         self.assertNotEqual(self.win.neo_blocks(), None)
@@ -67,9 +72,12 @@ class TestMainWindow(ut.TestCase):
         QTest.keyClick(self.win.console, Qt.Key_1)
         QTest.keyClick(self.win.console, Qt.Key_Plus)
         QTest.keyClick(self.win.console, Qt.Key_1)
+        lines = self.win.console.get_line_count()
+        self.assertEqual(self.win.console.get_text_line(lines-1), '>>> 1+1')
+
         QTest.keyClick(self.win.console, Qt.Key_Enter)
         lines = self.win.console.get_line_count()
-        self.assertEqual(self.win.console.get_text_line(lines-2), '2')
+        self.assertEqual(self.win.console.get_text_line(lines-1), '>>> ')
 
     def test_history(self):
         history_lines = self.win.history.get_line_count()
