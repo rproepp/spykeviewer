@@ -8,15 +8,18 @@ Uploaders: Robert Pröpper <robert.proepper@gmail.com>,
 Build-Depends: debhelper (>= 7.2.18),
                python-all (>= 2.7),
                python-neo (>= 0.2.1),
+               python-setuptools,
                python-nose,
                python-scipy,
                python-sphinx,
+               python-mock,
                python-guidata,
                python-guiqwt,
                python-tables,
                python-spykeutils (>= 0.2.0),
                python-spykeutils (<< 0.2.1),
                xvfb,
+               xauth,
 Standards-Version: 3.9.3.1
 Homepage: http://www.ni.tu-berlin.de/software/spykeviewer
 Vcs-Browser: https://github.com/rproepp/spykeviewer

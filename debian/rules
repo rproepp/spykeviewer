@@ -26,14 +26,25 @@ override_dh_installchangelogs:
 # enable when we believe that the tests should pass
 override_dh_auto_test:
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
-	for buildver in $(shell pyversions -vr); do \
+	set -e; for buildver in $(shell pyversions -vr); do \
 		echo "I: Running spykeviewer unittests using python$$buildver"; \
 		xvfb-run -s "-screen 0 1280x1024x24 -noreset" \
 		python$$buildver /usr/bin/nosetests spykeviewer || exit 1 ;\
 	done
 endif
 
+override_dh_installmenu:
+	dh_installmenu
+	# Copy application icon and .desktop file
+	cp debian/spykeviewer.png debian/spykeviewer/usr/share/pixmaps
+	cp debian/spykeviewer.desktop debian/spykeviewer/usr/share/applications/
+
 ## immediately useable documentation
 ## and exemplar data (they are small excerpts anyway)
 override_dh_compress:
 	dh_compress -X.py -X.html -X.css -X.jpg -X.txt -X.js -X.json -X.rtc -X.par -X.bin
+
+override_dh_auto_clean:
+	dh_auto_clean
+	-rm -rf doc/build build
+	-rm -rf spykeviewer.egg-info
