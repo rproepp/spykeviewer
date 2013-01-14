@@ -2,7 +2,7 @@
 Name=Spyke Viewer
 GenericName=Graphical utility for analyzing electrophysiological data
 Exec=spyke-viewer
-Icon=spykeviewer.png
+Icon=/usr/share/pixmaps/spykeviewer.png
 Terminal=false
 Type=Application
 Categories=Science;Education;Qt;DataVisualization;

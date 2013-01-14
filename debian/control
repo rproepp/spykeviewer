@@ -17,7 +17,7 @@ Build-Depends: debhelper (>= 7.2.18),
                python-guiqwt,
                python-tables,
                python-spykeutils (>= 0.2.0),
-               python-spykeutils (<< 0.2.1),
+               imagemagick,
                xvfb,
                xauth,
 Standards-Version: 3.9.3.1
@@ -37,7 +37,6 @@ Depends: ${misc:Depends}, ${python:Depends},
          python-guiqwt,
          python-tables,
          python-spykeutils (>= 0.2.0),
-         python-spykeutils (<< 0.2.1)
 Recommends:
          libjs-jquery,
          libjs-underscore,

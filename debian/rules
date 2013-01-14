@@ -33,11 +33,10 @@ ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
 	done
 endif
 
-override_dh_installmenu:
-	dh_installmenu
-	# Copy application icon and .desktop file
-	cp debian/spykeviewer.png debian/spykeviewer/usr/share/pixmaps
-	cp debian/spykeviewer.desktop debian/spykeviewer/usr/share/applications/
+override_dh_install:
+	cp resources/icons/appicon.png resources/icons/spykeviewer.png
+	dh_install
+	mogrify -resize 32x32 debian/spykeviewer/usr/share/pixmaps/spykeviewer.png
 
 ## immediately useable documentation
 ## and exemplar data (they are small excerpts anyway)
