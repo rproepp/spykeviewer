@@ -42,7 +42,7 @@ if __name__ == "__main__":
                           'neo'],
         entry_points = {
             'gui_scripts':
-                ['spyke-viewer = spykeviewer.start:main']
+                ['spykeviewer = spykeviewer.start:main']
         },
         package_data = {'': plugin_files},
         zip_safe=False,
