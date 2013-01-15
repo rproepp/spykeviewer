@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Spyke Viewer
 GenericName=Graphical utility for analyzing electrophysiological data
-Exec=spyke-viewer
+Exec=spykeviewer
 Icon=spykeviewer.png
 Terminal=false
 Type=Application
