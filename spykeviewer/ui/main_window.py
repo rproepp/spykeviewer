@@ -7,7 +7,8 @@ import webbrowser
 from PyQt4.QtGui import (QMainWindow, QMessageBox,
                          QApplication, QFileDialog, QInputDialog,
                          QLineEdit, QMenu, QDrag, QPainter, QPen,
-                         QPalette, QDesktopServices, QFont, QAction)
+                         QPalette, QDesktopServices, QFont, QAction,
+                         QPixmap)
 from PyQt4.QtCore import (Qt, pyqtSignature, SIGNAL, QMimeData,
                           QSettings, QCoreApplication, QTimer)
 
@@ -380,6 +381,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         about = QMessageBox(self)
         about.setWindowTitle(u'About Spyke Viewer ' + __version__)
         about.setTextFormat(Qt.RichText)
+        about.setIconPixmap(QPixmap(':/Application/Main'))
         about.setText(u'Spyke Viewer is an application for navigating, '
             u'analyzing and visualizing electrophysiological datasets.<br>'
             u'<br><a href=http://www.ni.tu-berlin.de/software/spykeviewer>'
