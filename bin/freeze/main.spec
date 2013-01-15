@@ -64,7 +64,7 @@ else:
 
 pyz = PYZ(a.pure)
 exe = EXE(pyz, a.scripts, exclude_binaries=1, name=exename, debug=False,
-          strip=None, upx=False, console=False)
+          strip=None, upx=False, console=True)
 
 a.datas.extend(dir_files(os.path.join(os.path.dirname(guidata.__file__),
     'images'), os.path.join('guidata', 'images')))
@@ -76,9 +76,17 @@ a.datas.append(('', os.path.join(os.path.dirname(spykeutils.__file__),
     'plugin', 'start_plugin.py'), 'DATA'))
 a.datas.extend(dir_files(os.path.join(module_path, 'plugins'), 'plugins'))
 
+dist_dir = os.path.join('dist', 'main')
 coll = COLLECT(exe, a.binaries, a.zipfiles, a.datas, strip=None,
-               upx=False, name=os.path.join('dist', 'main'))
+               upx=False, name=dist_dir)
                
 if platform.system() == 'Darwin':
     app = BUNDLE(exe, appname='Spyke Viewer',
         version=find_version(viewer_path))
+elif platform.system() == 'Windows': # Bugfix for pythoncom
+    dist_total = os.path.join(viewer_path, 'bin', 'freeze', dist_dir)
+    try:
+        os.rename(os.path.join(dist_total, 'pythoncom27.dll'),
+            os.path.join(dist_total, 'pythoncom.pyd'))
+    except OSError, WindowsError:
+        pass
