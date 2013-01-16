@@ -105,6 +105,7 @@ QGroupBox::title {
     <addaction name="actionEditPlugin"/>
     <addaction name="actionSavePlugin"/>
     <addaction name="actionSavePluginAs"/>
+    <addaction name="actionShowPluginFolder"/>
     <addaction name="actionRefreshPlugins"/>
     <addaction name="actionRemotePlugin"/>
    </widget>
@@ -466,7 +467,7 @@ QGroupBox::title {
   <action name="actionNewPlugin">
    <property name="icon">
     <iconset resource="../../resources/icons.qrc">
-     <normaloff>:/Analyses/New</normaloff>:/Analyses/New</iconset>
+     <normaloff>:/Plugins/New</normaloff>:/Plugins/New</iconset>
    </property>
    <property name="text">
     <string>New Plugin</string>
@@ -481,10 +482,13 @@ QGroupBox::title {
    </property>
    <property name="icon">
     <iconset resource="../../resources/icons.qrc">
-     <normaloff>:/Analyses/Edit</normaloff>:/Analyses/Edit</iconset>
+     <normaloff>:/Plugins/Edit</normaloff>:/Plugins/Edit</iconset>
    </property>
    <property name="text">
     <string>Edit Plugin</string>
+   </property>
+   <property name="toolTip">
+    <string>Edit selected plugin</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+E</string>
@@ -493,10 +497,13 @@ QGroupBox::title {
   <action name="actionRefreshPlugins">
    <property name="icon">
     <iconset resource="../../resources/icons.qrc">
-     <normaloff>:/Analyses/Reload</normaloff>:/Analyses/Reload</iconset>
+     <normaloff>:/Plugins/Reload</normaloff>:/Plugins/Reload</iconset>
    </property>
    <property name="text">
     <string>Refresh Plugins</string>
+   </property>
+   <property name="toolTip">
+    <string>Refresh all plugins</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
@@ -508,10 +515,13 @@ QGroupBox::title {
    </property>
    <property name="icon">
     <iconset resource="../../resources/icons.qrc">
-     <normaloff>:/Analyses/Save</normaloff>:/Analyses/Save</iconset>
+     <normaloff>:/Plugins/Save</normaloff>:/Plugins/Save</iconset>
    </property>
    <property name="text">
     <string>Save Plugin</string>
+   </property>
+   <property name="toolTip">
+    <string>Save plugin edited plugin</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -523,10 +533,13 @@ QGroupBox::title {
    </property>
    <property name="icon">
     <iconset resource="../../resources/icons.qrc">
-     <normaloff>:/Analyses/Config</normaloff>:/Analyses/Config</iconset>
+     <normaloff>:/Plugins/Config</normaloff>:/Plugins/Config</iconset>
    </property>
    <property name="text">
     <string>Configure Plugin</string>
+   </property>
+   <property name="toolTip">
+    <string>Configure selected plugin</string>
    </property>
    <property name="shortcut">
     <string>F6</string>
@@ -538,10 +551,13 @@ QGroupBox::title {
    </property>
    <property name="icon">
     <iconset resource="../../resources/icons.qrc">
-     <normaloff>:/Analyses/Run</normaloff>:/Analyses/Run</iconset>
+     <normaloff>:/Plugins/Run</normaloff>:/Plugins/Run</iconset>
    </property>
    <property name="text">
     <string>Run Plugin</string>
+   </property>
+   <property name="toolTip">
+    <string>Run selected plugin</string>
    </property>
    <property name="shortcut">
     <string>F5</string>
@@ -553,7 +569,7 @@ QGroupBox::title {
    </property>
    <property name="icon">
     <iconset resource="../../resources/icons.qrc">
-     <normaloff>:/Analyses/Remote</normaloff>:/Analyses/Remote</iconset>
+     <normaloff>:/Plugins/Remote</normaloff>:/Plugins/Remote</iconset>
    </property>
    <property name="text">
     <string>Start with Remote Script</string>
@@ -619,10 +635,13 @@ QGroupBox::title {
   <action name="actionSavePluginAs">
    <property name="icon">
     <iconset resource="../../resources/icons.qrc">
-     <normaloff>:/Analyses/Save As</normaloff>:/Analyses/Save As</iconset>
+     <normaloff>:/Plugins/Save As</normaloff>:/Plugins/Save As</iconset>
    </property>
    <property name="text">
     <string>Save Plugin as...</string>
+   </property>
+   <property name="toolTip">
+    <string>Save edited plugin as new file</string>
    </property>
   </action>
   <action name="actionDocumentation">
@@ -641,6 +660,15 @@ QGroupBox::title {
   <action name="actionSave_Data">
    <property name="text">
     <string>Save Data as...</string>
+   </property>
+  </action>
+  <action name="actionShowPluginFolder">
+   <property name="icon">
+    <iconset resource="../../resources/icons.qrc">
+     <normaloff>:/Plugins/Show Folder</normaloff>:/Plugins/Show Folder</iconset>
+   </property>
+   <property name="text">
+    <string>Open containing folder...</string>
    </property>
   </action>
  </widget>

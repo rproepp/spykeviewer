@@ -9,7 +9,7 @@ import neo
 from neo.io.baseio import BaseIO
 
 from PyQt4.QtCore import (Qt, pyqtSignature, QThread, QMutex,
-                          QSettings, SIGNAL)
+                          QSettings, SIGNAL, QUrl)
 from PyQt4.QtGui import (QFileSystemModel, QHeaderView, QListWidgetItem,
                          QMessageBox, QTreeWidgetItem, QAbstractItemView,
                          QStyle, QApplication, QTreeWidget, QProgressDialog,
@@ -1255,6 +1255,11 @@ class MainWindowNeo(MainWindow):
     @pyqtSignature("")
     def on_actionSavePluginAs_triggered(self):
         self.pluginEditorDock.save_current(True)
+
+    @pyqtSignature("")
+    def on_actionShowPluginFolder_triggered(self):
+        QDesktopServices.openUrl(QUrl.fromLocalFile(
+            os.path.dirname(self.current_plugin_path())))
 
     @pyqtSignature("")
     def on_actionRemotePlugin_triggered(self):
