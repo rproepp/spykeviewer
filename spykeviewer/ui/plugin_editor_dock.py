@@ -27,6 +27,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
 """
 
     plugin_saved = pyqtSignal(str)
+    file_available = pyqtSignal(bool)
 
     def __init__(self, title='Plugin Editor', default_path=None, parent=None):
         QDockWidget.__init__(self, title, parent)
@@ -38,6 +39,10 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
             QDesktopServices.DataLocation)
         self.default_path = default_path or os.getcwd()
         self.rope_temp_path = os.path.join(data_path, '.temp')
+        self.tabs.currentChanged.connect(self._tab_changed)
+
+    def _tab_changed(self, tab):
+        self.file_available.emit(tab != -1)
 
     def set_default_path(self, path):
         self.default_path = path

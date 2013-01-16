@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/rob/Spyke/viewer/spykeviewer/ui/main.ui'
 #
-# Created: Wed Jan 16 16:42:26 2013
+# Created: Wed Jan 16 17:41:35 2013
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -239,7 +239,7 @@ class Ui_MainWindow(object):
         self.actionRefreshPlugins.setIcon(icon4)
         self.actionRefreshPlugins.setObjectName(_fromUtf8("actionRefreshPlugins"))
         self.actionSavePlugin = QtGui.QAction(MainWindow)
-        self.actionSavePlugin.setEnabled(True)
+        self.actionSavePlugin.setEnabled(False)
         icon5 = QtGui.QIcon()
         icon5.addPixmap(QtGui.QPixmap(_fromUtf8(":/Plugins/Save")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionSavePlugin.setIcon(icon5)
@@ -291,6 +291,7 @@ class Ui_MainWindow(object):
         self.actionNewFilterGroup.setIcon(icon13)
         self.actionNewFilterGroup.setObjectName(_fromUtf8("actionNewFilterGroup"))
         self.actionSavePluginAs = QtGui.QAction(MainWindow)
+        self.actionSavePluginAs.setEnabled(False)
         icon14 = QtGui.QIcon()
         icon14.addPixmap(QtGui.QPixmap(_fromUtf8(":/Plugins/Save As")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionSavePluginAs.setIcon(icon14)
@@ -397,7 +398,7 @@ class Ui_MainWindow(object):
         self.actionRefreshPlugins.setToolTip(QtGui.QApplication.translate("MainWindow", "Refresh all plugins", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRefreshPlugins.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSavePlugin.setText(QtGui.QApplication.translate("MainWindow", "Save Plugin", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionSavePlugin.setToolTip(QtGui.QApplication.translate("MainWindow", "Save plugin edited plugin", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSavePlugin.setToolTip(QtGui.QApplication.translate("MainWindow", "Save current file", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSavePlugin.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionConfigurePlugin.setText(QtGui.QApplication.translate("MainWindow", "Configure Plugin", None, QtGui.QApplication.UnicodeUTF8))
         self.actionConfigurePlugin.setToolTip(QtGui.QApplication.translate("MainWindow", "Configure selected plugin", None, QtGui.QApplication.UnicodeUTF8))
@@ -413,7 +414,7 @@ class Ui_MainWindow(object):
         self.actionDeleteFilter.setText(QtGui.QApplication.translate("MainWindow", "Delete Filter", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNewFilterGroup.setText(QtGui.QApplication.translate("MainWindow", "New Filter Group", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSavePluginAs.setText(QtGui.QApplication.translate("MainWindow", "Save Plugin as...", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionSavePluginAs.setToolTip(QtGui.QApplication.translate("MainWindow", "Save edited plugin as new file", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSavePluginAs.setToolTip(QtGui.QApplication.translate("MainWindow", "Save current file as...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionDocumentation.setText(QtGui.QApplication.translate("MainWindow", "Documentation", None, QtGui.QApplication.UnicodeUTF8))
         self.actionDocumentation.setToolTip(QtGui.QApplication.translate("MainWindow", "Open documentation website\n"
 "(requires Internet access)", None, QtGui.QApplication.UnicodeUTF8))

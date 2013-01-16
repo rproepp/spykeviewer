@@ -511,7 +511,7 @@ QGroupBox::title {
   </action>
   <action name="actionSavePlugin">
    <property name="enabled">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="icon">
     <iconset resource="../../resources/icons.qrc">
@@ -521,7 +521,7 @@ QGroupBox::title {
     <string>Save Plugin</string>
    </property>
    <property name="toolTip">
-    <string>Save plugin edited plugin</string>
+    <string>Save current file</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -633,6 +633,9 @@ QGroupBox::title {
    </property>
   </action>
   <action name="actionSavePluginAs">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="../../resources/icons.qrc">
      <normaloff>:/Plugins/Save As</normaloff>:/Plugins/Save As</iconset>
@@ -641,7 +644,7 @@ QGroupBox::title {
     <string>Save Plugin as...</string>
    </property>
    <property name="toolTip">
-    <string>Save edited plugin as new file</string>
+    <string>Save current file as...</string>
    </property>
   </action>
   <action name="actionDocumentation">

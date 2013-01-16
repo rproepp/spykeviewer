@@ -104,6 +104,7 @@ class MainWindowNeo(MainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, self.pluginEditorDock)
         self.pluginEditorDock.setVisible(False)
         self.pluginEditorDock.plugin_saved.connect(self.plugin_saved)
+        self.pluginEditorDock.file_available.connect(self.file_available)
         self.update_view_menu()
 
         self.consoleDock.edit_script = lambda (path):\
@@ -463,6 +464,10 @@ class MainWindowNeo(MainWindow):
         self.load_worker.finished.connect(self.load_file_callback)
         self.load_worker.terminated.connect(self.load_file_callback)
         self.load_worker.start()
+
+    def file_available(self, available):
+        self.actionSavePlugin.setEnabled(available)
+        self.actionSavePluginAs.setEnabled(available)
 
     @ignores_cancel
     def on_neoLoadFilesButton_pressed(self):
