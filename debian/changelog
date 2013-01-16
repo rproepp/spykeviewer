@@ -1,5 +1,11 @@
+spykeviewer (0.2.0-2) experimental; urgency=low
+
+  * Icons in debian/copyright. (Closes: #687703).
+
+ -- Robert Pröpper <robert.proepper@gmail.com>  Wed, 16 Jan 2013 11:57:15 +0100
+
 spykeviewer (0.2.0-1) experimental; urgency=low
 
-  * Initial public release. (Closes: #687703).
+  * Initial public release.
 
  -- Robert Pröpper <robert.proepper@gmail.com>  Tue, 08 Jan 2013 18:47:09 +0100
