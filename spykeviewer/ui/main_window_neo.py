@@ -739,6 +739,33 @@ class MainWindowNeo(MainWindow):
 
         return self.analysisModel.data(item, self.analysisModel.FilePathRole)
 
+    def get_plugin(self, name):
+        """ Get plugin with the given name. Raises a SpykeException if
+            multiple plugins with this name exist. Returns None if no such
+            plugin exists.
+        """
+        idx = self.analysisModel.get_indices_for_name(name)
+        if not idx:
+            return None
+        if len(idx) > 1:
+            raise SpykeException('Multiple plugins named "%s" exist!' % name)
+
+        return self.analysisModel.data(idx[0], self.analysisModel.DataRole)
+
+    def start_plugin(self, name):
+        """ Start first plugin with given name and return result of start()
+            method. Raises a SpykeException if not exactly one plugins with
+            this name exist.
+        """
+        idx = self.analysisModel.get_indices_for_name(name)
+        if not idx:
+            raise SpykeException('No plugin named "%s" exists!' % name)
+        if len(idx) > 1:
+            raise SpykeException('Multiple plugins named "%s" exist!' % name)
+
+        return self._run_plugin(
+            self.analysisModel.data(idx[0], self.analysisModel.DataRole))
+
     def filter_group_dict(self):
         """ Return a dictionary with filter groups for each filter type
         """
@@ -1208,20 +1235,24 @@ class MainWindowNeo(MainWindow):
         if not ana:
             return
 
+        self._run_plugin(ana)
+
+    def _run_plugin(self, plugin):
         try:
-            ana.start(self.provider, self.selections)
+            return plugin.start(self.provider, self.selections)
         except SpykeException, err:
             self.progress.done()
             QMessageBox.critical(self, 'Error executing analysis', str(err))
         except CancelException:
-            pass
+            return None
         except Exception, e:
             # Only print stack trace from plugin on
             tb = sys.exc_info()[2]
             while not ('self' in tb.tb_frame.f_locals and
-                tb.tb_frame.f_locals['self'] == ana):
+                       tb.tb_frame.f_locals['self'] == plugin):
                 tb = tb.tb_next
             traceback.print_exception(type(e), e, tb)
+            return None
 
     def on_neoAnalysesTreeView_doubleClicked(self, index):
         self.on_actionRunPlugin_triggered()
