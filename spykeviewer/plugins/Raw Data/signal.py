@@ -1,6 +1,5 @@
 from spykeutils.plugin import analysis_plugin, gui_data
 from spykeutils import SpykeException
-import spykeutils.conversions as convert
 from spykeutils import plot
 from copy import copy
 
@@ -40,7 +39,6 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
 
         current.progress.begin('Creating signal plot...')
 
-        signal_arrays = current.analog_signal_arrays_by_segment()
         signals = current.analog_signals_by_segment(self.which_signals + 1)
 
         # Load supplemental data
