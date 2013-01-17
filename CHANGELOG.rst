@@ -13,6 +13,7 @@ Version 0.2.1
 * Plugins are sorted alphabetically
 * New option in plugin menu: Open containing folder
 * "Delete" key deletes filters
+* Renamed start script from "spyke-viewer" to "spykeviewer"
 
 Version 0.2.0
 -------------

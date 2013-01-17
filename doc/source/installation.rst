@@ -82,7 +82,7 @@ $ python setup.py install
 
 Once the package is installed, you can start Spyke Viewer using::
 
-$ spyke-viewer
+$ spykeviewer
 
 .. _`Python`: http://python.org/
 .. _`spykeutils`: http://spykeutils.readthedocs.org/
