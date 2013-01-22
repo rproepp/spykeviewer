@@ -90,6 +90,8 @@ class PluginManager:
                         # comments manually
                         f = open(p, 'r')
                         lines  = f.readlines()
+                        if not lines:
+                            continue
                         if re.findall('coding[:=]\s*([-\w.]+)', lines[0]):
                             lines.pop(0)
                         elif re.findall('coding[:=]\s*([-\w.]+)', lines[1]):
