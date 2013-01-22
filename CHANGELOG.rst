@@ -1,6 +1,3 @@
-Changelog
-=========
-
 Version 0.2.1
 -------------
 * New features for plugin editor: Calltips, autocompletion and "jump to"
@@ -11,7 +8,9 @@ Version 0.2.1
 * Combined filters for filtering (or sorting) a whole list of objects
 * "Save all data..." menu option
 * Plugins are sorted alphabetically
+* New option in plugin menu: Open containing folder
 * "Delete" key deletes filters
+* Renamed start script from "spyke-viewer" to "spykeviewer"
 
 Version 0.2.0
 -------------

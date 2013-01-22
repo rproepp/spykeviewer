@@ -15,6 +15,9 @@ variety of plugins implementing common neuroscientific analyses and plots
 Plugins can be easily created and modified using the integrated Python editor
 or external editors.
 
+A mailinglist for discussion and support is available at
+https://groups.google.com/d/forum/spyke-viewer
+
 Contents:
 
 .. toctree::
@@ -24,7 +27,7 @@ Contents:
    usage
    plugins
    extending
-   CHANGELOG
+   changelog
    acknowledgements
 
 Indices and tables

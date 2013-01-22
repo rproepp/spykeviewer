@@ -7,7 +7,8 @@ import webbrowser
 from PyQt4.QtGui import (QMainWindow, QMessageBox,
                          QApplication, QFileDialog, QInputDialog,
                          QLineEdit, QMenu, QDrag, QPainter, QPen,
-                         QPalette, QDesktopServices, QFont, QAction)
+                         QPalette, QDesktopServices, QFont, QAction,
+                         QPixmap)
 from PyQt4.QtCore import (Qt, pyqtSignature, SIGNAL, QMimeData,
                           QSettings, QCoreApplication, QTimer)
 
@@ -152,12 +153,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             if os.path.isdir(plugin_path):
                 self.plugin_paths.append(plugin_path)
+            else:
+                logger.warning('Plugin path "%s" does not exist, no plugin '
+                               'path set!' %
+                               plugin_path)
         else:
             paths = settings.value('pluginPaths')
-            if paths is None:
-                self.plugin_paths = []
+            self.plugin_paths = []
+            if paths is not None:
+                for p in paths:
+                    if not os.path.isdir(p):
+                        logger.warning('Plugin path "%s" does not exist, '
+                                       'removing from configuration...' % p)
+                    else:
+                        self.plugin_paths.append(p)
             else:
-                self.plugin_paths = paths
+                logger.warning('No plugin paths set!')
 
         if not settings.contains('selectionPath'):
             data_path = QDesktopServices.storageLocation(
@@ -173,7 +184,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             AnalysisPlugin.data_dir = settings.value('dataPath')
 
-        if not settings.contains('remoteScript'):
+        if not settings.contains('remoteScript') or not os.path.isfile(
+            settings.value('remoteScript')):
+            if settings.contains('remoteScript'):
+                logger.warning('Remote script not found! Reverting to '
+                               'default location...')
             if hasattr(sys, 'frozen'):
                 path = os.path.dirname(sys.executable)
             else:
@@ -380,6 +395,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         about = QMessageBox(self)
         about.setWindowTitle(u'About Spyke Viewer ' + __version__)
         about.setTextFormat(Qt.RichText)
+        about.setIconPixmap(QPixmap(':/Application/Main'))
         about.setText(u'Spyke Viewer is an application for navigating, '
             u'analyzing and visualizing electrophysiological datasets.<br>'
             u'<br><a href=http://www.ni.tu-berlin.de/software/spykeviewer>'
