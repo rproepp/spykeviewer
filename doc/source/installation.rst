@@ -28,7 +28,7 @@ go to :ref:`usage` to learn how to use Spyke Viewer.
 Source
 ------
 If you use the NeuroDebian_ repositories and a recent version of Debian
-(>= Wheezy or Sid) or Ubuntu (>= 11.10), you can install the source version
+(>= Wheezy or Sid) or Ubuntu (>= 12.04), you can install the source version
 of Spyke Viewer using your package manager::
 
 $ sudo apt-get install spykeviewer
