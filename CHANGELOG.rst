@@ -1,6 +1,3 @@
-Changelog
-=========
-
 Version 0.2.1
 -------------
 * New features for plugin editor: Calltips, autocompletion and "jump to"
