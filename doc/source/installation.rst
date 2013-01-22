@@ -50,7 +50,7 @@ their respective dependencies need to be installed:
 
 * spykeutils_
 * scipy_
-* guiqwt_
+* guiqwt_ (>= 2.1.4)
 * matplotlib_
 * tables_
 * spyder_ >= 2.1.0

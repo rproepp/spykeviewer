@@ -35,7 +35,7 @@ if __name__ == "__main__":
         name="spykeviewer",
         version=version,
         packages=find_packages(),
-        install_requires=['guidata', 'guiqwt', 'spyder>=2.1.0',
+        install_requires=['guidata', 'guiqwt>=2.1.4', 'spyder>=2.1.0',
                           'spykeutils[plot,plugin]=='+version,
                           'neo>=0.2.1,<0.3.0', 'matplotlib'],
         entry_points = {
