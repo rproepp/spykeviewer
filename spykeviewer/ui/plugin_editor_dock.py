@@ -34,7 +34,10 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         self.setupUi()
 
         self.thread_manager = ThreadManager(self)
-        self.rope_project = codeeditor.get_rope_project()
+        try:
+            self.rope_project = codeeditor.get_rope_project()
+        except IOError: # Might happen when frozen
+            self.rope_project = None
         data_path = QDesktopServices.storageLocation(
             QDesktopServices.DataLocation)
         self.default_path = default_path or os.getcwd()
@@ -105,7 +108,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
                 completion_text=words[-1],
                 automatic=automatic)
             return
-        else:
+        elif self.rope_project:
             textlist = self.rope_project.get_completion_list(source_code,
                 offset, editor.file_name or self.rope_temp_path)
             if textlist:
@@ -118,6 +121,9 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
                 return
 
     def trigger_calltip(self, position, auto=True):
+        if not self.rope_project:
+            return
+
         editor = self.tabs.currentWidget()
         source_code = unicode(editor.toPlainText())
         offset = position
@@ -155,7 +161,9 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
                 at_position=position)
 
     def go_to_definition(self, position):
-        """Go to definition"""
+        if not self.rope_project:
+            return
+
         editor = self.tabs.currentWidget()
         source_code = unicode(editor.toPlainText())
         offset = position
@@ -221,7 +229,8 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         return True
 
     def close_file(self, tab_index):
-        if self.tabs.widget(tab_index).file_was_changed:
+        if self.tabs.widget(tab_index).file_was_changed and \
+           self.tabs.widget(tab_index).file_name:
             fname = os.path.split(self.tabs.widget(tab_index).file_name)[1]
             if not fname:
                 fname = 'New Plugin'
