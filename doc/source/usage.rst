@@ -3,11 +3,11 @@
 Usage
 =====
 This section gives a tutorial of the main functionality of Spyke Viewer. To
-follow the examples, you need to download and unpack the sample data file:
-https://github.com/downloads/rproepp/spykeviewer/sampledata.zip. It contains
-simulated data for two Tetrodes over 4 Trials. For each tetrode, there are
-5 simulated neurons with corresponding spike trains and template waveforms
-included.
+follow the examples, you need to download and unpack the `sample data file
+<http://www.ni.tu-berlin.de/fileadmin/fg215/software/SPYKE/sampledata.zip>`_.
+It contains simulated data for two tetrodes over 4 trials. For each tetrode,
+there are 5 simulated neurons with corresponding spike trains and prototypical
+template waveforms included.
 
 When you start Spyke Viewer for the first time, you will see the following
 layout:
@@ -102,6 +102,23 @@ not currently loaded, they are opened automatically. When you exit Spyke
 Viewer, your current selection set is saved and will be restored on your
 next start.
 
+Exporting Data
+--------------
+If you want to export your data, Spyke Viewer offers two entries in the "File"
+menu: "Save selected data..." exports all data in your current selection.
+"Save all data..." exports all loaded data. When you click on one of
+the items, a dialog will open asking you where you want to save the data and
+in which format. HDF5 and Matlab are available. It is strongly recommended to
+save your data in HDF5, since the Neo IO for Matlab currently does not support
+the whole object model -- RecordingChannelGroups, RecordingChannels and Units
+are not saved.
+
+Matlab has an interface for loading HDF5 files as well, so if you want
+to load your data in Matlab without losing some of the structure, you can use
+HDF5. On the other hand, if you want to get your data into Matlab quickly or
+it is structured with segments only, the Matlab export could be the right
+choice.
+
 Filters
 -------
 
@@ -121,15 +138,30 @@ Viewer for the first time, the *Filter* dock will be empty. You can create
 a new filter by clicking on "New Filter" in the toolbar (right-clicking the
 *Filter* dock also brings up a menu with available actions). You can choose
 what kind of container objects the filter applies to, the name of the filter
-and its content: a Python function that returns ``True`` if an object should
-be displayed and ``False`` if not. The signature of the function is fixed, so
-you only have to write the body. The "True on exception" checkbox determines
-what happens when the filter function raises an exception: If it is checked,
-an exception will not cause an element to be filtered out, otherwise it will.
-The following picture shows how you would create a filter that hides all units
-that do not have at least two SpikeTrains attached:
+and its content: a simple Python function.
+
+There are two kinds of filters: single or combined. Single filters (created
+when the "Combined" checkbox is unchecked) get a single Neo object and return
+``True`` if the object should be displayed and ``False`` if not. Combined
+filters get a list of Neo objects and return a list containing only objects
+that should displayed. The order of the returned list is used for subsequent
+filters and displaying, so combined filters can also be used to sort the
+object lists.
+
+For both kinds of filters, the signature of the function is fixed and
+shown at the top of the window, so you only have to write the function body.
+The "True on exception" checkbox determines what happens when the filter
+function raises an exception: If it is checked, an exception will not cause
+an element to be filtered out, otherwise it will. The following picture shows
+how you would create a filter that hides all units that do not have at least
+two SpikeTrains attached:
 
 .. image:: /img/newfilter.png
+
+As another example, to reverse the order of Segments, you could create
+combined Segment filter with the following line::
+
+    return segments[::-1]
 
 You can also create filter groups. They can be used to organize your filters,
 but also have an important second function: You can define groups in which
@@ -137,8 +169,9 @@ only one filter can be active. If another filter in the group is activated,
 the previously active filter will be deactivated. You can choose which filters
 are active in the *Filter* dock. The *Navigation* dock will be updated
 each time the set of active filters changes. You can also drag and drop
-filters inside the *Filter* dock. All your filters and their activation are
-saved when you exit Spyke Viewer.
+filters inside the *Filter* dock. Their order in the *Filter* dock determines
+the order in which they are applied. All filters and their activation
+state are saved when you exit Spyke Viewer.
 
 .. _usingplugins:
 
@@ -204,6 +237,20 @@ trains for each segment, enter the following lines:
 Note that the variables used in these lines have now appeared in the
 *Variable Explorer* dock.
 
+.. Note::
+    There is now experimental support for IPython consoles: if you have
+    at least IPython 0.12 (and the corresponding Qt console) installed,
+    there will be an item "New IPython console" in the "File" menu.
+    It will open an IPython Qt console window connected to Spyke Viewer.
+    The ``current`` and ``selections`` objects are defined as in the
+    integrated console, but no imports are predefined.
+    You can enter the "magic command"::
+
+        %pylab
+
+    to use the PyLab environment (you can safely ignore the warning message
+    about matplotlib backends). Multiple IPython consoles can be connected at
+    the same time.
 
 .. _settings:
 
@@ -223,7 +270,7 @@ selecting "Settings" (on OS X, open the "Spyke Viewer" menu and select
     The directory where your filter hierarchy and activation states are stored
     when you exit Spyke Viewer. Your filters are stored as regular Python
     files with some special annotation comments, so you can edit them in your
-    favourite editor.
+    favourite editor or share them with other users of Spyke Viewer.
 
 **Data path**
     This directory is important when you are using the data storage features

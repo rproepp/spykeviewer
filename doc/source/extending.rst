@@ -43,7 +43,7 @@ dock. Replace the string "New Plugin" by a name for your plugin, for example
 
 The ``start`` method gets called whenever you start a plugin. The two
 parameters are the same objects as the identically named objects that can be
-used in the console (see :ref:``console``): ``current`` gives access to the
+used in the console (see :ref:`console`): ``current`` gives access to the
 currently selected data, ``selections`` is a list containing the stored
 selections. Both ``current`` and the entries of ``selections`` are
 :class:`spykeutils.plugin.data_provider.DataProvider` objects, refer to the
@@ -66,29 +66,21 @@ create a plot. Your newly created plugin currently only prints to the console.
 In order to create a configuration option, add the following line above the
 ``get_name`` method::
 
-    output_type = gui_data.ChoiceItem('Output type', ('Total count', 'Rate plot'))
+    output_type = gui_data.ChoiceItem('Output type', ('Total count', 'Count plot'))
 
 Now, when you select your plugin and click on "Configure plugin", a window
-with a configuration option (a choice between "Total count" and "Rate plot"
+with a configuration option (a choice between "Total count" and "Count plot"
 will appear. The ``gui_data`` module encapsulates :mod:`guidata`. You can
 look at the documentation or the code of existing plugins for its more
 information.
 
 Next, you will modify the ``start`` method so it uses the configuration option
 and creates a plot if it is configured for "Count plot". Since you will be
-using ``matplotlib`` and ``numpy`` for the plot, you first have to import it
-by adding::
+using ``matplotlib`` for the plot, you first have to import it by adding::
 
     import numpy as np
-    import matplotlib.pyplot as plt
 
 at the top of the plugin file.
-
-.. Note::
-    matplotlib is not part of the requirements for Spyke Viewer, so it might
-    not be installed on your machine. If you use a packaged version of Spyke
-    Viewer for Windows or OS X, matplotlib will be present. Otherwise, you
-    might need to install it (see http://matplotlib.org/users/installing.html).
 
 Next, replace the code in the ``start`` method by::
 
@@ -97,10 +89,10 @@ Next, replace the code in the ``start`` method by::
         if self.output_type == 0: # Total count
             print u.name, '-', sum((len(train) for train in st)), 'spikes'
         else: # Count plot
-            plt.plot(np.array([len(train) for train in st]))
+            plt.plot([len(train) for train in st])
 
 If you now set the configuration of the plugin to "Count plot", you will see
-a plot with the spike count for each unit for all trials.
+a plot with the spike count for each unit in all trials.
 
 .. _ioplugins:
 

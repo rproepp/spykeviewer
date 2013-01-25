@@ -19,7 +19,7 @@ installation at any time.
 Binary
 ------
 If you want to install the binary version, go to the
-`download page on GitHub <https://github.com/rproepp/spykeviewer/downloads>`_
+`homepage <http://www.ni.tu-berlin.de/software/spykeviewer>`_
 and select the most recent version for your operating system. The downloaded
 file contains an installer (for OS X) or executable (main\\spykeviewer.exe
 for Windows). The rest of this page deals with source installation, you can
@@ -27,50 +27,53 @@ go to :ref:`usage` to learn how to use Spyke Viewer.
 
 Source
 ------
-If you want to install Spyke Viewer to your Python environment, there are a
-few requirements that need to be fulfilled. If you use Linux, you might not
-have access rights to your Python package installation directory, depending
-on your configuration. In this case, you will have to execute all shell
-commands in this section with administrator privileges, e.g. by using
-``sudo``.
+If you use the NeuroDebian_ repositories and a recent version of Debian
+(>= Wheezy or Sid) or Ubuntu (>= 12.04), you can install the source version
+of Spyke Viewer using your package manager::
+
+$ sudo apt-get install spykeviewer
+
+After you install the spykeviewer package, you can start Spyke Viewer from
+your menu (it should appear in the "Science" or "Education" category) or
+using::
+
+$ spykeviewer
+
+The next sections describe how to install Spyke Viewer if you do not have
+access to the NeuroDebian_ repositories (e.g. on Windows or OS X) or want
+to install using the Python packaging system.
 
 Dependencies
 ############
-First you need at least Python 2.7. In addition, the following packages and
+First you need Python 2.7. In addition, the following packages and
 their respective dependencies need to be installed:
 
 * spykeutils_
 * scipy_
-* guiqwt_
-* guidata_
+* guiqwt_ (>= 2.1.4)
+* matplotlib_
 * tables_
-* spyder_
+* spyder_ >= 2.1.0
+* neo_ >= 0.2.1
 
 Please see the respective websites for instructions on how to install them if
-they are not present on your computer. On a recent version of Debian/Ubuntu,
-you can install all of the dependencies (except spykeutils) with::
+they are not present on your computer. On a recent version of Debian/Ubuntu
+(e.g. Ubuntu 12.04 or newer), you can install all dependencies that are not
+automatically installed by ``pip`` or ``easy_install`` with::
 
-    $ sudo apt-get install python-guiqwt python-tables
+$ sudo apt-get install python-guiqwt python-tables python-matplotlib
 
-On windows, you can use `Python(x,y)`_ if you do yet not have a Python
-distribution installed. It also includes all dependencies (except
-spykeutils).
-
-.. Note::
-    The current version of Neo in the Python Package Index contains
-    some bugs that prevent it from working properly with Spyke Viewer in some
-    situations. Please install the latest version directly from GitHub:
-    https://github.com/rproepp/python-neo
-
-    You can download the repository from the GitHub page or clone it using
-    git and then install from the resulting folder::
-
-    $ python setup.py install
+On Windows, you can use `Python(x,y)`_ if you do yet not have a Python
+distribution installed. It includes the same dependencies.
 
 spykeviewer
 ###########
 Once the requirements are fulfilled, you need to install the package
-spykeviewer. The easiest way to get it is from the Python Package
+spykeviewer.  If you use Linux, you might not
+have access rights to your Python package installation directory, depending
+on your configuration. In this case, you will have to execute all shell
+commands in this section with administrator privileges, e.g. by using
+``sudo``. The easiest way to get it is from the Python Package
 Index. If you have pip_ installed::
 
 $ pip install spykeviewer
@@ -92,15 +95,17 @@ $ python setup.py install
 
 Once the package is installed, you can start Spyke Viewer using::
 
-$ spyke-viewer
+$ spykeviewer
 
 .. _`Python`: http://python.org/
 .. _`spykeutils`: http://spykeutils.readthedocs.org/
 .. _`guiqwt`: http://packages.python.org/guiqwt/
-.. _`guidata`: http://packages.python.org/guidata/
 .. _`tables`: http://www.pytables.org/
+.. _`neo`: http://neo.readthedocs.org/
 .. _`pip`: http://pypi.python.org/pypi/pip
 .. _`scipy`: http://scipy.org/
 .. _`setuptools`: http://pypi.python.org/pypi/setuptools
 .. _`spyder`: http://packages.python.org/spyder/
-.. _`Python(x,y)`: http://www.python.org/
+.. _`Python(x,y)`: http://www.pythonxy.com/
+.. _`matplotlib`: http://matplotlib.org/
+.. _`NeuroDebian`: http://neuro.debian.net

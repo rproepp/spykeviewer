@@ -3,18 +3,19 @@ from collections import OrderedDict
 import logging
 import traceback
 import inspect
+import sys
 
 import neo
 from neo.io.baseio import BaseIO
 
 from PyQt4.QtCore import (Qt, pyqtSignature, QThread, QMutex,
-                          QSettings)
+                          QSettings, SIGNAL, QUrl)
 from PyQt4.QtGui import (QFileSystemModel, QHeaderView, QListWidgetItem,
                          QMessageBox, QTreeWidgetItem, QAbstractItemView,
                          QStyle, QApplication, QTreeWidget, QProgressDialog,
                          QFileDialog, QDesktopServices)
 
-from spykeutils.progress_indicator import ignores_cancel
+from spykeutils.progress_indicator import ignores_cancel, CancelException
 from spykeutils import SpykeException
 from spykeutils.plugin.data_provider_neo import NeoDataProvider
 from spykeutils.plugin.data_provider_stored import NeoStoredProvider
@@ -49,6 +50,7 @@ class MainWindowNeo(MainWindow):
         self.block_names = OrderedDict() # Just for the display order
         self.block_files = {}
         self.channel_group_names = {}
+        self.show_filter_exceptions = True
 
         # Initialize filter sytem
         self.filter_domain_mappings = {'Block':0, 'Recording Channel':1,
@@ -102,10 +104,21 @@ class MainWindowNeo(MainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, self.pluginEditorDock)
         self.pluginEditorDock.setVisible(False)
         self.pluginEditorDock.plugin_saved.connect(self.plugin_saved)
+        self.pluginEditorDock.file_available.connect(self.file_available)
         self.update_view_menu()
 
         self.consoleDock.edit_script = lambda (path):\
             self.pluginEditorDock.add_file(path)
+
+        from spyderlib.utils.misc import get_error_match
+        def p(x):
+            match = get_error_match(unicode(x))
+            if match:
+                fname, lnb = match.groups()
+                self.pluginEditorDock.show_position(fname, int(lnb))
+        self.connect(self.console, SIGNAL("go_to_error(QString)"),
+            p)
+
 
         # Initialize Neo navigation
         self.file_system_model = QFileSystemModel()
@@ -311,6 +324,8 @@ class MainWindowNeo(MainWindow):
         self.provider = NeoViewerProvider(self)
         self.provider_factory = NeoStoredProvider.from_current_selection
         self.console.interpreter.locals['current'] = self.provider
+        if self.ipy_kernel:
+            self.ipy_kernel.get_user_namespace()['current'] = self.provider
 
     def reload_plugins(self):
         old_path = None
@@ -450,6 +465,10 @@ class MainWindowNeo(MainWindow):
         self.load_worker.terminated.connect(self.load_file_callback)
         self.load_worker.start()
 
+    def file_available(self, available):
+        self.actionSavePlugin.setEnabled(available)
+        self.actionSavePluginAs.setEnabled(available)
+
     @ignores_cancel
     def on_neoLoadFilesButton_pressed(self):
         self.neoBlockList.clear()
@@ -480,16 +499,45 @@ class MainWindowNeo(MainWindow):
 
     def is_filtered(self, item, filters):
         """ Return if one of the filter functions in the given list
-        applies to the given item
+            applies to the given item. Combined filters are ignored.
         """
-        for f in filters:
+        for f, n in filters:
+            if f.combined:
+                continue
             try:
                 if not f.function()(item):
                     return True
-            except Exception:
+            except Exception, e:
+                if self.show_filter_exceptions:
+                    sys.stderr.write(
+                        'Exception in filter ' + n + ':\n' + str(e))
                 if not f.on_exception:
                     return True
         return False
+
+    def filter_list(self, items, filters):
+        """ Return a filtered list of the given list with the given filter
+            functions. Only combined filters are used.
+        """
+        if not items:
+            return items
+        item_type = type(items[0])
+        for f, n in filters:
+            if not f.combined:
+                continue
+            try:
+                items = [i for i in f.function()(items)
+                         if isinstance(i, item_type)]
+            except Exception, e:
+                if self.show_filter_exceptions:
+                    sys.stderr.write(
+                        'Exception in filter ' + n + ':\n' + str(e))
+                if not f.on_exception:
+                    return []
+        return items
+
+    def refresh_neo_view(self):
+        self.set_current_selection(self.provider.data_dict())
 
     def populate_neo_block_list(self):
         """ Fill the block list with appropriate entries.
@@ -499,11 +547,12 @@ class MainWindowNeo(MainWindow):
 
         filters = self.filter_managers['Block'].get_active_filters()
 
-        for b,n in self.block_names.iteritems():
+        blocks = self.filter_list(self.block_names.keys(), filters)
+        for b in blocks:
             if self.is_filtered(b, filters):
                 continue
 
-            item = QListWidgetItem(n)
+            item = QListWidgetItem(self.block_names[b])
             item.setData(Qt.UserRole, b)
             self.neoBlockList.addItem(item)
 
@@ -512,6 +561,9 @@ class MainWindowNeo(MainWindow):
     def neo_blocks(self):
         return [t.data(Qt.UserRole) for t in
                 self.neoBlockList.selectedItems()]
+
+    def all_neo_blocks(self):
+        return self.block_names.keys()
 
     def neo_block_file_names(self):
         """ Return a dictionary of filenames, indexed by blocks
@@ -526,7 +578,8 @@ class MainWindowNeo(MainWindow):
         for item in self.neoBlockList.selectedItems():
             block = item.data(Qt.UserRole)
 
-            for i,s in enumerate(block.segments):
+            segments = self.filter_list(block.segments, filters)
+            for i,s in enumerate(segments):
                 if self.is_filtered(s, filters):
                     continue
 
@@ -555,7 +608,8 @@ class MainWindowNeo(MainWindow):
         for item in self.neoBlockList.selectedItems():
             block = item.data(Qt.UserRole)
 
-            for i,rcg in enumerate(block.recordingchannelgroups):
+            rcgs = self.filter_list(block.recordingchannelgroups, filters)
+            for i,rcg in enumerate(rcgs):
                 if self.is_filtered(rcg, filters):
                     continue
 
@@ -583,7 +637,8 @@ class MainWindowNeo(MainWindow):
         for item in self.neoChannelGroupList.selectedItems():
             rcg = item.data(Qt.UserRole)
 
-            for i,u in enumerate(rcg.units):
+            units = self.filter_list(rcg.units, filters)
+            for i,u in enumerate(units):
                 if self.is_filtered(u, filters):
                     continue
                 if u.name:
@@ -613,7 +668,8 @@ class MainWindowNeo(MainWindow):
         for item in self.neoChannelGroupList.selectedItems():
             channel_group = item.data(Qt.UserRole)
 
-            for rc in channel_group.recordingchannels:
+            rcs = self.filter_list(channel_group.recordingchannels, filters)
+            for rc in rcs:
                 if self.is_filtered(rc, filters):
                     continue
 
@@ -682,6 +738,33 @@ class MainWindowNeo(MainWindow):
             return None
 
         return self.analysisModel.data(item, self.analysisModel.FilePathRole)
+
+    def get_plugin(self, name):
+        """ Get plugin with the given name. Raises a SpykeException if
+            multiple plugins with this name exist. Returns None if no such
+            plugin exists.
+        """
+        idx = self.analysisModel.get_indices_for_name(name)
+        if not idx:
+            return None
+        if len(idx) > 1:
+            raise SpykeException('Multiple plugins named "%s" exist!' % name)
+
+        return self.analysisModel.data(idx[0], self.analysisModel.DataRole)
+
+    def start_plugin(self, name):
+        """ Start first plugin with given name and return result of start()
+            method. Raises a SpykeException if not exactly one plugins with
+            this name exist.
+        """
+        idx = self.analysisModel.get_indices_for_name(name)
+        if not idx:
+            raise SpykeException('No plugin named "%s" exists!' % name)
+        if len(idx) > 1:
+            raise SpykeException('Multiple plugins named "%s" exist!' % name)
+
+        return self._run_plugin(
+            self.analysisModel.data(idx[0], self.analysisModel.DataRole))
 
     def filter_group_dict(self):
         """ Return a dictionary with filter groups for each filter type
@@ -795,7 +878,7 @@ class MainWindowNeo(MainWindow):
             try:
                 self.filter_managers[dialog.type()].add_filter(dialog.name(),
                     dialog.code(), on_exception=dialog.on_exception(),
-                    group_name=dialog.group())
+                    group_name=dialog.group(), combined=dialog.combined())
                 break
             except ValueError as e:
                 QMessageBox.critical(self, 'Error creating filter', str(e))
@@ -856,8 +939,7 @@ class MainWindowNeo(MainWindow):
         if group_items is None:
             f = self.filter_managers[top].get_item(item.text(0), group)
             dialog = FilterDialog(self.filter_group_dict(), top, group,
-                item.text(0),
-                f.code, f.on_exception, self)
+                item.text(0), f.code, f.combined, f.on_exception, self)
         else:
             g = self.filter_managers[top].get_item(item.text(0))
             dialog = FilterGroupDialog(top, item.text(0), g.exclusive, self)
@@ -869,7 +951,8 @@ class MainWindowNeo(MainWindow):
                 if item.data(1, Qt.UserRole) == \
                    MainWindowNeo.FilterTreeRoleFilter:
                     self.filter_managers[top].add_filter(dialog.name(),
-                        dialog.code(), on_exception=dialog.on_exception(),
+                        dialog.code(), combined=dialog.combined(),
+                        on_exception=dialog.on_exception(),
                         group_name=dialog.group(), overwrite=True)
                 else:
                     self.filter_managers[top].add_group(dialog.name(),
@@ -908,7 +991,6 @@ class MainWindowNeo(MainWindow):
     @pyqtSignature("")
     def on_actionClearCache_triggered(self):
         NeoDataProvider.clear()
-
         self.neoBlockList.clear()
         self.block_ids.clear()
         self.block_files.clear()
@@ -1076,9 +1158,45 @@ class MainWindowNeo(MainWindow):
                     self.io.close()
                 self.io = None
 
+    def _save_blocks(self, blocks, file_name, selected_filter):
+        if not blocks:
+            QMessageBox.warning(self, 'Cannot save data',
+                'No data to save found!')
+            self.progress.done()
+            return
+        self.progress.set_ticks(0)
+        self.progress.setWindowTitle('Writing data...')
+        self.progress.set_status('')
+
+        if not file_name.endswith('.h5') and not file_name.endswith('.mat'):
+            if selected_filter.endswith('.mat)'):
+                file_name += '.mat'
+            else:
+                file_name += '.h5'
+
+        self.worker = self.SaveWorker(file_name, blocks)
+        self.worker.finished.connect(self.progress.done)
+        self.progress.canceled.connect(self.worker.terminate)
+        self.worker.start()
 
     @pyqtSignature("")
-    def on_actionSave_data_triggered(self):
+    def on_actionSave_Data_triggered(self):
+        d = QFileDialog(self, 'Choose where to save data')
+        d.setAcceptMode(QFileDialog.AcceptSave)
+        d.setNameFilters(['HDF5 files (*.h5)', 'Matlab files (*.mat)'])
+        #d.setDefaultSuffix('h5')
+        d.setConfirmOverwrite(True)
+        if d.exec_():
+            file_name = unicode(d.selectedFiles()[0])
+        else:
+            return
+
+        self.progress.begin('Collecting data to save...')
+        blocks = self.all_neo_blocks()
+        self._save_blocks(blocks, file_name, d.selectedFilter())
+
+    @pyqtSignature("")
+    def on_actionSave_Selected_Data_triggered(self):
         d = QFileDialog(self, 'Choose where to save selected data')
         d.setAcceptMode(QFileDialog.AcceptSave)
         d.setNameFilters(['HDF5 files (*.h5)', 'Matlab files (*.mat)'])
@@ -1091,20 +1209,7 @@ class MainWindowNeo(MainWindow):
 
         self.progress.begin('Collecting data to save...')
         blocks = self.provider.selection_blocks()
-        self.progress.set_ticks(0)
-        self.progress.setWindowTitle('Writing data...')
-        self.progress.set_status('')
-
-        if not file_name.endswith('.h5') and not file_name.endswith('.mat'):
-            if d.selectedFilter().endswith('.mat)'):
-                file_name += '.mat'
-            else:
-                file_name += '.h5'
-
-        self.worker = self.SaveWorker(file_name, blocks)
-        self.worker.finished.connect(self.progress.done)
-        self.progress.canceled.connect(self.worker.terminate)
-        self.worker.start()
+        self._save_blocks(blocks, file_name, d.selectedFilter())
 
     def on_refreshAnalysesButton_pressed(self):
         self.reload_plugins()
@@ -1120,20 +1225,34 @@ class MainWindowNeo(MainWindow):
             self.filter_path = settings.filter_path()
             self.remote_script = settings.remote_script()
             self.plugin_paths = settings.plugin_paths()
+            if self.plugin_paths:
+                self.pluginEditorDock.set_default_path(self.plugin_paths[-1])
             self.reload_plugins()
 
     @pyqtSignature("")
-    @ignores_cancel
     def on_actionRunPlugin_triggered(self):
         ana = self.current_plugin()
         if not ana:
             return
 
+        self._run_plugin(ana)
+
+    def _run_plugin(self, plugin):
         try:
-            ana.start(self.provider, self.selections)
+            return plugin.start(self.provider, self.selections)
         except SpykeException, err:
             self.progress.done()
             QMessageBox.critical(self, 'Error executing analysis', str(err))
+        except CancelException:
+            return None
+        except Exception, e:
+            # Only print stack trace from plugin on
+            tb = sys.exc_info()[2]
+            while not ('self' in tb.tb_frame.f_locals and
+                       tb.tb_frame.f_locals['self'] == plugin):
+                tb = tb.tb_next
+            traceback.print_exception(type(e), e, tb)
+            return None
 
     def on_neoAnalysesTreeView_doubleClicked(self, index):
         self.on_actionRunPlugin_triggered()
@@ -1163,10 +1282,7 @@ class MainWindowNeo(MainWindow):
 
     @pyqtSignature("")
     def on_actionNewPlugin_triggered(self):
-        path = ''
-        if self.plugin_paths:
-            path = self.plugin_paths[0]
-        self.pluginEditorDock.new_file(path)
+        self.pluginEditorDock.new_file()
 
     @pyqtSignature("")
     def on_actionSavePlugin_triggered(self):
@@ -1175,6 +1291,11 @@ class MainWindowNeo(MainWindow):
     @pyqtSignature("")
     def on_actionSavePluginAs_triggered(self):
         self.pluginEditorDock.save_current(True)
+
+    @pyqtSignature("")
+    def on_actionShowPluginFolder_triggered(self):
+        QDesktopServices.openUrl(QUrl.fromLocalFile(
+            os.path.dirname(self.current_plugin_path())))
 
     @pyqtSignature("")
     def on_actionRemotePlugin_triggered(self):
@@ -1187,17 +1308,18 @@ class MainWindowNeo(MainWindow):
         subprocess.Popen(['python', '-c', '%s' % code,
                           type(self.current_plugin()).__name__,
                           self.current_plugin_path(),
-                          selections, '-cf', '-c', config])
+                          selections, '-cf', '-c', config,
+                          '-dd', AnalysisPlugin.data_dir])
 
     def on_neoAnalysesTreeView_customContextMenuRequested(self, pos):
         self.menuPlugins.popup(self.neoAnalysesTreeView.mapToGlobal(pos))
 
     def plugin_saved(self, path):
-        plugin_path = os.path.realpath(path)
+        plugin_path = os.path.normpath(os.path.realpath(path))
         in_dirs = False
         for p in self.plugin_paths:
-            dir = os.path.realpath(p)
-            if os.path.commonprefix([plugin_path, p]) == p:
+            dir = os.path.normpath(os.path.realpath(p))
+            if os.path.commonprefix([plugin_path, dir]) == dir:
                 in_dirs = True
                 break
 

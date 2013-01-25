@@ -4,6 +4,8 @@ if False:
     import spykeviewer
     import spykeutils
     import spykeutils.plot
+    import scipy.io.matlab.streams # Needed for NeoMatlabIO
+    from scipy.sparse.csgraph import _validation # Fixed in pyinstaller 2.1
 
 # Use new style API
 import sip

@@ -8,7 +8,7 @@ class PluginModel(PluginManager, QAbstractItemModel):
     """ Implements a Qt-Model for the PluginManager for use in e.g. QTreeView
     """
     DataRole = Qt.UserRole
-    FilePathRole = Qt.UserRole+1
+    FilePathRole = Qt.UserRole + 1
 
     def __init__(self, parent=None):
         PluginManager.__init__(self)
@@ -97,6 +97,19 @@ class PluginModel(PluginManager, QAbstractItemModel):
             c = parent.child(i)
             indices.extend(self.get_indices_for_path(path, c))
             if c.path == path:
+                indices.append(self.createIndex(i, 0, c))
+
+        return indices
+
+    def get_indices_for_name(self, name, parent=None):
+        indices = []
+        if parent is None:
+            parent = self.root
+
+        for i in xrange(parent.childCount()):
+            c = parent.child(i)
+            indices.extend(self.get_indices_for_name(name, c))
+            if c.name == name:
                 indices.append(self.createIndex(i, 0, c))
 
         return indices

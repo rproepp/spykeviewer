@@ -8,8 +8,16 @@ from spyderlib.widgets.sourcecode.codeeditor import CodeEditor
 class FilterDialog(QDialog):
     """ A dialog for editing filters
     """
+    solo_signatures = ['def filter(block):', 'def filter(segment):',
+                       'def filter(rcg):', 'def filter(rc):',
+                       'def filter(unit):']
 
-    def __init__(self, groups, type=None, group=None, name=None, code=None, on_exception=False, parent=None):
+    combi_signatures = ['def filter(blocks):', 'def filter(segments):',
+                        'def filter(rcgs):', 'def filter(rcs):',
+                        'def filter(units):']
+
+
+    def __init__(self, groups, type=None, group=None, name=None, code=None, combined=False, on_exception=False, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi()
         self.groups = groups
@@ -31,6 +39,7 @@ class FilterDialog(QDialog):
             self.editor.set_text('\n'.join(code))
         if name and code and type:
             self.filterTypeComboBox.setEnabled(False)
+        self.combinedCheckBox.setChecked(combined)
 
         self.onExceptionCheckBox.setChecked(on_exception)
 
@@ -58,7 +67,16 @@ class FilterDialog(QDialog):
 
         self.onExceptionCheckBox = QCheckBox(self)
         self.onExceptionCheckBox.setText('True on exception')
-        self.onExceptionCheckBox.setToolTip('Determines if the filter will be admit items if there is an exception during its execution')
+        self.onExceptionCheckBox.setToolTip('Determines if the filter will '
+                                            'admit items if there is an '
+                                            'exception during its execution')
+
+        self.combinedCheckBox = QCheckBox(self)
+        self.combinedCheckBox.setText('Combined filter')
+        self.combinedCheckBox.setToolTip('Determines if the filter operates '
+                                         'on single items (return True or '
+                                         'False) or lists of items (return a '
+                                         'list of items to be admitted)')
 
         self.filterTypeComboBox = QComboBox(self)
         self.filterTypeComboBox.addItem('Block')
@@ -80,17 +98,19 @@ class FilterDialog(QDialog):
         gridLayout = QGridLayout(self)
         gridLayout.addWidget(self.signatureLabel, 0, 0, 1, 2)
         gridLayout.addWidget(self.editor, 1, 0, 1, 2)
-        gridLayout.addWidget(self.onExceptionCheckBox, 2,0, 1, 2)
-        gridLayout.addWidget(QLabel('Type:', self), 3, 0)
-        gridLayout.addWidget(self.filterTypeComboBox, 3, 1)
-        gridLayout.addWidget(QLabel('Group:', self), 4, 0)
-        gridLayout.addWidget(self.filterGroupComboBox, 4, 1)
-        gridLayout.addWidget(QLabel('Name:', self), 5, 0)
-        gridLayout.addWidget(self.nameLineEdit, 5, 1)
-        gridLayout.addWidget(self.dialogButtonBox, 6, 0, 1, 2)
+        gridLayout.addWidget(self.onExceptionCheckBox, 2, 0, 1, 2)
+        gridLayout.addWidget(self.combinedCheckBox, 3, 0, 1, 2)
+        gridLayout.addWidget(QLabel('Type:', self), 4, 0)
+        gridLayout.addWidget(self.filterTypeComboBox, 4, 1)
+        gridLayout.addWidget(QLabel('Group:', self), 5, 0)
+        gridLayout.addWidget(self.filterGroupComboBox, 5, 1)
+        gridLayout.addWidget(QLabel('Name:', self), 6, 0)
+        gridLayout.addWidget(self.nameLineEdit, 6, 1)
+        gridLayout.addWidget(self.dialogButtonBox, 7, 0, 1, 2)
 
         self.connect(self.dialogButtonBox, SIGNAL('accepted()'), self.accept)
         self.connect(self.dialogButtonBox, SIGNAL('rejected()'), self.reject)
+        self.combinedCheckBox.stateChanged.connect(self.combined_state_changed)
         self.connect(self.filterTypeComboBox, SIGNAL('currentIndexChanged(int)'), self.on_filterTypeComboBox_currentIndexChanged)
 
     def name(self):
@@ -102,6 +122,9 @@ class FilterDialog(QDialog):
     def type(self):
         return self.filterTypeComboBox.currentText()
 
+    def combined(self):
+        return self.combinedCheckBox.isChecked()
+
     def group(self):
         if self.filterGroupComboBox.currentText() == '':
             return None
@@ -109,6 +132,9 @@ class FilterDialog(QDialog):
 
     def on_exception(self):
         return self.onExceptionCheckBox.isChecked()
+
+    def combined_state_changed(self):
+        self.set_signature()
 
     def code_errors(self):
         code = self.signatureLabel.text() + '\n\t'
@@ -119,17 +145,16 @@ class FilterDialog(QDialog):
             return e.msg + ' (Line %d)' % (e.lineno - 1)
         return None
 
+    def set_signature(self):
+        if self.combinedCheckBox.isChecked():
+            self.signatureLabel.setText(self.combi_signatures[
+                                        self.filterTypeComboBox.currentIndex()])
+        else:
+            self.signatureLabel.setText(self.solo_signatures[
+                                        self.filterTypeComboBox.currentIndex()])
+
     def on_filterTypeComboBox_currentIndexChanged(self, index):
-        if index == 0:
-            self.signatureLabel.setText('def filter(block):')
-        elif index == 1:
-            self.signatureLabel.setText('def filter(segment):')
-        elif index == 2:
-            self.signatureLabel.setText('def filter(rcg):')
-        elif index == 3:
-            self.signatureLabel.setText('def filter(rc):')
-        elif index == 4:
-            self.signatureLabel.setText('def filter(unit):')
+        self.set_signature()
         self.populate_groups()
 
     #noinspection PyCallByClass,PyTypeChecker,PyArgumentList
