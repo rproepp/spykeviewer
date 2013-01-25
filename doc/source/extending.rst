@@ -78,7 +78,7 @@ Next, you will modify the ``start`` method so it uses the configuration option
 and creates a plot if it is configured for "Count plot". Since you will be
 using ``matplotlib`` for the plot, you first have to import it by adding::
 
-    import numpy as np
+    import matplotlib.pyplot as plt
 
 at the top of the plugin file.
 
