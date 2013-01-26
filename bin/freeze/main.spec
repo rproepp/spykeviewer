@@ -42,7 +42,7 @@ def dir_files(path, rel):
 
 
 a = Analysis([os.path.join(viewer_path, 'bin', 'freeze', 'dependencies.py'),
-              os.path.join(viewer_path, 'bin', 'spyke-viewer')],
+              os.path.join(viewer_path, 'bin', 'spykeviewer')],
              #pathex=[''],
              hiddenimports=[],
              hookspath=None,
@@ -64,7 +64,8 @@ else:
 
 pyz = PYZ(a.pure)
 exe = EXE(pyz, a.scripts, exclude_binaries=1, name=exename, debug=False,
-          strip=None, upx=False, console=True)
+          strip=None, upx=False, console=False,
+          icon=os.path.join(viewer_path, 'bin', 'freeze', 'appicon.ico'))
 
 a.datas.extend(dir_files(os.path.join(os.path.dirname(guidata.__file__),
     'images'), os.path.join('guidata', 'images')))
@@ -73,7 +74,7 @@ a.datas.extend(dir_files(os.path.join(os.path.dirname(guiqwt.__file__),
 a.datas.extend(dir_files(os.path.join(os.path.dirname(spyderlib.__file__),
     'images'), os.path.join('spyderlib', 'images')))
 a.datas.append(('', os.path.join(os.path.dirname(spykeutils.__file__),
-    'plugin', 'start_plugin.py'), 'DATA'))
+    'plugin', 'startplugin.py'), 'DATA'))
 a.datas.extend(dir_files(os.path.join(module_path, 'plugins'), 'plugins'))
 
 dist_dir = os.path.join('dist', 'main')
