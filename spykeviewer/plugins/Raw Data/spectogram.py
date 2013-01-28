@@ -5,6 +5,7 @@ from guiqwt.plot import BaseImageWidget
 from guiqwt.builder import make
 from spykeutils.plot.dialog import PlotDialog
 import spykeutils.plot.helper as helper
+from spykeutils import SpykeException
 
 class SpectrogramPlugin(analysis_plugin.AnalysisPlugin):
     """ Spectrogram """
@@ -28,7 +29,7 @@ class SpectrogramPlugin(analysis_plugin.AnalysisPlugin):
         signals = current.analog_signals(self.which_signals + 1)
         if not signals:
             current.progress.done()
-            return
+            raise SpykeException('No signals selected!')
             
         num_signals = len(signals)
 
