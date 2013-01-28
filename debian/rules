@@ -21,7 +21,7 @@ override_dh_auto_build:
 	-rm -r doc/build/html/_sources
 
 override_dh_installchangelogs:
-	dh_installchangelogs doc/CHANGELOG.rst
+	dh_installchangelogs CHANGELOG.rst
 
 # enable when we believe that the tests should pass
 override_dh_auto_test:
