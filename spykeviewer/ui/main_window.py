@@ -195,7 +195,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 import spykeutils
                 path = os.path.dirname(spykeutils.__file__)
                 path = os.path.join(os.path.abspath(path), 'plugin')
-            self.remote_script = os.path.join(path, 'start_plugin.py')
+            self.remote_script = os.path.join(path, 'startplugin.py')
         else:
             self.remote_script = settings.value('remoteScript')
 
