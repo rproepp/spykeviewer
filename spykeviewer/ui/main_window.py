@@ -236,7 +236,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     o.write(s)
 
             def flush(self):
-                pass
+                for o in self.outs:
+                    if hasattr(o, 'flush'):
+                        o.flush()
 
         # Fixing autocompletion bugs in the internal shell
         class FixedInternalShell(InternalShell):
@@ -322,7 +324,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ch = logging.StreamHandler(sys.stderr)
         ch.setLevel(logging.WARNING)
         logger.addHandler(ch)
-        #sys.stdout = StreamDuplicator([sys.stdout, sys.__stdout__])
+
+        # Not using previous stdout, only stderr. Using StreamDuplicator
+        # because spyder stream does not have flush() method...
+        sys.stdout = StreamDuplicator([sys.stdout])
         sys.stderr = StreamDuplicator([sys.stderr, sys.__stderr__])
 
     def _append_python_history(self):
