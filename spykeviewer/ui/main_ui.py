@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/rob/Spyke/viewer/spykeviewer/ui/main.ui'
 #
-# Created: Wed Jan 30 14:56:09 2013
+# Created: Wed Jan 30 16:30:49 2013
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -304,6 +304,7 @@ class Ui_MainWindow(object):
         self.actionSave_Data = QtGui.QAction(MainWindow)
         self.actionSave_Data.setObjectName(_fromUtf8("actionSave_Data"))
         self.actionShowPluginFolder = QtGui.QAction(MainWindow)
+        self.actionShowPluginFolder.setEnabled(False)
         icon16 = QtGui.QIcon()
         icon16.addPixmap(QtGui.QPixmap(_fromUtf8(":/Plugins/Show Folder")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionShowPluginFolder.setIcon(icon16)

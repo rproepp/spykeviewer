@@ -778,6 +778,7 @@ class MainWindowNeo(MainWindow):
         self.actionEditPlugin.setEnabled(enabled)
         self.actionConfigurePlugin.setEnabled(enabled)
         self.actionRemotePlugin.setEnabled(enabled)
+        self.actionShowPluginFolder.setEnabled(enabled)
 
     def current_plugin(self):
         item = self.neoAnalysesTreeView.currentIndex()

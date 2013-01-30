@@ -668,6 +668,9 @@ QGroupBox::title {
    </property>
   </action>
   <action name="actionShowPluginFolder">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="../../resources/icons.qrc">
      <normaloff>:/Plugins/Show Folder</normaloff>:/Plugins/Show Folder</iconset>
