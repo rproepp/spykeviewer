@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="Plugins">
+    <file alias="Restore Config">icons/restore-config.png</file>
     <file alias="Show Folder">icons/show-folder.png</file>
     <file alias="Save As">icons/filesaveas.png</file>
     <file alias="Remote">icons/remote.png</file>

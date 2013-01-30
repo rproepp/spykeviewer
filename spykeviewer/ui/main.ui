@@ -706,6 +706,10 @@ QGroupBox::title {
    </property>
   </action>
   <action name="actionRestorePluginConfigurations">
+   <property name="icon">
+    <iconset resource="../../resources/icons.qrc">
+     <normaloff>:/Plugins/Restore Config</normaloff>:/Plugins/Restore Config</iconset>
+   </property>
    <property name="text">
     <string>Restore Plugin configurations</string>
    </property>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/rob/Spyke/viewer/spykeviewer/ui/main.ui'
 #
-# Created: Wed Jan 30 17:02:31 2013
+# Created: Wed Jan 30 17:23:55 2013
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -312,6 +312,9 @@ class Ui_MainWindow(object):
         self.actionEdit_Startup_Script = QtGui.QAction(MainWindow)
         self.actionEdit_Startup_Script.setObjectName(_fromUtf8("actionEdit_Startup_Script"))
         self.actionRestorePluginConfigurations = QtGui.QAction(MainWindow)
+        icon17 = QtGui.QIcon()
+        icon17.addPixmap(QtGui.QPixmap(_fromUtf8(":/Plugins/Restore Config")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionRestorePluginConfigurations.setIcon(icon17)
         self.actionRestorePluginConfigurations.setObjectName(_fromUtf8("actionRestorePluginConfigurations"))
         self.menuFile.addAction(self.actionSave_selection)
         self.menuFile.addAction(self.actionLoad_selection)
