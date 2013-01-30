@@ -223,7 +223,13 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
 
         editor = self._setup_editor()
         editor.file_name = file_name
-        editor.set_text_from_file(file_name)
+        editor.set_text_from_file(file_name, 'python')
+
+        # Remove extra newline
+        text = editor.toPlainText()
+        if text.endswith('\n'):
+            editor.setPlainText(text[:-1])
+
         tab_name = os.path.split(file_name.decode('utf-8'))[1]
         self._finalize_new_editor(editor, tab_name)
         return True
