@@ -196,8 +196,13 @@ menu. Select "Show Spikes" and set "Display" to "Lines". When you now start
 the plugin, you will see the analog signals and the spike times of your
 selected units. Go to the configuration again, set "Display" to  "Waveforms"
 and check "Use first spike as template". After another run of the plugin,
-you will see the template spike waveforms overlaid on the analog signals. To
-learn more about the included plugins and how to use them, go to
+you will see the template spike waveforms overlaid on the analog signals. The
+configuration of all plugins is saved when you close Spyke Viewer and will
+be restored on the next start. To set the configurations of all plugins back
+to their default values, use "Restore Plugin configurations" from the
+"Plugins" menu.
+
+To learn more about the included plugins and how to use them, go to
 :ref:`plugins`. When you want to create your own plugins, go to
 :ref:`analysisplugins`.
 
