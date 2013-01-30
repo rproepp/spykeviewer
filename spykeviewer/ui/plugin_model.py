@@ -113,3 +113,49 @@ class PluginModel(PluginManager, QAbstractItemModel):
                 indices.append(self.createIndex(i, 0, c))
 
         return indices
+
+    def get_all_indices(self, parent = None):
+        indices = []
+        if parent is None:
+            parent = self.root
+
+        for i in xrange(parent.childCount()):
+            c = parent.child(i)
+            indices.extend(self.get_all_indices(c))
+            indices.append(self.createIndex(i, 0, c))
+
+        return indices
+
+    def get_plugins_for_name(self, name):
+        """ Return list of plugins with given name
+        """
+        indices = self.get_indices_for_name(name)
+        plugins = []
+        for idx in indices:
+            p = self.data(idx, self.DataRole)
+            if p:
+                plugins.append(p)
+        return plugins
+
+    def get_plugins_for_path(self, name):
+        """ Return list of plugins in given path
+        """
+        indices = self.get_indices_for_path(name)
+        plugins = []
+        for idx in indices:
+            p = self.data(idx, self.DataRole)
+            if p:
+                plugins.append(p)
+        return plugins
+
+    def get_all_plugins(self):
+        """ Return all plugins in this model
+        """
+        indices = self.get_all_indices()
+        plugins = []
+        for idx in indices:
+            p = self.data(idx, self.DataRole)
+            if p:
+                plugins.append(p)
+        return plugins
+

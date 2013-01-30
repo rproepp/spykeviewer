@@ -4,6 +4,7 @@ import logging
 import traceback
 import inspect
 import sys
+import pickle
 
 import neo
 from neo.io.baseio import BaseIO
@@ -105,7 +106,6 @@ class MainWindowNeo(MainWindow):
         self.pluginEditorDock.setVisible(False)
         self.pluginEditorDock.plugin_saved.connect(self.plugin_saved)
         self.pluginEditorDock.file_available.connect(self.file_available)
-        self.update_view_menu()
 
         self.consoleDock.edit_script = lambda (path):\
             self.pluginEditorDock.add_file(path)
@@ -135,9 +135,24 @@ class MainWindowNeo(MainWindow):
         self.fileTreeView.header().setResizeMode(QHeaderView.ResizeToContents)
 
         self.activate_neo_mode()
+        self._finish_initialization()
+
+
+    def _finish_initialization(self):
+        self.update_view_menu()
         self.restore_state()
         self.run_startup_script()
         self.reload_plugins()
+
+        # Restore plugin configurations
+        configs_path = os.path.join(self.data_path, 'plugin_configs.p')
+        if os.path.isfile(configs_path):
+            with open(configs_path, 'r') as f:
+                try:
+                    configs = pickle.load(f)
+                    self.set_plugin_configs(configs)
+                except:
+                    pass # It does not matter if we can't load plugin configs
 
     def load_current_selection(self):
         current_selection = os.path.join(
@@ -328,9 +343,46 @@ class MainWindowNeo(MainWindow):
         if self.ipy_kernel:
             self.ipy_kernel.get_user_namespace()['current'] = self.provider
 
-    def reload_plugins(self):
+    def get_plugin_configs(self):
+        """ Return dictionary indexed by (name,path) tuples with configuration
+        dictionaries for all plugins.
+        """
+        indices = self.analysisModel.get_all_indices()
+        c = {}
+
+        for idx in indices:
+            path = self.analysisModel.data(idx,
+                self.analysisModel.FilePathRole)
+            plug = self.analysisModel.data(idx, self.analysisModel.DataRole)
+            if plug:
+                c[(plug.get_name(), path)] = plug.get_parameters()
+
+        return c
+
+    def set_plugin_configs(self, configs):
+        """ Takes a dictionary indexed by plugin name with configuration
+        dictionaries for plugins and sets configurations of plugins.
+        """
+        indices = self.analysisModel.get_all_indices()
+
+        d = {}
+        for idx in indices:
+            path = self.analysisModel.data(idx,
+                self.analysisModel.FilePathRole)
+            plug = self.analysisModel.data(idx, self.analysisModel.DataRole)
+            if plug:
+                d[(plug.get_name(), path)] = plug
+
+        for n, c in configs.iteritems():
+            if n in d:
+                d[n].set_parameters(c)
+
+    def reload_plugins(self, keep_configs=True):
         old_path = None
+        old_configs = {}
         if hasattr(self, 'analysisModel'):
+            if keep_configs:
+                old_configs = self.get_plugin_configs()
             item = self.neoAnalysesTreeView.currentIndex()
             if item:
                 old_path = self.analysisModel.data(item,
@@ -356,6 +408,7 @@ class MainWindowNeo(MainWindow):
         self.neoAnalysesTreeView.selectionModel().currentChanged.connect(
             self.selected_analysis_changed)
         self.selected_analysis_changed(selected_index)
+        self.set_plugin_configs(old_configs)
         self.reload_neo_io_plugins()
 
     def reload_neo_io_plugins(self):
@@ -745,27 +798,26 @@ class MainWindowNeo(MainWindow):
             multiple plugins with this name exist. Returns None if no such
             plugin exists.
         """
-        idx = self.analysisModel.get_indices_for_name(name)
-        if not idx:
+        plugins = self.analysisModel.get_plugins_for_name(name)
+        if not plugins:
             return None
-        if len(idx) > 1:
+        if len(plugins) > 1:
             raise SpykeException('Multiple plugins named "%s" exist!' % name)
 
-        return self.analysisModel.data(idx[0], self.analysisModel.DataRole)
+        return plugins[0]
 
     def start_plugin(self, name):
         """ Start first plugin with given name and return result of start()
             method. Raises a SpykeException if not exactly one plugins with
             this name exist.
         """
-        idx = self.analysisModel.get_indices_for_name(name)
-        if not idx:
-            raise SpykeException('No plugin named "%s" exists!' % name)
-        if len(idx) > 1:
+        plugins = self.analysisModel.get_plugins_for_name(name)
+        if not plugins:
+            return None
+        if len(plugins) > 1:
             raise SpykeException('Multiple plugins named "%s" exist!' % name)
 
-        return self._run_plugin(
-            self.analysisModel.data(idx[0], self.analysisModel.DataRole))
+        return self._run_plugin([0])
 
     def filter_group_dict(self):
         """ Return a dictionary with filter groups for each filter type
@@ -1005,9 +1057,7 @@ class MainWindowNeo(MainWindow):
         if not self.pluginEditorDock.close_all():
             event.ignore()
         else:
-            data_path = QDesktopServices.storageLocation(
-                QDesktopServices.DataLocation)
-            filter_path = os.path.join(data_path, 'filters')
+            filter_path = os.path.join(self.data_path, 'filters')
             # Ensure that filters folder exists
             if not os.path.exists(filter_path):
                 try:
@@ -1017,6 +1067,13 @@ class MainWindowNeo(MainWindow):
                         'Could not create filter directory!')
             for m in self.filter_managers.itervalues():
                 m.save()
+
+            # Store plugin configurations
+            configs = self.get_plugin_configs()
+            configs_path = os.path.join(self.data_path, 'plugin_configs.p')
+            with open(configs_path, 'w') as f:
+                pickle.dump(configs, f)
+
             event.accept()
             super(MainWindowNeo, self).closeEvent(event)
 
@@ -1315,6 +1372,10 @@ class MainWindowNeo(MainWindow):
     @pyqtSignature("")
     def on_actionEdit_Startup_Script_triggered(self):
         self.pluginEditorDock.add_file(self.startup_script)
+
+    @pyqtSignature("")
+    def on_actionRestorePluginConfigurations_triggered(self):
+        self.reload_plugins(False)
 
     def on_neoAnalysesTreeView_customContextMenuRequested(self, pos):
         self.menuPlugins.popup(self.neoAnalysesTreeView.mapToGlobal(pos))

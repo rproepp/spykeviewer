@@ -108,6 +108,7 @@ QGroupBox::title {
     <addaction name="actionSavePluginAs"/>
     <addaction name="actionShowPluginFolder"/>
     <addaction name="actionRefreshPlugins"/>
+    <addaction name="actionRestorePluginConfigurations"/>
     <addaction name="actionRemotePlugin"/>
    </widget>
    <widget class="QMenu" name="menuFilter">
@@ -678,6 +679,11 @@ QGroupBox::title {
   <action name="actionEdit_Startup_Script">
    <property name="text">
     <string>Edit Startup Script</string>
+   </property>
+  </action>
+  <action name="actionRestorePluginConfigurations">
+   <property name="text">
+    <string>Restore Plugin configurations</string>
    </property>
   </action>
  </widget>

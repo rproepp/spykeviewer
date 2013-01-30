@@ -79,9 +79,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         QCoreApplication.setOrganizationName('SpykeUtils')
         QCoreApplication.setApplicationName('Spyke Viewer')
-        data_path = QDesktopServices.storageLocation(
+        self.data_path = QDesktopServices.storageLocation(
             QDesktopServices.DataLocation)
-        self.startup_script = os.path.join(data_path, 'startup.py')
+        self.startup_script = os.path.join(self.data_path, 'startup.py')
 
         self.setupUi(self)
         self.dir = os.getcwd()
@@ -176,16 +176,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 logger.warning('No plugin paths set!')
 
         if not settings.contains('selectionPath'):
-            data_path = QDesktopServices.storageLocation(
-                QDesktopServices.DataLocation)
-            self.selection_path = os.path.join(data_path, 'selections')
+            self.selection_path = os.path.join(self.data_path, 'selections')
         else:
             self.selection_path = settings.value('selectionPath')
 
         if not settings.contains('dataPath'):
-            data_path = QDesktopServices.storageLocation(
-                QDesktopServices.DataLocation)
-            AnalysisPlugin.data_dir = os.path.join(data_path, 'data')
+            AnalysisPlugin.data_dir = os.path.join(self.data_path, 'data')
         else:
             AnalysisPlugin.data_dir = settings.value('dataPath')
 
