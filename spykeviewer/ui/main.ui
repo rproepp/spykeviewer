@@ -77,6 +77,7 @@ QGroupBox::title {
     <addaction name="actionClearCache"/>
     <addaction name="actionSave_Data"/>
     <addaction name="actionSave_Selected_Data"/>
+    <addaction name="actionEdit_Startup_Script"/>
     <addaction name="actionSettings"/>
     <addaction name="actionExit"/>
    </widget>
@@ -672,6 +673,11 @@ QGroupBox::title {
    </property>
    <property name="text">
     <string>Open containing folder...</string>
+   </property>
+  </action>
+  <action name="actionEdit_Startup_Script">
+   <property name="text">
+    <string>Edit Startup Script</string>
    </property>
   </action>
  </widget>

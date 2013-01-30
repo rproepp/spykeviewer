@@ -11,7 +11,8 @@ OS X. These packages do not have any additional requirements and can be
 started immediately (from an app in OS X or an executable file in Windows,
 please use the source installation for Linux).
 However, as they are independent of an existing Python installation, you will
-not be able to use installed additional packages from your Python environment.
+not be able to use installed additional packages from your Python environment
+by default (this can be remedied by using the :ref:`startup`).
 The binary packages are especially useful if you do not normally use Python
 or just want to try Spyke Viewer quickly. You can switch to the source
 installation at any time.

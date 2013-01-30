@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/rob/Spyke/viewer/spykeviewer/ui/main.ui'
 #
-# Created: Wed Jan 16 17:41:35 2013
+# Created: Wed Jan 30 11:12:55 2013
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -308,12 +308,15 @@ class Ui_MainWindow(object):
         icon16.addPixmap(QtGui.QPixmap(_fromUtf8(":/Plugins/Show Folder")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionShowPluginFolder.setIcon(icon16)
         self.actionShowPluginFolder.setObjectName(_fromUtf8("actionShowPluginFolder"))
+        self.actionEdit_Startup_Script = QtGui.QAction(MainWindow)
+        self.actionEdit_Startup_Script.setObjectName(_fromUtf8("actionEdit_Startup_Script"))
         self.menuFile.addAction(self.actionSave_selection)
         self.menuFile.addAction(self.actionLoad_selection)
         self.menuFile.addAction(self.actionSwitch_Modes)
         self.menuFile.addAction(self.actionClearCache)
         self.menuFile.addAction(self.actionSave_Data)
         self.menuFile.addAction(self.actionSave_Selected_Data)
+        self.menuFile.addAction(self.actionEdit_Startup_Script)
         self.menuFile.addAction(self.actionSettings)
         self.menuFile.addAction(self.actionExit)
         self.menuHelp.addAction(self.actionDocumentation)
@@ -420,5 +423,6 @@ class Ui_MainWindow(object):
 "(requires Internet access)", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_Data.setText(QtGui.QApplication.translate("MainWindow", "Save Data as...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionShowPluginFolder.setText(QtGui.QApplication.translate("MainWindow", "Open containing folder...", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionEdit_Startup_Script.setText(QtGui.QApplication.translate("MainWindow", "Edit Startup Script", None, QtGui.QApplication.UnicodeUTF8))
 
 import icons_rc

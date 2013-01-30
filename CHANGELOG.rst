@@ -1,3 +1,8 @@
+Version 0.2.2
+-------------
+* Added startup script. Can be modified using File->Edit startup script.
+
+
 Version 0.2.1
 -------------
 * New features for plugin editor: Calltips, autocompletion and "jump to"

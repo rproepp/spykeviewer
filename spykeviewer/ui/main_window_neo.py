@@ -136,6 +136,7 @@ class MainWindowNeo(MainWindow):
 
         self.activate_neo_mode()
         self.restore_state()
+        self.run_startup_script()
         self.reload_plugins()
 
     def load_current_selection(self):
@@ -1311,10 +1312,17 @@ class MainWindowNeo(MainWindow):
                           selections, '-cf', '-c', config,
                           '-dd', AnalysisPlugin.data_dir])
 
+    @pyqtSignature("")
+    def on_actionEdit_Startup_Script_triggered(self):
+        self.pluginEditorDock.add_file(self.startup_script)
+
     def on_neoAnalysesTreeView_customContextMenuRequested(self, pos):
         self.menuPlugins.popup(self.neoAnalysesTreeView.mapToGlobal(pos))
 
     def plugin_saved(self, path):
+        if path == self.startup_script:
+            return
+
         plugin_path = os.path.normpath(os.path.realpath(path))
         in_dirs = False
         for p in self.plugin_paths:

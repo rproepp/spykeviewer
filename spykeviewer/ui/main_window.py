@@ -1,6 +1,8 @@
 import os
 import sys
 import json
+import re
+import traceback
 import logging
 import webbrowser
 
@@ -77,6 +79,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         QCoreApplication.setOrganizationName('SpykeUtils')
         QCoreApplication.setApplicationName('Spyke Viewer')
+        data_path = QDesktopServices.storageLocation(
+            QDesktopServices.DataLocation)
+        self.startup_script = os.path.join(data_path, 'startup.py')
 
         self.setupUi(self)
         self.dir = os.getcwd()
@@ -225,6 +230,31 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.historyDock.setVisible(False)
         self.tabifyDockWidget(self.consoleDock, self.variableExplorerDock)
         self.tabifyDockWidget(self.variableExplorerDock, self.historyDock)
+
+    def run_startup_script(self):
+        if not os.path.isfile(self.startup_script):
+            content = ('# Startup script for Spyke Viewer\n'
+                       '# "viewer" is the main window')
+            with open(self.startup_script, 'w') as f:
+                f.write(content)
+
+        try:
+            with open(self.startup_script, 'r') as f:
+                # We turn all encodings to UTF-8, so remove encoding
+                # comments manually
+                lines  = f.readlines()
+                if lines:
+                    if re.findall('coding[:=]\s*([-\w.]+)', lines[0]):
+                        lines.pop(0)
+                    elif re.findall('coding[:=]\s*([-\w.]+)', lines[1]):
+                        lines.pop(1)
+                    source = ''.join(lines).decode('utf-8')
+                    code = compile(source, self.startup_script, 'exec')
+                    exec(code, {'viewer':self})
+        except Exception:
+            logger.warning('Error during execution of startup script ' +
+                           self.startup_script + ':\n' +
+                           traceback.format_exc() + '\n')
 
     def init_python(self):
         class StreamDuplicator():
