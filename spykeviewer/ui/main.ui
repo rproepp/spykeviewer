@@ -576,6 +576,9 @@ QGroupBox::title {
    <property name="text">
     <string>Start with Remote Script</string>
    </property>
+   <property name="toolTip">
+    <string>Start selected plugin with Remote Script</string>
+   </property>
    <property name="shortcut">
     <string>F9</string>
    </property>
@@ -588,6 +591,9 @@ QGroupBox::title {
    <property name="text">
     <string>New Filter</string>
    </property>
+   <property name="toolTip">
+    <string>Create a new filter</string>
+   </property>
   </action>
   <action name="actionCopyFilter">
    <property name="enabled">
@@ -598,7 +604,10 @@ QGroupBox::title {
      <normaloff>:/Filter/Copy Filter</normaloff>:/Filter/Copy Filter</iconset>
    </property>
    <property name="text">
-    <string>Copy Filter</string>
+    <string>Copy</string>
+   </property>
+   <property name="toolTip">
+    <string>Duplicate selected filter or group</string>
    </property>
   </action>
   <action name="actionEditFilter">
@@ -610,7 +619,10 @@ QGroupBox::title {
      <normaloff>:/Filter/Edit Filter</normaloff>:/Filter/Edit Filter</iconset>
    </property>
    <property name="text">
-    <string>Edit Filter (Group)</string>
+    <string>Edit</string>
+   </property>
+   <property name="toolTip">
+    <string>Edit selected filter or filter group</string>
    </property>
   </action>
   <action name="actionDeleteFilter">
@@ -622,7 +634,10 @@ QGroupBox::title {
      <normaloff>:/Filter/Remove Filter</normaloff>:/Filter/Remove Filter</iconset>
    </property>
    <property name="text">
-    <string>Delete Filter</string>
+    <string>Delete</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete selected filter or filter group</string>
    </property>
   </action>
   <action name="actionNewFilterGroup">
@@ -632,6 +647,9 @@ QGroupBox::title {
    </property>
    <property name="text">
     <string>New Filter Group</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a new filter group</string>
    </property>
   </action>
   <action name="actionSavePluginAs">
@@ -678,6 +696,9 @@ QGroupBox::title {
    <property name="text">
     <string>Open containing folder...</string>
    </property>
+   <property name="toolTip">
+    <string>Open folder that contains selected plugin</string>
+   </property>
   </action>
   <action name="actionEdit_Startup_Script">
    <property name="text">
@@ -687,6 +708,9 @@ QGroupBox::title {
   <action name="actionRestorePluginConfigurations">
    <property name="text">
     <string>Restore Plugin configurations</string>
+   </property>
+   <property name="toolTip">
+    <string>Restore Plugin configurations to their default values</string>
    </property>
   </action>
  </widget>

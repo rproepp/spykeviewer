@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/rob/Spyke/viewer/spykeviewer/ui/main.ui'
 #
-# Created: Wed Jan 30 16:30:49 2013
+# Created: Wed Jan 30 17:02:31 2013
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -414,12 +414,18 @@ class Ui_MainWindow(object):
         self.actionRunPlugin.setToolTip(QtGui.QApplication.translate("MainWindow", "Run selected plugin", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRunPlugin.setShortcut(QtGui.QApplication.translate("MainWindow", "F5", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRemotePlugin.setText(QtGui.QApplication.translate("MainWindow", "Start with Remote Script", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionRemotePlugin.setToolTip(QtGui.QApplication.translate("MainWindow", "Start selected plugin with Remote Script", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRemotePlugin.setShortcut(QtGui.QApplication.translate("MainWindow", "F9", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNewFilter.setText(QtGui.QApplication.translate("MainWindow", "New Filter", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionCopyFilter.setText(QtGui.QApplication.translate("MainWindow", "Copy Filter", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionEditFilter.setText(QtGui.QApplication.translate("MainWindow", "Edit Filter (Group)", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionDeleteFilter.setText(QtGui.QApplication.translate("MainWindow", "Delete Filter", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionNewFilter.setToolTip(QtGui.QApplication.translate("MainWindow", "Create a new filter", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionCopyFilter.setText(QtGui.QApplication.translate("MainWindow", "Copy", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionCopyFilter.setToolTip(QtGui.QApplication.translate("MainWindow", "Duplicate selected filter or group", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionEditFilter.setText(QtGui.QApplication.translate("MainWindow", "Edit", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionEditFilter.setToolTip(QtGui.QApplication.translate("MainWindow", "Edit selected filter or filter group", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionDeleteFilter.setText(QtGui.QApplication.translate("MainWindow", "Delete", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionDeleteFilter.setToolTip(QtGui.QApplication.translate("MainWindow", "Delete selected filter or filter group", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNewFilterGroup.setText(QtGui.QApplication.translate("MainWindow", "New Filter Group", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionNewFilterGroup.setToolTip(QtGui.QApplication.translate("MainWindow", "Create a new filter group", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSavePluginAs.setText(QtGui.QApplication.translate("MainWindow", "Save Plugin as...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSavePluginAs.setToolTip(QtGui.QApplication.translate("MainWindow", "Save current file as...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionDocumentation.setText(QtGui.QApplication.translate("MainWindow", "Documentation", None, QtGui.QApplication.UnicodeUTF8))
@@ -427,7 +433,9 @@ class Ui_MainWindow(object):
 "(requires Internet access)", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_Data.setText(QtGui.QApplication.translate("MainWindow", "Save Data as...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionShowPluginFolder.setText(QtGui.QApplication.translate("MainWindow", "Open containing folder...", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionShowPluginFolder.setToolTip(QtGui.QApplication.translate("MainWindow", "Open folder that contains selected plugin", None, QtGui.QApplication.UnicodeUTF8))
         self.actionEdit_Startup_Script.setText(QtGui.QApplication.translate("MainWindow", "Edit Startup Script", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRestorePluginConfigurations.setText(QtGui.QApplication.translate("MainWindow", "Restore Plugin configurations", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionRestorePluginConfigurations.setToolTip(QtGui.QApplication.translate("MainWindow", "Restore Plugin configurations to their default values", None, QtGui.QApplication.UnicodeUTF8))
 
 import icons_rc

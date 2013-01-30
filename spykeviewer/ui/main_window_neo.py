@@ -977,6 +977,9 @@ class MainWindowNeo(MainWindow):
 
     def editFilter(self, copy):
         item = self.filterTreeWidget.currentItem()
+        old_name = None
+        if copy:
+            old_name = item.text(0)
 
         parent = item.parent()
         if parent.parent():
@@ -999,6 +1002,10 @@ class MainWindowNeo(MainWindow):
             dialog = FilterGroupDialog(top, item.text(0), g.exclusive, self)
 
         while dialog.exec_():
+            if copy and item.text(0) == dialog.name():
+                QMessageBox.critical(self, 'Error saving',
+                    'Please select a different name for the copied element')
+                continue
             try:
                 if not copy and item.text(0) != dialog.name():
                     self.filter_managers[top].remove_item(item.text(0), group)
@@ -1013,7 +1020,7 @@ class MainWindowNeo(MainWindow):
                         dialog.exclusive(), group_items, overwrite=True)
                 break
             except ValueError as e:
-                QMessageBox.critical(self, 'Error saving filter', str(e))
+                QMessageBox.critical(self, 'Error saving', str(e))
 
         if dialog.result() == FilterDialog.Accepted:
             self.filters_changed = True
