@@ -15,6 +15,7 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
                                         default=2)
     show_events = gui_data.BoolItem('Show events', default=True)
     show_epochs = gui_data.BoolItem('Show epochs', default=True)
+    multiple_plots = gui_data.BoolItem('One plot per segment', default=False)
     
     _g = gui_data.BeginGroup('Spikes')
     show_spikes = gui_data.BoolItem(
@@ -75,21 +76,18 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
             if epochs and epochs.has_key(seg):
                 seg_epochs = epochs[seg]
 
-            seg_trains = None
+            seg_trains = []
             if spike_trains and spike_trains.has_key(seg):
                 seg_trains = spike_trains[seg]
 
-            seg_spikes = None
+            seg_spikes = []
             if spikes and spikes.has_key(seg):
                 seg_spikes = spikes[seg]
             
             # Prepare template spikes
             if self.spike_form == 0 and self.template_mode:
-                if seg_spikes is None:
-                    seg_spikes = []
-
                 template_spikes = {}
-                for s in seg_spikes:
+                for s in seg_spikes[:]:
                     if s.unit not in template_spikes:
                         template_spikes[s.unit] = s
                 for ts in template_spikes.itervalues():
@@ -110,7 +108,6 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
                          show_waveforms=(self.spike_form==0),
                          progress=current.progress)
             
-            # Only do one plot - remove this line to 
-            # create one plot per segment
-            break
+            if not self.multiple_plots:
+                break
         
