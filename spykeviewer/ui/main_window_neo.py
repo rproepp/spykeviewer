@@ -564,7 +564,7 @@ class MainWindowNeo(MainWindow):
             except Exception, e:
                 if self.show_filter_exceptions:
                     sys.stderr.write(
-                        'Exception in filter ' + n + ':\n' + str(e))
+                        'Exception in filter ' + n + ':\n' + str(e) + '\n')
                 if not f.on_exception:
                     return True
         return False
@@ -585,7 +585,7 @@ class MainWindowNeo(MainWindow):
             except Exception, e:
                 if self.show_filter_exceptions:
                     sys.stderr.write(
-                        'Exception in filter ' + n + ':\n' + str(e))
+                        'Exception in filter ' + n + ':\n' + str(e) + '\n')
                 if not f.on_exception:
                     return []
         return items
