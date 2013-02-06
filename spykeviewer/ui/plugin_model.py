@@ -26,7 +26,7 @@ class PluginModel(PluginManager, QAbstractItemModel):
             if index.column() > 0:
                 return None
 
-            return item.name
+            return item.name.decode('utf-8')
 
         if role == PluginModel.DataRole:
             return item.data

@@ -70,7 +70,7 @@ class PluginManager:
                 if f.startswith('.'):
                     continue
 
-                p = os.path.join(path, f).encode('utf-8')
+                p = os.path.join(path.decode('utf-8'), f).encode('utf-8')
                 if os.path.isdir(p):
                     new_node = self.get_dir_child(p)
                     if new_node:
