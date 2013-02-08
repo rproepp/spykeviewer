@@ -631,14 +631,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except Exception, e:
             self.progress.done()
             QMessageBox.critical(self, 'Error loading selection',
-                str(type(e).__name__) + ': ' + str(e).decode('utf8'))
+                                 str(type(e).__name__) + ': ' +
+                                 str(e).decode('utf8'))
+            logger.warning('Error loading selection:\n' +
+                           traceback.format_exc() + '\n')
         finally:
             self.populate_selection_menu()
 
     def on_menuFile_triggered(self, action):
         if action == self.actionSave_selection:
             d = QFileDialog(self, 'Choose where to save selection',
-                self.selection_path)
+                            self.selection_path)
             d.setAcceptMode(QFileDialog.AcceptSave)
             d.setNameFilter("Selection files (*.sel)")
             d.setDefaultSuffix('sel')

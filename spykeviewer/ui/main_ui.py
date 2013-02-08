@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/rob/Spyke/viewer/spykeviewer/ui/main.ui'
 #
-# Created: Wed Jan 30 17:23:55 2013
+# Created: Fri Feb  8 19:18:47 2013
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -81,29 +81,6 @@ class Ui_MainWindow(object):
         self.dockWidgetContents_3.setObjectName(_fromUtf8("dockWidgetContents_3"))
         self.historyDock.setWidget(self.dockWidgetContents_3)
         MainWindow.addDockWidget(QtCore.Qt.DockWidgetArea(8), self.historyDock)
-        self.filterDock = QtGui.QDockWidget(MainWindow)
-        self.filterDock.setObjectName(_fromUtf8("filterDock"))
-        self.dockWidgetContents_5 = QtGui.QWidget()
-        self.dockWidgetContents_5.setObjectName(_fromUtf8("dockWidgetContents_5"))
-        self.gridLayout_5 = QtGui.QGridLayout(self.dockWidgetContents_5)
-        self.gridLayout_5.setObjectName(_fromUtf8("gridLayout_5"))
-        self.filterTreeWidget = QtGui.QTreeWidget(self.dockWidgetContents_5)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(3)
-        sizePolicy.setHeightForWidth(self.filterTreeWidget.sizePolicy().hasHeightForWidth())
-        self.filterTreeWidget.setSizePolicy(sizePolicy)
-        self.filterTreeWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.filterTreeWidget.setDragEnabled(True)
-        self.filterTreeWidget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
-        self.filterTreeWidget.setDefaultDropAction(QtCore.Qt.MoveAction)
-        self.filterTreeWidget.setAlternatingRowColors(False)
-        self.filterTreeWidget.setUniformRowHeights(False)
-        self.filterTreeWidget.setObjectName(_fromUtf8("filterTreeWidget"))
-        self.filterTreeWidget.header().setVisible(False)
-        self.gridLayout_5.addWidget(self.filterTreeWidget, 0, 0, 1, 2)
-        self.filterDock.setWidget(self.dockWidgetContents_5)
-        MainWindow.addDockWidget(QtCore.Qt.DockWidgetArea(4), self.filterDock)
         self.analysisDock = QtGui.QDockWidget(MainWindow)
         self.analysisDock.setObjectName(_fromUtf8("analysisDock"))
         self.dockWidgetContents_6 = QtGui.QWidget()
@@ -376,8 +353,6 @@ class Ui_MainWindow(object):
         self.consoleDock.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Console", None, QtGui.QApplication.UnicodeUTF8))
         self.variableExplorerDock.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Variable Explorer", None, QtGui.QApplication.UnicodeUTF8))
         self.historyDock.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Command History", None, QtGui.QApplication.UnicodeUTF8))
-        self.filterDock.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Filter", None, QtGui.QApplication.UnicodeUTF8))
-        self.filterTreeWidget.headerItem().setText(0, QtGui.QApplication.translate("MainWindow", "1", None, QtGui.QApplication.UnicodeUTF8))
         self.analysisDock.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Plugins", None, QtGui.QApplication.UnicodeUTF8))
         self.navigationNeoDock.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Navigation", None, QtGui.QApplication.UnicodeUTF8))
         self.label_34.setText(QtGui.QApplication.translate("MainWindow", "Blocks:", None, QtGui.QApplication.UnicodeUTF8))
