@@ -44,8 +44,9 @@ using::
 $ spykeviewer
 
 The next sections describe how to install Spyke Viewer if you do not have
-access to the NeuroDebian_ repositories (e.g. on Windows or OS X) or want
-to install using the Python packaging system.
+access to the NeuroDebian_ repositories (e.g. on Windows or OS X), want
+to install using the Python packaging system or use the most recent
+development version from GitHub.
 
 Dependencies
 ############
@@ -100,6 +101,16 @@ $ python setup.py install
 Once the package is installed, you can start Spyke Viewer using::
 
 $ spykeviewer
+
+.. note::
+
+    You can also start the program without installing it: Simply execute
+    the script ``bin/spykeviewer`` in your Spyke Viewer folder using Python.
+
+On Windows, you might have to start ``spykeviewer.exe`` in the
+``Scripts`` folder in your Python directroy (e.g. ``C:\Python27\Scripts``)
+because most Python versions do not add this folder to the PATH environment
+variable.
 
 .. _`Python`: http://python.org/
 .. _`spykeutils`: http://spykeutils.readthedocs.org/
