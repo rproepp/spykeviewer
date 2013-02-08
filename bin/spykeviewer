@@ -9,11 +9,4 @@ except ImportError:
     from spykeviewer.start import main
 
 if __name__ == "__main__":
-    from spykeviewer.ui.main_window_neo import MainWindowNeo
-    from PyQt4 import QtGui
-
-    app = QtGui.QApplication(sys.argv)
-    ui = MainWindowNeo()
-    ui.show()
-    ui.raise_()
-    sys.exit(app.exec_())
+    main()
