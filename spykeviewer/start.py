@@ -23,6 +23,7 @@ sip.setapi('QVariant', 2)
 
 from PyQt4 import QtGui
 
+
 # The entry point for Spyke Viewer
 def main():
     from ui.main_window_neo import MainWindowNeo
