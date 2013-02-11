@@ -818,7 +818,7 @@ class MainWindowNeo(MainWindow):
         if len(plugins) > 1:
             raise SpykeException('Multiple plugins named "%s" exist!' % name)
 
-        return self._run_plugin([0])
+        return self._run_plugin(plugins[0])
 
     def filter_group_dict(self):
         """ Return a dictionary with filter groups for each filter type
