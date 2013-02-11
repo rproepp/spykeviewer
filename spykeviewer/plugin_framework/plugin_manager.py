@@ -7,18 +7,20 @@ import re
 
 from spykeutils.plugin.analysis_plugin import AnalysisPlugin
 
+
 logger = logging.getLogger('spykeviewer')
 
+
 def _compare_nodes(x, y):
-    """ Directory Nodes should come first, then sort alphabetically
+    """ Directory Nodes should come first, then sort alphabetically.
     """
     ret = int(isinstance(y, PluginManager.DirNode)) - \
-          int(isinstance(x, PluginManager.DirNode))
+        int(isinstance(x, PluginManager.DirNode))
     return ret or (1 - 2 * int(x.name < y.name))
 
 
 class PluginManager:
-    """ Manages plugins loaded from a directory
+    """ Manages plugins loaded from a directory.
     """
     class Node:
         def __init__(self, parent, data, path, name):
@@ -35,10 +37,10 @@ class PluginManager:
                 return self.parent.children.index(self)
             return 0
 
-
     class DirNode(Node):
-        def __init__(self, parent, data, path = ''):
-            """ Recursively walk down the tree, loading all legal plugin classes along the way
+        def __init__(self, parent, data, path=''):
+            """ Recursively walk down the tree, loading all legal
+            plugin classes along the way.
             """
             PluginManager.Node.__init__(self, parent, data, path, '')
             self.children = []
@@ -47,19 +49,27 @@ class PluginManager:
                 self.addPath(path)
 
         def child(self, row):
+            """ Return child at given position.
+            """
             return self.children[row]
 
         def childCount(self):
+            """ Return number of children.
+            """
             return len(self.children)
 
         def get_dir_child(self, dir):
+            """ Return child node with given directory name.
+            """
             for n in self.children:
                 if os.path.split(n.path)[1] == os.path.split(dir)[1] and \
-                   isinstance(n, PluginManager.DirNode):
+                        isinstance(n, PluginManager.DirNode):
                     return n
             return None
 
         def addPath(self, path):
+            """ Add a new path.
+            """
             if not path:
                 return
 
@@ -89,7 +99,7 @@ class PluginManager:
                         # We turn all encodings to UTF-8, so remove encoding
                         # comments manually
                         f = open(p, 'r')
-                        lines  = f.readlines()
+                        lines = f.readlines()
                         if not lines:
                             continue
                         if re.findall('coding[:=]\s*([-\w.]+)', lines[0]):
@@ -101,8 +111,8 @@ class PluginManager:
                         exec(code, exc_globals)
                     except Exception:
                         logger.warning('Error during execution of ' +
-                            'potential plugin file ' + p + ':\n' +
-                            traceback.format_exc() + '\n')
+                                       'potential plugin file ' + p + ':\n' +
+                                       traceback.format_exc() + '\n')
                     for cl in exc_globals.values():
                         if not inspect.isclass(cl):
                             continue
@@ -123,14 +133,15 @@ class PluginManager:
                             evalue = etype('Exception while creating %s: %s' %
                                            (cl.__name__, evalue))
                             raise etype, evalue, etb
-                        self.children.append(PluginManager.Node(self,
-                            instance, p, instance.get_name()))
+                        self.children.append(PluginManager.Node(
+                            self, instance, p, instance.get_name()))
 
             self.children.sort(cmp=_compare_nodes)
-
 
     def __init__(self):
         self.root = self.DirNode(None, None)
 
     def add_path(self, path):
+        """ Add a new path to the manager.
+        """
         self.root.addPath(path)
