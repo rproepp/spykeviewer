@@ -9,7 +9,7 @@ import pickle
 import neo
 from neo.io.baseio import BaseIO
 
-from PyQt4.QtCore import (Qt, pyqtSignature, QThread, SIGNAL, QUrl)
+from PyQt4.QtCore import (Qt, pyqtSignature, QThread, QUrl)
 from PyQt4.QtGui import (QFileSystemModel, QHeaderView, QListWidgetItem,
                          QMessageBox, QApplication, QProgressDialog,
                          QFileDialog, QDesktopServices)
@@ -21,7 +21,6 @@ from spykeutils.plugin.data_provider_stored import NeoStoredProvider
 from spykeutils.plugin.analysis_plugin import AnalysisPlugin
 
 from main_window import MainWindow
-from plugin_editor_dock import PluginEditorDock
 from plugin_model import PluginModel
 from ..plugin_framework.data_provider_viewer import NeoViewerProvider
 
@@ -49,27 +48,6 @@ class MainWindowNeo(MainWindow):
              'Recording Channel Group': self.populate_neo_channel_group_list,
              'Segment': self.populate_neo_segment_list,
              'Unit': self.populate_neo_unit_list}
-
-        # Initialize plugin system
-        self.pluginEditorDock = PluginEditorDock()
-        self.pluginEditorDock.setObjectName('editorDock')
-        self.addDockWidget(Qt.RightDockWidgetArea, self.pluginEditorDock)
-        self.pluginEditorDock.setVisible(False)
-        self.pluginEditorDock.plugin_saved.connect(self.plugin_saved)
-        self.pluginEditorDock.file_available.connect(self.file_available)
-
-        self.consoleDock.edit_script = lambda (path): \
-            self.pluginEditorDock.add_file(path)
-
-        from spyderlib.utils.misc import get_error_match
-
-        def p(x):
-            match = get_error_match(unicode(x))
-            if match:
-                fname, lnb = match.groups()
-                self.pluginEditorDock.show_position(fname, int(lnb))
-
-        self.connect(self.console, SIGNAL("go_to_error(QString)"), p)
 
         # Initialize Neo navigation
         self.file_system_model = QFileSystemModel()
@@ -114,6 +92,44 @@ class MainWindowNeo(MainWindow):
                   ('Recording Channel', 'rc'),
                   ('Unit', 'unit')])
         return l
+
+    def get_console_objects(self):
+        """ Return a dictionary of objects that should be included in the
+        console on startup. These objects will also not be displayed in
+        variable explorer. Overriden for Neo objects
+        """
+        d = super(MainWindowNeo, self).get_console_objects()
+        import quantities
+        import neo
+        import spykeutils
+
+        d['pq'] = quantities
+        d['neo'] = neo
+        d['spykeutils'] = spykeutils
+
+        return d
+
+    def set_initial_layout(self):
+        self.neoFilesDock.setMinimumSize(100, 100)
+        self.removeDockWidget(self.neoFilesDock)
+        self.addDockWidget(Qt.RightDockWidgetArea, self.neoFilesDock)
+        self.neoFilesDock.setVisible(True)
+
+        super(MainWindowNeo, self).set_initial_layout()
+
+    def set_current_selection(self, data):
+        if data['type'] == 'Neo':
+            self.set_neo_selection(data)
+        else:
+            raise NotImplementedError(
+                'This version of Spyke Viewer only supports Neo selections!')
+
+    def add_selection(self, data):
+        if data['type'] == 'Neo':
+            self.add_neo_selection(data)
+        else:
+            raise NotImplementedError(
+                'This version of Spyke Viewer only supports Neo selections!')
 
     def activate_neo_mode(self):
         self.provider = NeoViewerProvider(self)

@@ -19,6 +19,7 @@ from spyderlib.widgets.internalshell import InternalShell
 from spyderlib.widgets.externalshell.namespacebrowser import NamespaceBrowser
 from spyderlib.widgets.sourcecode.codeeditor import CodeEditor
 
+import spykeutils
 from spykeutils.plugin.data_provider import DataProvider
 from spykeutils.plugin.analysis_plugin import AnalysisPlugin
 
@@ -28,6 +29,7 @@ from filter_dock import FilterDock
 from filter_dialog import FilterDialog
 from filter_group_dialog import FilterGroupDialog
 from progress_indicator_dialog import ProgressIndicatorDialog
+from plugin_editor_dock import PluginEditorDock
 import ipython_connection as ipy
 
 
@@ -42,7 +44,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     """ The main window of SpikeViewer
     """
 
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         QMainWindow.__init__(self, parent)
 
         QCoreApplication.setOrganizationName('SpykeUtils')
@@ -91,14 +93,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.seldrag_target = None
         self.seldrag_target_upper = False
 
-        # Docks
-        self.setCentralWidget(None)
-        self.update_view_menu()
-
         # Hide "Clear cache" entry - not useful for now because of
         # Neo memory leak
         self.actionClearCache.setVisible(False)
 
+        # Filters
         settings = QSettings()
         if not settings.contains('filterPath'):
             data_path = QDesktopServices.storageLocation(
@@ -120,6 +119,31 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.show_filter_exceptions = True
 
+        # Plugin Editor
+        self.pluginEditorDock = PluginEditorDock()
+        self.pluginEditorDock.setObjectName('editorDock')
+        self.addDockWidget(Qt.RightDockWidgetArea, self.pluginEditorDock)
+        self.pluginEditorDock.setVisible(False)
+        self.pluginEditorDock.plugin_saved.connect(self.plugin_saved)
+        self.pluginEditorDock.file_available.connect(self.file_available)
+
+        self.consoleDock.edit_script = lambda (path): \
+            self.pluginEditorDock.add_file(path)
+
+        from spyderlib.utils.misc import get_error_match
+
+        def p(x):
+            match = get_error_match(unicode(x))
+            if match:
+                fname, lnb = match.groups()
+                self.pluginEditorDock.show_position(fname, int(lnb))
+
+        self.connect(self.console, SIGNAL("go_to_error(QString)"), p)
+
+        # Docks
+        self.setCentralWidget(None)
+        self.update_view_menu()
+
     def get_filter_types(self):
         """ Return a list of filter type tuples as required by
             :class:`filter_dock.FilterDock. Override in domain-specific
@@ -137,8 +161,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def restore_state(self):
         settings = QSettings()
-        if not settings.contains('windowGeometry') or\
-           not settings.contains('windowState'):
+        if not settings.contains('windowGeometry') or \
+                not settings.contains('windowState'):
             self.set_initial_layout()
         else:
             self.restoreGeometry(settings.value('windowGeometry'))
@@ -182,14 +206,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             AnalysisPlugin.data_dir = settings.value('dataPath')
 
         if not settings.contains('remoteScript') or not os.path.isfile(
-            settings.value('remoteScript')):
+                settings.value('remoteScript')):
             if settings.contains('remoteScript'):
                 logger.warning('Remote script not found! Reverting to '
                                'default location...')
             if hasattr(sys, 'frozen'):
                 path = os.path.dirname(sys.executable)
             else:
-                import spykeutils
                 path = os.path.dirname(spykeutils.__file__)
                 path = os.path.join(os.path.abspath(path), 'plugin')
             self.remote_script = os.path.join(path, 'startplugin.py')
@@ -204,10 +227,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def set_initial_layout(self):
         self.resize(800, 750)
         self.navigationNeoDock.setVisible(True)
-        
-        self.neoFilesDock.setMinimumSize(100, 100)
-        self.removeDockWidget(self.neoFilesDock)
-        self.addDockWidget(Qt.RightDockWidgetArea, self.neoFilesDock)
+
         self.removeDockWidget(self.filterDock)
         self.removeDockWidget(self.analysisDock)
         self.addDockWidget(Qt.RightDockWidgetArea, self.filterDock)
@@ -215,7 +235,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tabifyDockWidget(self.filterDock, self.analysisDock)
         self.filterDock.setVisible(True)
         self.analysisDock.setVisible(True)
-        self.neoFilesDock.setVisible(True)
 
         self.consoleDock.setVisible(False)
         self.variableExplorerDock.setVisible(False)
@@ -234,7 +253,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             with open(self.startup_script, 'r') as f:
                 # We turn all encodings to UTF-8, so remove encoding
                 # comments manually
-                lines  = f.readlines()
+                lines = f.readlines()
                 if lines:
                     if re.findall('coding[:=]\s*([-\w.]+)', lines[0]):
                         lines.pop(0)
@@ -242,11 +261,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         lines.pop(1)
                     source = ''.join(lines).decode('utf-8')
                     code = compile(source, self.startup_script, 'exec')
-                    exec(code, {'viewer':self})
+                    exec(code, {'viewer': self})
         except Exception:
             logger.warning('Error during execution of startup script ' +
                            self.startup_script + ':\n' +
                            traceback.format_exc() + '\n')
+
+    def get_console_objects(self):
+        """ Return a dictionary of objects that should be included in the
+        console on startup. These objects will also not be displayed in
+        variable explorer. Override this function in domain-specific
+        subclasses, e.g. for imports.
+        """
+        import numpy
+        import scipy
+        import matplotlib.pyplot as plt
+        import guiqwt.pyplot as guiplt
+        plt.ion()
+        guiplt.ion()
+
+        return {'np': numpy, 'sp': scipy, 'plt': plt, 'guiplt': guiplt}
 
     def init_python(self):
         class StreamDuplicator():
@@ -267,9 +301,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             def __init__(self, *args, **kwargs):
                 super(FixedInternalShell, self).__init__(*args, **kwargs)
 
-            def show_completion_list(self, completions,
-                                           completion_text="",
-                                           automatic=True):
+            def show_completion_list(self, completions, completion_text="",
+                                     automatic=True):
                 if completions is None:
                     return
                 super(FixedInternalShell, self).show_completion_list(
@@ -281,30 +314,27 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 return super(FixedInternalShell, self).get_dir(objtxt)
 
         # Console
-        import numpy
-        import scipy
-        try:
-            import matplotlib.pyplot as plt
-            pltmsg = 'matplotlib.pyplot as plt, guiqwt.pyplot as guiplt, '
-        except ImportError:
-            import guiqwt.pyplot as plt
-            pltmsg = 'guiqwt.pyplot as plt, '
-        import guiqwt.pyplot as guiplt
-        import quantities
-        import neo
-        import spykeutils
-        plt.ion()
-        guiplt.ion()
-
-        ns = {'current': self.provider, 'selections': self.selections,
-              'np': numpy, 'sp': scipy, 'plt': plt, 'guiplt': guiplt,
-              'pq': quantities, 'neo': neo, 'spykeutils': spykeutils}
         msg = ('current and selections can be used to access selected data'
-        '\n\nModules imported at startup: numpy as np, scipy as sp, ' +
-        pltmsg + 'quantities as pq, neo, spykeutils')
+               '\n\nModules imported at startup: ')
+        ns = self.get_console_objects()
+        excludes = ['execfile', 'guiplt', 'help', 'raw_input', 'runfile']
+        first_item = True
+        for n, o in ns.iteritems():
+            if type(o) == type(sys):
+                if not first_item:
+                    msg += ', '
+                first_item = False
+                msg += o.__name__
+                if n != o.__name__:
+                    msg += ' as ' + n
 
-        self.console = FixedInternalShell(self.consoleDock, namespace=ns,
-            multithreaded=False, message=msg, max_line_count=1000)
+                excludes.append(n)
+
+        ns['current'] = self.provider
+        ns['selections'] = self.selections
+        self.console = FixedInternalShell(
+            self.consoleDock, namespace=ns, multithreaded=False,
+            message=msg, max_line_count=1000)
         #self.console.clear_terminal()
 
         font = QFont("Courier new")
@@ -321,26 +351,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Variable browser
         self.browser = NamespaceBrowser(self.variableExplorerDock)
         self.browser.set_shellwidget(self.console)
-        self.browser.setup(check_all=True, exclude_private=True,
+        self.browser.setup(
+            check_all=True, exclude_private=True,
             exclude_uppercase=False, exclude_capitalized=False,
             exclude_unsupported=False, truncate=False, minmax=False,
             collvalue=False, remote_editing=False, inplace=False,
             autorefresh=False,
-            excluded_names=['execfile', 'guiplt', 'help', 'neo', 'np', 'pq',
-                            'plt', 'guiplt', 'raw_input', 'runfile', 'sp',
-                            'spykeutils'])
+            excluded_names=excludes)
         self.variableExplorerDock.setWidget(self.browser)
 
         # History
         self.history = CodeEditor(self.historyDock)
         self.history.setup_editor(linenumbers=False, language='py',
-            scrollflagarea=False)
+                                  scrollflagarea=False)
         self.history.setReadOnly(True)
         self.history.set_text('\n'.join(self.console.history))
         self.history.set_cursor_position('eof')
         self.historyDock.setWidget(self.history)
         self.console.connect(self.console, SIGNAL("refresh()"),
-            self._append_python_history)
+                             self._append_python_history)
 
         # Duplicate stdout, stderr and logging for console
         ch = logging.StreamHandler(sys.stderr)
@@ -485,7 +514,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         about.setWindowTitle(u'About Spyke Viewer ' + __version__)
         about.setTextFormat(Qt.RichText)
         about.setIconPixmap(QPixmap(':/Application/Main'))
-        about.setText(u'Spyke Viewer is an application for navigating, '
+        about.setText(
+            u'Spyke Viewer is an application for navigating, '
             u'analyzing and visualizing electrophysiological datasets.<br>'
             u'<br><a href=http://www.ni.tu-berlin.de/software/spykeviewer>'
             u'www.ni.tu-berlin.de/software/spykeviewer</a>'
@@ -518,7 +548,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_menuSelections_mouseMoved(self, event):
         if event.buttons() & Qt.LeftButton and self.seldrag_start_pos:
             if ((event.pos() - self.seldrag_start_pos).manhattanLength() >=
-                QApplication.startDragDistance()):
+                    QApplication.startDragDistance()):
                 drag = QDrag(self.menuSelections)
                 data = QMimeData()
                 data.setText(self.seldrag_selection.name)
@@ -608,19 +638,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             a = m.addAction('Load')
             self.connect(a, SIGNAL('triggered()'),
-                lambda sel=s:self.on_selection_load(sel))
+                         lambda sel=s: self.on_selection_load(sel))
 
             a = m.addAction('Save')
             self.connect(a, SIGNAL('triggered()'),
-                lambda sel=s:self.on_selection_save(sel))
+                         lambda sel=s: self.on_selection_save(sel))
 
             a = m.addAction('Rename')
             self.connect(a, SIGNAL('triggered()'),
-                lambda sel=s:self.on_selection_rename(sel))
+                         lambda sel=s: self.on_selection_rename(sel))
 
             a = m.addAction('Remove')
             self.connect(a, SIGNAL('triggered()'),
-                lambda sel=s:self.on_selection_remove(sel))
+                         lambda sel=s: self.on_selection_remove(sel))
 
     def on_selection_load(self, selection):
         self.set_current_selection(selection.data_dict())
@@ -632,26 +662,29 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.populate_selection_menu()
 
     def on_selection_clear(self):
-        if QMessageBox.question(self, 'Confirmation',
+        if QMessageBox.question(
+            self, 'Confirmation',
             'Do you really want to remove all selections?',
-            QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
+                QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
             return
 
         del self.selections[:]
         self.populate_selection_menu()
 
     def on_selection_rename(self, selection):
-        (name, ok) = QInputDialog.getText(self, 'Edit selection name',
+        (name, ok) = QInputDialog.getText(
+            self, 'Edit selection name',
             'New name:', QLineEdit.Normal, selection.name)
         if ok and name:
             selection.name = name
             self.populate_selection_menu()
 
     def on_selection_remove(self, selection):
-        if QMessageBox.question(self, 'Confirmation',
-            'Do you really want to remove the selection "%s"?' %
-            selection.name,
-            QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
+        if QMessageBox.question(
+                self, 'Confirmation',
+                'Do you really want to remove the selection "%s"?' %
+                selection.name,
+                QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
             return
 
         self.selections.remove(selection)
@@ -663,7 +696,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.populate_selection_menu()
 
     def serialize_selections(self):
-        sl = list() # Selection list, current selection as first item
+        sl = list()  # Selection list, current selection as first item
         sl.append(self.provider_factory('__current__', self).data_dict())
         for s in self.selections:
             sl.append(s.data_dict())
@@ -711,7 +744,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.save_selections_to_file(filename)
         elif action == self.actionLoad_selection:
             d = QFileDialog(self, 'Choose selection file',
-                self.selection_path)
+                            self.selection_path)
             d.setAcceptMode(QFileDialog.AcceptOpen)
             d.setFileMode(QFileDialog.ExistingFile)
             d.setNameFilter("Selection files (*.sel)")
@@ -723,18 +756,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.load_selections_from_file(filename)
 
     def set_current_selection(self, data):
-        if data['type'] == 'Neo':
-            self.set_neo_selection(data)
-        else:
-            raise NotImplementedError(
-                'This version of Spyke Viewer only supports Neo selections!')
+        """ Set the current selection based on a dictionary of selection
+        data. Override in domain-specific subclasses.
+        """
+        raise NotImplementedError('No selection model defined!')
 
     def add_selection(self, data):
-        if data['type'] == 'Neo':
-            self.add_neo_selection(data)
-        else:
-            raise NotImplementedError(
-                'This version of Spyke Viewer only supports Neo selections!')
+        """ Add a selection based on a dictionary of selection data.
+        Override in domain-specific subclasses.
+        """
+        raise NotImplementedError('No selection model defined!')
 
     def closeEvent(self, event):
         """ Saves filters and GUI state
