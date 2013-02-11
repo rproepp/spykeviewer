@@ -5,6 +5,7 @@ import traceback
 import inspect
 import sys
 import pickle
+import copy
 
 import neo
 from neo.io.baseio import BaseIO
@@ -12,8 +13,7 @@ from neo.io.baseio import BaseIO
 from PyQt4.QtCore import (Qt, pyqtSignature, QThread, QMutex,
                           SIGNAL, QUrl, QSettings)
 from PyQt4.QtGui import (QFileSystemModel, QHeaderView, QListWidgetItem,
-                         QMessageBox, QTreeWidgetItem, QAbstractItemView,
-                         QStyle, QApplication, QTreeWidget, QProgressDialog,
+                         QMessageBox, QApplication, QProgressDialog,
                          QFileDialog, QDesktopServices)
 
 from spykeutils.progress_indicator import ignores_cancel, CancelException
@@ -28,7 +28,6 @@ from filter_dialog import FilterDialog
 from filter_group_dialog import FilterGroupDialog
 from plugin_editor_dock import PluginEditorDock
 from filter_dock import FilterDock
-from checkable_item_delegate import CheckableItemDelegate
 from plugin_model import PluginModel
 from ..plugin_framework.data_provider_viewer import NeoViewerProvider
 
@@ -59,8 +58,24 @@ class MainWindowNeo(MainWindow):
         else:
             self.filter_path = settings.value('filterPath')
 
-        self.filterDock = FilterDock(self.filter_path, parent=self)
+        filter_types = [('Block', 'block'), ('Segment', 'segment'),
+                        ('Recording Channel Group', 'rcg'),
+                        ('Recording Channel', 'rc'),
+                        ('Unit', 'unit')]
+        self.filter_populate_function = \
+            {'Block': self.populate_neo_block_list,
+             'Recording Channel': self.populate_neo_channel_list,
+             'Recording Channel Group': self.populate_neo_channel_group_list,
+             'Segment': self.populate_neo_segment_list,
+             'Unit': self.populate_neo_unit_list}
+
+        self.filterDock = FilterDock(self.filter_path, filter_types,
+                                     menu=self.menuFilter, parent=self)
         self.filterDock.setObjectName('filterDock')
+        self.filterDock.current_filter_changed.connect(
+            self.on_current_filter_changed)
+        self.filterDock.filters_changed.connect(
+            self.on_filters_changed)
         self.addDockWidget(Qt.RightDockWidgetArea, self.filterDock)
 
         self.show_filter_exceptions = True
@@ -609,62 +624,24 @@ class MainWindowNeo(MainWindow):
 
     @pyqtSignature("")
     def on_actionNewFilter_triggered(self):
-        item = self.filterTreeWidget.currentItem()
-        top = None
-        group = None
-        if item:
-            parent = item.parent()
-            if parent:
-                if parent.parent():
-                    top = parent.parent().text(0)
-                    group = parent.text(0)
-                else:
-                    top = parent.text(0)
-                    group = item.text(0)
-            else:
-                top = item.text(0)
-                group = None
+        top = self.filterDock.current_filter_type()
+        group = self.filterDock.current_filter_group()
 
-        dialog = FilterDialog(self.filter_group_dict(), type=top,
+        dialog = FilterDialog(self.filterDock.filter_group_dict(), type=top,
                               group=group, parent=self)
         while dialog.exec_():
             try:
-                self.filter_managers[dialog.type()].add_filter(dialog.name(),
-                                                               dialog.code(), on_exception=dialog.on_exception(),
-                                                               group_name=dialog.group(), combined=dialog.combined())
+                self.filterDock.add_filter(dialog.name(), dialog.group(),
+                                           dialog.type(), dialog.code(),
+                                           dialog.on_exception(),
+                                           dialog.combined())
                 break
             except ValueError as e:
                 QMessageBox.critical(self, 'Error creating filter', str(e))
 
-        if dialog.result() == FilterDialog.Accepted:
-            self.filters_changed = True
-            self.populate_filter_tree()
-            self.filter_populate_function[dialog.type()]()
-
     @pyqtSignature("")
     def on_actionDeleteFilter_triggered(self):
-        item = self.filterTreeWidget.currentItem()
-        if QMessageBox.question(self, 'Please confirm',
-                                'Do you really want to delete "%s"?' % item.text(0),
-                                QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
-            return
-
-        parent = item.parent()
-        if parent.parent():
-            top = parent.parent().text(0)
-            group = parent.text(0)
-        else:
-            top = parent.text(0)
-            group = None
-
-        try:
-            self.filter_managers[top].remove_item(item.text(0), group)
-        except StandardError as e:
-            QMessageBox.critical(self, 'Error removing filter', str(e))
-        else:
-            self.filters_changed = True
-            self.populate_filter_tree()
-            self.filter_populate_function[top]()
+        self.filterDock.delete_current_filter()
 
     @pyqtSignature("")
     def on_actionEditFilter_triggered(self):
@@ -674,76 +651,64 @@ class MainWindowNeo(MainWindow):
     def on_actionCopyFilter_triggered(self):
         self.editFilter(True)
 
-    def editFilter(self, copy):
-        item = self.filterTreeWidget.currentItem()
+    def on_current_filter_changed(self):
+        enabled = self.filterDock.current_is_data_item()
+        self.actionEditFilter.setEnabled(enabled)
+        self.actionDeleteFilter.setEnabled(enabled)
+        self.actionCopyFilter.setEnabled(enabled)
 
-        parent = item.parent()
-        if parent.parent():
-            top = parent.parent().text(0)
-            group = parent.text(0)
-        else:
-            top = parent.text(0)
-            group = None
-        group_items = None
-        if item.data(1, Qt.UserRole) == MainWindowNeo.FilterTreeRoleGroup:
-            group_items = self.filter_managers[top].get_group_filters(
-                item.text(0))
+    def on_filters_changed(self, filter_type):
+        self.filter_populate_function[filter_type]()
 
-        if group_items is None:
-            f = self.filter_managers[top].get_item(item.text(0), group)
-            dialog = FilterDialog(self.filter_group_dict(), top, group,
-                                  item.text(0), f.code, f.combined, f.on_exception, self)
+    def editFilter(self, copy_item):
+        top = self.filterDock.current_filter_type()
+        group = self.filterDock.current_filter_group()
+        name = self.filterDock.current_name()
+        item = self.filterDock.current_item()
+
+        group_filters = None
+        if not self.filterDock.is_current_group():
+            dialog = FilterDialog(
+                self.filterDock.filter_group_dict(), top, group, name,
+                item.code, item.combined, item.on_exception, self)
         else:
-            g = self.filter_managers[top].get_item(item.text(0))
-            dialog = FilterGroupDialog(top, item.text(0), g.exclusive, self)
+            group_filters = self.filterDock.group_filters(top, name)
+            dialog = FilterGroupDialog(top, name, item.exclusive, self)
 
         while dialog.exec_():
-            if copy and item.text(0) == dialog.name():
-                QMessageBox.critical(self, 'Error saving',
-                                     'Please select a different name for the copied element')
+            if copy_item and name == dialog.name():
+                QMessageBox.critical(
+                    self, 'Error saving',
+                    'Please select a different name for the copied element')
                 continue
             try:
-                if not copy and item.text(0) != dialog.name():
-                    self.filter_managers[top].remove_item(item.text(0), group)
-                if item.data(1, Qt.UserRole) == \
-                        MainWindowNeo.FilterTreeRoleFilter:
-                    self.filter_managers[top].add_filter(dialog.name(),
-                                                         dialog.code(), combined=dialog.combined(),
-                                                         on_exception=dialog.on_exception(),
-                                                         group_name=dialog.group(), overwrite=True)
+                if not copy_item and name != dialog.name():
+                    self.filterDock.delete_item(top, name, group)
+                if not self.filterDock.is_current_group():
+                    self.filterDock.add_filter(
+                        dialog.name(), dialog.group(), dialog.type(),
+                        dialog.code(), dialog.on_exception(),
+                        dialog.combined(), overwrite=True)
                 else:
-                    self.filter_managers[top].add_group(dialog.name(),
-                                                        dialog.exclusive(), group_items, overwrite=True)
+                    self.filterDock.add_filter_group(
+                        dialog.name(), dialog.type(), dialog.exclusive(),
+                        copy.deepcopy(group_filters), overwrite=True)
                 break
             except ValueError as e:
                 QMessageBox.critical(self, 'Error saving', str(e))
 
-        if dialog.result() == FilterDialog.Accepted:
-            self.filters_changed = True
-            self.populate_filter_tree()
-            self.filter_populate_function[top]()
-
     @pyqtSignature("")
     def on_actionNewFilterGroup_triggered(self):
-        item = self.filterTreeWidget.currentItem()
-        top = None
-        if item:
-            while item.parent():
-                item = item.parent()
-            top = item.text(0)
+        top = self.filterDock.current_filter_type()
 
         dialog = FilterGroupDialog(top, parent=self)
         while dialog.exec_():
             try:
-                self.filter_managers[dialog.type()].add_group(dialog.name(),
-                                                              dialog.exclusive())
+                self.filterDock.add_filter_group(dialog.name(), dialog.type(),
+                                                 dialog.exclusive())
                 break
             except ValueError as e:
                 QMessageBox.critical(self, 'Error creating group', str(e))
-
-        if dialog.result() == FilterDialog.Accepted:
-            self.filters_changed = True
-            self.populate_filter_tree()
 
     @pyqtSignature("")
     def on_actionClearCache_triggered(self):

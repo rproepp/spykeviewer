@@ -1,67 +1,79 @@
-from PyQt4 import QtGui, QtCore
 import os
-import sys
 
-from PyQt4.QtGui import (QDockWidget, QWidget, QFileDialog, QGridLayout,
-                         QMessageBox, QFont, QTabWidget, QTextCursor,
-                         QDesktopServices, QAbstractItemView, QTreeWidget,
-                         QApplication, QStyle, QTreeWidgetItem)
-from PyQt4.QtCore import Qt, pyqtSignal, SIGNAL, QSettings, QMutex
+from PyQt4 import QtGui, QtCore
+from PyQt4.QtGui import (QDockWidget, QMessageBox, QAbstractItemView,
+                         QTreeWidget, QApplication, QStyle, QTreeWidgetItem)
+from PyQt4.QtCore import Qt, pyqtSignal
 
 from ..plugin_framework.filter_manager import FilterManager
 from checkable_item_delegate import CheckableItemDelegate
 
 
 class FilterDock(QDockWidget):
-    """ Dock with filter tree
+    """ Dock with filter tree. It manages filters of different
+    types. They are displayed in a tree view and can be moved using drag
+    and drop (only possible within the same filter type). The dock also
+    takes care of storing and restoring the filters from disk.
+
+    This dock has two signals:
+
+    * ``current_filter_changed()``: Emitted when the currently selected item
+      in the tree view changes.
+    * ``filters_changed(str)``: Emitted whenever an action causes the list of
+      filtered items to (potentially) change.
     """
     FilterTreeRoleTop = 0
     FilterTreeRoleGroup = 1
     FilterTreeRoleFilter = 2
 
-    def __init__(self, filter_path, title='Filter', parent=None):
+    current_filter_changed = pyqtSignal()
+    filters_changed = pyqtSignal(str)
+
+    def __init__(self, filter_path, type_list, menu=None,
+                 title='Filter', parent=None):
+        """ Create a new filter dock.
+
+        :param str filter_path: Folder in the filesystem where filters are
+            saved and loaded.
+        :param list type_list: A list of (str, str) tuples. Each tuple
+            describes one filter type. The first element is the name of the
+            filter type. It will be displayed and used as parameter in the
+            filters_changed callback. The second element is the filename
+            that will be used to save and load the filters of this type.
+        :param :class:`PyQt4.QtGui.QMenu` menu: A menu that will be displayed
+            as context when the tree view is right-clicked.
+        :param str title: The title of the dock.
+        :param :class:`PyQt4.QtGui.QWidget` parent: The parent of this dock.
+        """
         QDockWidget.__init__(self, title, parent)
         self.setupUi()
 
         self.filter_path = filter_path
-
-        # TODO: Abstract using signal
-        self.filter_populate_function = \
-            {'Block': parent.populate_neo_block_list,
-             'Recording Channel': parent.populate_neo_channel_list,
-             'Recording Channel Group': parent.populate_neo_channel_group_list,
-             'Segment': parent.populate_neo_segment_list,
-             'Unit': parent.populate_neo_unit_list}
-
+        self.menuFilter = menu
         self.filter_managers = {}
-        self.filter_managers['Block'] = \
-            FilterManager('block', os.path.join(self.filter_path,
-                                                'block.py'))
-        self.filter_managers['Segment'] = \
-            FilterManager('segment', os.path.join(self.filter_path,
-                                                  'segment.py'))
-        self.filter_managers['Recording Channel Group'] = \
-            FilterManager('rcg', os.path.join(self.filter_path,
-                                              'rcg.py'))
-        self.filter_managers['Recording Channel'] = \
-            FilterManager('rc', os.path.join(self.filter_path,
-                                             'rc.py'))
-        self.filter_managers['Unit'] = \
-            FilterManager('unit', os.path.join(self.filter_path,
-                                               'unit.py'))
+
+        for t in type_list:
+            self.filter_managers[t[0]] = FilterManager(
+                t[1], os.path.join(self.filter_path, t[1] + '.py'))
+
         self.populate_filter_tree()
-        self.filters_changed = False
 
         self.filterTreeWidget.dragMoveEvent = self._filter_drag_move
         self.filterTreeWidget.dropEvent = self._filter_drag_end
         self.filterTreeWidget.keyReleaseEvent = self._filter_key_released
         self.filterTreeWidget.mouseReleaseEvent = \
             self._filter_mouse_released
-        self.filterTreeWidget.setItemDelegate(CheckableItemDelegate(
-            self.filterTreeWidget))
+        self.filterTreeWidget.setItemDelegate(
+            CheckableItemDelegate(self.filterTreeWidget))
+        self.filterTreeWidget.currentItemChanged.connect(
+            self._current_filter_changed)
+        self.filterTreeWidget.customContextMenuRequested.connect(
+            self._context_menu)
 
-    def get_active_filters(self, name):
-        return self.filter_managers[name].get_active_filters()
+    def get_active_filters(self, filter_type):
+        """ Return currently active filters for a filter type.
+        """
+        return self.filter_managers[filter_type].get_active_filters()
 
     # Method injection to handle the actual "drop" of Drag and Drop
     def _filter_drag_end(self, event):
@@ -113,9 +125,7 @@ class FilterDock(QDockWidget):
                                                    target_group)
 
         self.populate_filter_tree()
-        self.filter_populate_function[source_top]()
-
-        self.set_selection_mutex = QMutex()
+        self.filters_changed.emit(source_top)
 
     # Method injection into the filter tree (to enable custom drag and drop
     # behavior)
@@ -235,17 +245,170 @@ class FilterDock(QDockWidget):
                 f = self.filter_managers[top].get_item(s.text(0), group)
                 f.active = (s == item)
 
-        self.filter_populate_function[top]()
+        self.filters_changed.emit(top)
+
+    def current_filter_type(self):
+        """ Return the name of the currently selected filter group or filter.
+        If nothing is selected, None is returned.
+        """
+        item = self.filterTreeWidget.currentItem()
+        top = None
+        if item:
+            while item.parent():
+                item = item.parent()
+            top = item.text(0)
+
+        return top
+
+    def current_filter_group(self):
+        """ Return the name of the currently selected filter group. If a
+        from inside a group is selected, the name of that group is returned.
+        If a group or no item is selected, None is returned.
+        """
+        item = self.filterTreeWidget.currentItem()
+        group = None
+        if item:
+            parent = item.parent()
+            if parent:
+                if parent.parent():
+                    group = parent.text(0)
+                elif item.data(1, Qt.UserRole) == self.FilterTreeRoleGroup:
+                    group = item.text(0)
+
+        return group
+
+    def current_name(self):
+        """ Return name of currently selected item.
+        """
+        item = self.filterTreeWidget.currentItem()
+        return item.text(0)
+
+    def is_current_group(self):
+        """ Return if the currently selected item is a filter group.
+        """
+        item = self.filterTreeWidget.currentItem()
+        return item.data(1, Qt.UserRole) == self.FilterTreeRoleGroup
+
+    def current_item(self):
+        """ Returns the current filter or filter group.
+        """
+        item = self.filterTreeWidget.currentItem()
+        top = self.current_filter_type()
+        group = None
+        if item:
+            parent = item.parent()
+            if parent:
+                if parent.parent():
+                    group = parent.text(0)
+
+        return self.filter_managers[top].get_item(item.text(0), group)
+
+    def group_filters(self, filter_type, group_name):
+        """ Returns a list of all filters for a given filter group.
+
+        :param str filter_type: Type of the filter group.
+        :param str group_name: Name of the group.
+        :returns: list
+        """
+        return self.filter_managers[filter_type].get_group_filters(group_name)
 
     def filter_group_dict(self):
-        """ Return a dictionary with filter groups for each filter type
+        """ Return a dictionary with filter groups for each filter type.
         """
         d = {}
         for n, m in self.filter_managers.iteritems():
             d[n] = m.list_group_names()
         return d
 
+    def delete_item(self, filter_type, name, group):
+        """ Removes a filter or a filter group.
+
+        :param str name: Name of the item to be removed.
+        :param str group: Name of the group to which the item belongs.
+            If this is None, a top level item will be removed.
+            Default: None
+        """
+        self.filter_managers[filter_type].remove_item(name, group)
+
+    def delete_current_filter(self):
+        """ Removes the current filter. Checks with the user if he really
+        wants to remove the filter.
+        """
+        item = self.filterTreeWidget.currentItem()
+        if QMessageBox.question(self, 'Please confirm',
+                                'Do you really want to delete "%s"?' % item.text(0),
+                                QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
+            return
+
+        parent = item.parent()
+        if parent.parent():
+            top = parent.parent().text(0)
+            group = parent.text(0)
+        else:
+            top = parent.text(0)
+            group = None
+
+        try:
+            self.filter_managers[top].remove_item(item.text(0), group)
+        except StandardError as e:
+            QMessageBox.critical(self, 'Error removing filter', str(e))
+        else:
+            self.populate_filter_tree()
+            self.filters_changed.emit(top)
+
+    def add_filter(self, name, group, filter_type, code, on_exception,
+                   combined, overwrite=False):
+        """ Add a new filter.
+
+        :param str name: Name of the new filter.
+        :param str group: Name of the group that the new filter belongs to.
+            If this is None, the filter will not belong to any group (root
+            level). Default: None
+        :param str filter_type: The type of the new filter
+        :param list code: List of lines of code in the filter function.
+        :param bool on_exception: Should the filter return True on an
+            exception? Default: ``True``
+        :param bool overwrite: If ``True``, an existing filter with the same
+            name will be overwritten. If ``False`` and a filter with the
+            same name exists, a value error is raised. Default: ``False``
+        """
+        self.filter_managers[filter_type].add_filter(
+            name, code, on_exception=on_exception, group_name=group,
+            combined=combined, overwrite=overwrite)
+        self.populate_filter_tree()
+        self.filters_changed.emit(filter_type)
+
+    def add_filter_group(self, name, filter_type, exclusive, filters=None,
+                         overwrite=False):
+        """ Add a new filter group.
+
+        :param str name: The name of the new filter group.
+        :param str filter_type: The name of the type the filter group belongs to.
+        :param bool exclusive: Determines if the new group is exclusive, i.e.
+            only one of its items can be active at the same time.
+        :param list filters: A list of filter objects that the new filter
+            group will contain.
+            Default: None
+        :param bool overwrite: If ``True``, an existing group with the same
+            name will be overwritten. If ``False`` and a group with the same
+            name exists, a value error is raised.
+            Default : ``False``
+        """
+        self.filter_managers[filter_type].add_group(
+            name, exclusive, group_filters=filters, overwrite=overwrite)
+        self.populate_filter_tree()
+        self.filters_changed.emit(filter_type)
+
+    def save(self):
+        """ Save all filters.
+        """
+        for m in self.filter_managers.itervalues():
+            m.save()
+
     def populate_filter_tree(self):
+        """ Populates the filter tree widget from the filter data. Called
+        automatically from other methods when necessary.
+        """
         self.filterTreeWidget.clear()
 
         for name, manager in sorted(self.filter_managers.items()):
@@ -315,19 +478,20 @@ class FilterDock(QDockWidget):
                                   Qt.ItemIsDragEnabled)
                     top.addChild(item)
 
-    def on_filterTreeWidget_currentItemChanged(self, current):
-        enabled = current is not None and \
+    def current_is_data_item(self):
+        """ Returns if the currently selected item is a filter or a filter
+        group.
+        """
+        current = self.filterTreeWidget.currentItem()
+        return current is not None and \
             current.data(1, Qt.UserRole) != self.FilterTreeRoleTop
-        self.actionEditFilter.setEnabled(enabled)
-        self.actionDeleteFilter.setEnabled(enabled)
-        self.actionCopyFilter.setEnabled(enabled)
 
-    def on_filterTreeWidget_customContextMenuRequested(self, pos):
-        self.menuFilter.popup(self.filterTreeWidget.mapToGlobal(pos))
+    def _current_filter_changed(self, current):
+        self.current_filter_changed.emit()
 
-    def save(self):
-        for m in self.filter_managers.itervalues():
-            m.save()
+    def _context_menu(self, pos):
+        if self.menuFilter:
+            self.menuFilter.popup(self.filterTreeWidget.mapToGlobal(pos))
 
     def setupUi(self):
         self.filterTreeWidget = QtGui.QTreeWidget(self)
