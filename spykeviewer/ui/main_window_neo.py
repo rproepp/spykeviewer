@@ -5,13 +5,11 @@ import traceback
 import inspect
 import sys
 import pickle
-import copy
 
 import neo
 from neo.io.baseio import BaseIO
 
-from PyQt4.QtCore import (Qt, pyqtSignature, QThread, QMutex,
-                          SIGNAL, QUrl, QSettings)
+from PyQt4.QtCore import (Qt, pyqtSignature, QThread, SIGNAL, QUrl)
 from PyQt4.QtGui import (QFileSystemModel, QHeaderView, QListWidgetItem,
                          QMessageBox, QApplication, QProgressDialog,
                          QFileDialog, QDesktopServices)
@@ -23,11 +21,7 @@ from spykeutils.plugin.data_provider_stored import NeoStoredProvider
 from spykeutils.plugin.analysis_plugin import AnalysisPlugin
 
 from main_window import MainWindow
-from settings import SettingsWindow
-from filter_dialog import FilterDialog
-from filter_group_dialog import FilterGroupDialog
 from plugin_editor_dock import PluginEditorDock
-from filter_dock import FilterDock
 from plugin_model import PluginModel
 from ..plugin_framework.data_provider_viewer import NeoViewerProvider
 
@@ -37,9 +31,8 @@ logger = logging.getLogger('spykeviewer')
 
 #noinspection PyCallByClass,PyTypeChecker,PyArgumentList
 class MainWindowNeo(MainWindow):
-    """ Implements Neo functionality in the main window
+    """ Implements Neo functionality in the main window.
     """
-
     def __init__(self):
         super(MainWindowNeo, self).__init__()
 
@@ -50,35 +43,12 @@ class MainWindowNeo(MainWindow):
         self.channel_group_names = {}
 
         # Initialize filters
-        settings = QSettings()
-        if not settings.contains('filterPath'):
-            data_path = QDesktopServices.storageLocation(
-                QDesktopServices.DataLocation)
-            self.filter_path = os.path.join(data_path, 'filters')
-        else:
-            self.filter_path = settings.value('filterPath')
-
-        filter_types = [('Block', 'block'), ('Segment', 'segment'),
-                        ('Recording Channel Group', 'rcg'),
-                        ('Recording Channel', 'rc'),
-                        ('Unit', 'unit')]
         self.filter_populate_function = \
             {'Block': self.populate_neo_block_list,
              'Recording Channel': self.populate_neo_channel_list,
              'Recording Channel Group': self.populate_neo_channel_group_list,
              'Segment': self.populate_neo_segment_list,
              'Unit': self.populate_neo_unit_list}
-
-        self.filterDock = FilterDock(self.filter_path, filter_types,
-                                     menu=self.menuFilter, parent=self)
-        self.filterDock.setObjectName('filterDock')
-        self.filterDock.current_filter_changed.connect(
-            self.on_current_filter_changed)
-        self.filterDock.filters_changed.connect(
-            self.on_filters_changed)
-        self.addDockWidget(Qt.RightDockWidgetArea, self.filterDock)
-
-        self.show_filter_exceptions = True
 
         # Initialize plugin system
         self.pluginEditorDock = PluginEditorDock()
@@ -134,13 +104,16 @@ class MainWindowNeo(MainWindow):
                 except:
                     pass  # It does not matter if we can't load plugin configs
 
-    def load_current_selection(self):
-        current_selection = os.path.join(
-            self.selection_path, '.current.sel')
-        if os.path.isfile(current_selection):
-            self.load_selections_from_file(current_selection)
-        else:
-            self.populate_selection_menu()
+    def get_filter_types(self):
+        """ Return a list of filter type tuples as required by
+            :class:`filter_dock.FilterDock. Includes filters from Neo.
+        """
+        l = super(MainWindowNeo, self).get_filter_types()
+        l.extend([('Block', 'block'), ('Segment', 'segment'),
+                  ('Recording Channel Group', 'rcg'),
+                  ('Recording Channel', 'rc'),
+                  ('Unit', 'unit')])
+        return l
 
     def activate_neo_mode(self):
         self.provider = NeoViewerProvider(self)
@@ -353,45 +326,6 @@ class MainWindowNeo(MainWindow):
 
     def on_fileTreeView_doubleClicked(self, index):
         self.on_neoLoadFilesButton_pressed()
-
-    def is_filtered(self, item, filters):
-        """ Return if one of the filter functions in the given list
-            applies to the given item. Combined filters are ignored.
-        """
-        for f, n in filters:
-            if f.combined:
-                continue
-            try:
-                if not f.function()(item):
-                    return True
-            except Exception, e:
-                if self.show_filter_exceptions:
-                    sys.stderr.write(
-                        'Exception in filter ' + n + ':\n' + str(e) + '\n')
-                if not f.on_exception:
-                    return True
-        return False
-
-    def filter_list(self, items, filters):
-        """ Return a filtered list of the given list with the given filter
-            functions. Only combined filters are used.
-        """
-        if not items:
-            return items
-        item_type = type(items[0])
-        for f, n in filters:
-            if not f.combined:
-                continue
-            try:
-                items = [i for i in f.function()(items)
-                         if isinstance(i, item_type)]
-            except Exception, e:
-                if self.show_filter_exceptions:
-                    sys.stderr.write(
-                        'Exception in filter ' + n + ':\n' + str(e) + '\n')
-                if not f.on_exception:
-                    return []
-        return items
 
     def refresh_neo_view(self):
         self.set_current_selection(self.provider.data_dict())
@@ -620,95 +554,7 @@ class MainWindowNeo(MainWindow):
         if len(plugins) > 1:
             raise SpykeException('Multiple plugins named "%s" exist!' % name)
 
-        return self._run_plugin([0])
-
-    @pyqtSignature("")
-    def on_actionNewFilter_triggered(self):
-        top = self.filterDock.current_filter_type()
-        group = self.filterDock.current_filter_group()
-
-        dialog = FilterDialog(self.filterDock.filter_group_dict(), type=top,
-                              group=group, parent=self)
-        while dialog.exec_():
-            try:
-                self.filterDock.add_filter(dialog.name(), dialog.group(),
-                                           dialog.type(), dialog.code(),
-                                           dialog.on_exception(),
-                                           dialog.combined())
-                break
-            except ValueError as e:
-                QMessageBox.critical(self, 'Error creating filter', str(e))
-
-    @pyqtSignature("")
-    def on_actionDeleteFilter_triggered(self):
-        self.filterDock.delete_current_filter()
-
-    @pyqtSignature("")
-    def on_actionEditFilter_triggered(self):
-        self.editFilter(False)
-
-    @pyqtSignature("")
-    def on_actionCopyFilter_triggered(self):
-        self.editFilter(True)
-
-    def on_current_filter_changed(self):
-        enabled = self.filterDock.current_is_data_item()
-        self.actionEditFilter.setEnabled(enabled)
-        self.actionDeleteFilter.setEnabled(enabled)
-        self.actionCopyFilter.setEnabled(enabled)
-
-    def on_filters_changed(self, filter_type):
-        self.filter_populate_function[filter_type]()
-
-    def editFilter(self, copy_item):
-        top = self.filterDock.current_filter_type()
-        group = self.filterDock.current_filter_group()
-        name = self.filterDock.current_name()
-        item = self.filterDock.current_item()
-
-        group_filters = None
-        if not self.filterDock.is_current_group():
-            dialog = FilterDialog(
-                self.filterDock.filter_group_dict(), top, group, name,
-                item.code, item.combined, item.on_exception, self)
-        else:
-            group_filters = self.filterDock.group_filters(top, name)
-            dialog = FilterGroupDialog(top, name, item.exclusive, self)
-
-        while dialog.exec_():
-            if copy_item and name == dialog.name():
-                QMessageBox.critical(
-                    self, 'Error saving',
-                    'Please select a different name for the copied element')
-                continue
-            try:
-                if not copy_item and name != dialog.name():
-                    self.filterDock.delete_item(top, name, group)
-                if not self.filterDock.is_current_group():
-                    self.filterDock.add_filter(
-                        dialog.name(), dialog.group(), dialog.type(),
-                        dialog.code(), dialog.on_exception(),
-                        dialog.combined(), overwrite=True)
-                else:
-                    self.filterDock.add_filter_group(
-                        dialog.name(), dialog.type(), dialog.exclusive(),
-                        copy.deepcopy(group_filters), overwrite=True)
-                break
-            except ValueError as e:
-                QMessageBox.critical(self, 'Error saving', str(e))
-
-    @pyqtSignature("")
-    def on_actionNewFilterGroup_triggered(self):
-        top = self.filterDock.current_filter_type()
-
-        dialog = FilterGroupDialog(top, parent=self)
-        while dialog.exec_():
-            try:
-                self.filterDock.add_filter_group(dialog.name(), dialog.type(),
-                                                 dialog.exclusive())
-                break
-            except ValueError as e:
-                QMessageBox.critical(self, 'Error creating group', str(e))
+        return self._run_plugin(plugins[0])
 
     @pyqtSignature("")
     def on_actionClearCache_triggered(self):
@@ -726,16 +572,6 @@ class MainWindowNeo(MainWindow):
         if not self.pluginEditorDock.close_all():
             event.ignore()
         else:
-            filter_path = os.path.join(self.data_path, 'filters')
-            # Ensure that filters folder exists
-            if not os.path.exists(filter_path):
-                try:
-                    os.makedirs(filter_path)
-                except OSError:
-                    QMessageBox.critical(self, 'Error',
-                                         'Could not create filter directory!')
-            self.filterDock.save()
-
             # Store plugin configurations
             configs = self.get_plugin_configs()
             configs_path = os.path.join(self.data_path, 'plugin_configs.p')
@@ -940,21 +776,6 @@ class MainWindowNeo(MainWindow):
         self.reload_plugins()
 
     @pyqtSignature("")
-    def on_actionSettings_triggered(self):
-        settings = SettingsWindow(self.selection_path, self.filter_path,
-                                  AnalysisPlugin.data_dir, self.remote_script, self.plugin_paths,
-                                  self)
-
-        if settings.exec_() == settings.Accepted:
-            self.selection_path = settings.selection_path()
-            self.filter_path = settings.filter_path()
-            self.remote_script = settings.remote_script()
-            self.plugin_paths = settings.plugin_paths()
-            if self.plugin_paths:
-                self.pluginEditorDock.set_default_path(self.plugin_paths[-1])
-            self.reload_plugins()
-
-    @pyqtSignature("")
     def on_actionRunPlugin_triggered(self):
         ana = self.current_plugin()
         if not ana:
@@ -975,7 +796,10 @@ class MainWindowNeo(MainWindow):
             tb = sys.exc_info()[2]
             while not ('self' in tb.tb_frame.f_locals and
                                tb.tb_frame.f_locals['self'] == plugin):
-                tb = tb.tb_next
+                if tb.tb_next is not None:
+                    tb = tb.tb_next
+                else:
+                    break
             traceback.print_exception(type(e), e, tb)
             return None
 
