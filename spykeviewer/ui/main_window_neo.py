@@ -503,9 +503,8 @@ class MainWindowNeo(MainWindow):
         """
         self.neoChannelList.clear()
 
-        channel_manager = self.filterDock.get_active_filters(
+        filters = self.filterDock.get_active_filters(
             'Recording Channel')
-        filters = channel_manager.get_active_filters()
 
         for item in self.neoChannelGroupList.selectedItems():
             channel_group = item.data(Qt.UserRole)
