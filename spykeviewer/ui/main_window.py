@@ -798,6 +798,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             except ValueError as e:
                 QMessageBox.critical(self, 'Error saving', str(e))
 
+    def get_active_filters(self, filter_type):
+        """ Return a list of active filters for the selected filter type
+        """
+        return self.filterDock.get_active_filters(filter_type)
+
     def is_filtered(self, item, filters):
         """ Return if one of the filter functions in the given list
             applies to the given item. Combined filters are ignored.
