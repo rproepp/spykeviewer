@@ -52,7 +52,7 @@ class TestMainWindow(ut.TestCase):
         self.assertNotEqual(self.win.neo_units(), None)
 
     def test_plugins_loaded(self):
-        self.assert_(self.win.analysisModel.hasIndex(0,0),
+        self.assert_(self.win.plugin_model.hasIndex(0,0),
             'Plugin model is empty')
 
     def test_filter_tree(self):

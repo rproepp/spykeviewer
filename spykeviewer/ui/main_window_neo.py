@@ -3,25 +3,19 @@ from collections import OrderedDict
 import logging
 import traceback
 import inspect
-import sys
-import pickle
 
 import neo
 from neo.io.baseio import BaseIO
 
-from PyQt4.QtCore import (Qt, pyqtSignature, QThread, QUrl)
-from PyQt4.QtGui import (QFileSystemModel, QHeaderView, QListWidgetItem,
-                         QMessageBox, QApplication, QProgressDialog,
-                         QFileDialog, QDesktopServices)
+from PyQt4.QtCore import (Qt, pyqtSignature, QThread)
+from PyQt4.QtGui import (QListWidgetItem, QMessageBox, QApplication,
+                         QProgressDialog, QFileDialog)
 
-from spykeutils.progress_indicator import ignores_cancel, CancelException
-from spykeutils import SpykeException
+from spykeutils.progress_indicator import ignores_cancel
 from spykeutils.plugin.data_provider_neo import NeoDataProvider
 from spykeutils.plugin.data_provider_stored import NeoStoredProvider
-from spykeutils.plugin.analysis_plugin import AnalysisPlugin
 
 from main_window import MainWindow
-from plugin_model import PluginModel
 from ..plugin_framework.data_provider_viewer import NeoViewerProvider
 
 
@@ -35,7 +29,6 @@ class MainWindowNeo(MainWindow):
     def __init__(self):
         super(MainWindowNeo, self).__init__()
 
-        self.file_system_model = None
         self.block_ids = {}
         self.block_names = OrderedDict()  # Just for the display order
         self.block_files = {}
@@ -49,38 +42,8 @@ class MainWindowNeo(MainWindow):
              'Segment': self.populate_neo_segment_list,
              'Unit': self.populate_neo_unit_list}
 
-        # Initialize Neo navigation
-        self.file_system_model = QFileSystemModel()
-        self.file_system_model.setRootPath('')
-        self.fileTreeView.setModel(self.file_system_model)
-        self.fileTreeView.setCurrentIndex(
-            self.file_system_model.index(self.dir))
-        self.fileTreeView.expand(self.file_system_model.index(self.dir))
-
-        self.fileTreeView.setColumnHidden(1, True)
-        self.fileTreeView.setColumnHidden(2, True)
-        self.fileTreeView.setColumnHidden(3, True)
-
-        self.fileTreeView.header().setResizeMode(QHeaderView.ResizeToContents)
-
         self.activate_neo_mode()
-        self._finish_initialization()
-
-    def _finish_initialization(self):
-        self.update_view_menu()
-        self.restore_state()
-        self.run_startup_script()
-        self.reload_plugins()
-
-        # Restore plugin configurations
-        configs_path = os.path.join(self.data_path, 'plugin_configs.p')
-        if os.path.isfile(configs_path):
-            with open(configs_path, 'r') as f:
-                try:
-                    configs = pickle.load(f)
-                    self.set_plugin_configs(configs)
-                except:
-                    pass  # It does not matter if we can't load plugin configs
+        self.finish_initialization()
 
     def get_filter_types(self):
         """ Return a list of filter type tuples as required by
@@ -96,7 +59,7 @@ class MainWindowNeo(MainWindow):
     def get_console_objects(self):
         """ Return a dictionary of objects that should be included in the
         console on startup. These objects will also not be displayed in
-        variable explorer. Overriden for Neo objects
+        variable explorer. Overriden for Neo imports.
         """
         d = super(MainWindowNeo, self).get_console_objects()
         import quantities
@@ -110,11 +73,7 @@ class MainWindowNeo(MainWindow):
         return d
 
     def set_initial_layout(self):
-        self.neoFilesDock.setMinimumSize(100, 100)
-        self.removeDockWidget(self.neoFilesDock)
-        self.addDockWidget(Qt.RightDockWidgetArea, self.neoFilesDock)
-        self.neoFilesDock.setVisible(True)
-
+        self.navigationNeoDock.setVisible(True)
         super(MainWindowNeo, self).set_initial_layout()
 
     def set_current_selection(self, data):
@@ -138,72 +97,8 @@ class MainWindowNeo(MainWindow):
         if self.ipy_kernel:
             self.ipy_kernel.get_user_namespace()['current'] = self.provider
 
-    def get_plugin_configs(self):
-        """ Return dictionary indexed by (name,path) tuples with configuration
-        dictionaries for all plugins.
-        """
-        indices = self.analysisModel.get_all_indices()
-        c = {}
-
-        for idx in indices:
-            path = self.analysisModel.data(idx,
-                                           self.analysisModel.FilePathRole)
-            plug = self.analysisModel.data(idx, self.analysisModel.DataRole)
-            if plug:
-                c[(plug.get_name(), path)] = plug.get_parameters()
-
-        return c
-
-    def set_plugin_configs(self, configs):
-        """ Takes a dictionary indexed by plugin name with configuration
-        dictionaries for plugins and sets configurations of plugins.
-        """
-        indices = self.analysisModel.get_all_indices()
-
-        d = {}
-        for idx in indices:
-            path = self.analysisModel.data(idx,
-                                           self.analysisModel.FilePathRole)
-            plug = self.analysisModel.data(idx, self.analysisModel.DataRole)
-            if plug:
-                d[(plug.get_name(), path)] = plug
-
-        for n, c in configs.iteritems():
-            if n in d:
-                d[n].set_parameters(c)
-
     def reload_plugins(self, keep_configs=True):
-        old_path = None
-        old_configs = {}
-        if hasattr(self, 'analysisModel'):
-            if keep_configs:
-                old_configs = self.get_plugin_configs()
-            item = self.neoAnalysesTreeView.currentIndex()
-            if item:
-                old_path = self.analysisModel.data(item,
-                                                   self.analysisModel.FilePathRole)
-
-        try:
-            self.analysisModel = PluginModel()
-            for p in self.plugin_paths:
-                self.analysisModel.add_path(p)
-        except Exception, e:
-            QMessageBox.critical(self, 'Error loading plugins', str(e))
-            return
-
-        self.neoAnalysesTreeView.setModel(self.analysisModel)
-
-        selected_index = None
-        if old_path:
-            indices = self.analysisModel.get_indices_for_path(old_path)
-            if indices:
-                selected_index = indices[0]
-                self.neoAnalysesTreeView.setCurrentIndex(selected_index)
-        self.neoAnalysesTreeView.expandAll()
-        self.neoAnalysesTreeView.selectionModel().currentChanged.connect(
-            self.selected_analysis_changed)
-        self.selected_analysis_changed(selected_index)
-        self.set_plugin_configs(old_configs)
+        super(MainWindowNeo, self).reload_plugins(keep_configs)
         self.reload_neo_io_plugins()
 
     def reload_neo_io_plugins(self):
@@ -311,12 +206,8 @@ class MainWindowNeo(MainWindow):
         self.load_worker.terminated.connect(self.load_file_callback)
         self.load_worker.start()
 
-    def file_available(self, available):
-        self.actionSavePlugin.setEnabled(available)
-        self.actionSavePluginAs.setEnabled(available)
-
     @ignores_cancel
-    def on_neoLoadFilesButton_pressed(self):
+    def on_loadFilesButton_pressed(self):
         self.neoBlockList.clear()
         self.block_ids.clear()
         self.block_files.clear()
@@ -341,7 +232,7 @@ class MainWindowNeo(MainWindow):
         self.load_worker.start()
 
     def on_fileTreeView_doubleClicked(self, index):
-        self.on_neoLoadFilesButton_pressed()
+        self.on_loadFilesButton_pressed()
 
     def refresh_neo_view(self):
         self.set_current_selection(self.provider.data_dict())
@@ -409,7 +300,8 @@ class MainWindowNeo(MainWindow):
         self.neoChannelGroupList.clear()
         self.channel_group_names.clear()
 
-        filters = self.filterDock.get_active_filters('Recording Channel Group')
+        filters = self.filterDock.get_active_filters(
+            'Recording Channel Group')
 
         for item in self.neoBlockList.selectedItems():
             block = item.data(Qt.UserRole)
@@ -461,10 +353,9 @@ class MainWindowNeo(MainWindow):
                 self.neoUnitList.selectedItems()]
 
     def populate_neo_channel_list(self):
-        """ Fill the channel list with appropriate entries. There is only
-            one entry for each channel index. Data slots:
-            Qt.UserRole: The channel index
-            Qt.UserRole+1: A list of channels with this index
+        """ Fill the channel list with appropriate entries. Data slots:
+        Qt.UserRole: The channel
+        Qt.UserRole+1: The channel index
         """
         self.neoChannelList.clear()
 
@@ -519,59 +410,6 @@ class MainWindowNeo(MainWindow):
     def on_neoUnitList_itemDoubleClicked(self, item):
         print item.data(Qt.UserRole).annotations
 
-    def selected_analysis_changed(self, current):
-        enabled = True
-        if not current:
-            enabled = False
-        elif not self.analysisModel.data(current, Qt.UserRole):
-            enabled = False
-
-        self.actionRunPlugin.setEnabled(enabled)
-        self.actionEditPlugin.setEnabled(enabled)
-        self.actionConfigurePlugin.setEnabled(enabled)
-        self.actionRemotePlugin.setEnabled(enabled)
-        self.actionShowPluginFolder.setEnabled(enabled)
-
-    def current_plugin(self):
-        item = self.neoAnalysesTreeView.currentIndex()
-        if not item:
-            return None
-
-        return self.analysisModel.data(item, self.analysisModel.DataRole)
-
-    def current_plugin_path(self):
-        item = self.neoAnalysesTreeView.currentIndex()
-        if not item:
-            return None
-
-        return self.analysisModel.data(item, self.analysisModel.FilePathRole)
-
-    def get_plugin(self, name):
-        """ Get plugin with the given name. Raises a SpykeException if
-            multiple plugins with this name exist. Returns None if no such
-            plugin exists.
-        """
-        plugins = self.analysisModel.get_plugins_for_name(name)
-        if not plugins:
-            return None
-        if len(plugins) > 1:
-            raise SpykeException('Multiple plugins named "%s" exist!' % name)
-
-        return plugins[0]
-
-    def start_plugin(self, name):
-        """ Start first plugin with given name and return result of start()
-            method. Raises a SpykeException if not exactly one plugins with
-            this name exist.
-        """
-        plugins = self.analysisModel.get_plugins_for_name(name)
-        if not plugins:
-            return None
-        if len(plugins) > 1:
-            raise SpykeException('Multiple plugins named "%s" exist!' % name)
-
-        return self._run_plugin(plugins[0])
-
     @pyqtSignature("")
     def on_actionClearCache_triggered(self):
         NeoDataProvider.clear()
@@ -581,27 +419,6 @@ class MainWindowNeo(MainWindow):
         self.block_names.clear()
 
         self.populate_neo_block_list()
-
-    def closeEvent(self, event):
-        """ Saves all filters and plugins before closing
-        """
-        if not self.pluginEditorDock.close_all():
-            event.ignore()
-        else:
-            # Store plugin configurations
-            configs = self.get_plugin_configs()
-            configs_path = os.path.join(self.data_path, 'plugin_configs.p')
-            with open(configs_path, 'w') as f:
-                pickle.dump(configs, f)
-
-            event.accept()
-            super(MainWindowNeo, self).closeEvent(event)
-
-            # Prevent lingering threads
-            self.fileTreeView.setModel(None)
-            del self.file_system_model
-            self.neoAnalysesTreeView.setModel(None)
-            del self.analysisModel
 
     def add_neo_selection(self, data):
         """ Adds a new neo selection provider with the given data
@@ -787,129 +604,3 @@ class MainWindowNeo(MainWindow):
         self.progress.begin('Collecting data to save...')
         blocks = self.provider.selection_blocks()
         self._save_blocks(blocks, file_name, d.selectedFilter())
-
-    def on_refreshAnalysesButton_pressed(self):
-        self.reload_plugins()
-
-    @pyqtSignature("")
-    def on_actionRunPlugin_triggered(self):
-        ana = self.current_plugin()
-        if not ana:
-            return
-
-        self._run_plugin(ana)
-
-    def _run_plugin(self, plugin):
-        try:
-            return plugin.start(self.provider, self.selections)
-        except SpykeException, err:
-            self.progress.done()
-            QMessageBox.critical(self, 'Error executing analysis', str(err))
-        except CancelException:
-            return None
-        except Exception, e:
-            # Only print stack trace from plugin on
-            tb = sys.exc_info()[2]
-            while not ('self' in tb.tb_frame.f_locals and
-                               tb.tb_frame.f_locals['self'] == plugin):
-                if tb.tb_next is not None:
-                    tb = tb.tb_next
-                else:
-                    break
-            traceback.print_exception(type(e), e, tb)
-            return None
-
-    def on_neoAnalysesTreeView_doubleClicked(self, index):
-        self.on_actionRunPlugin_triggered()
-
-    @pyqtSignature("")
-    def on_actionEditPlugin_triggered(self):
-        item = self.neoAnalysesTreeView.currentIndex()
-        path = ''
-        if item:
-            path = self.analysisModel.data(item,
-                                           self.analysisModel.FilePathRole)
-        if not path and self.plugin_paths:
-            path = self.plugin_paths[0]
-        self.pluginEditorDock.add_file(path)
-
-    @pyqtSignature("")
-    def on_actionConfigurePlugin_triggered(self):
-        ana = self.current_plugin()
-        if not ana:
-            return
-
-        ana.configure()
-
-    @pyqtSignature("")
-    def on_actionRefreshPlugins_triggered(self):
-        self.reload_plugins()
-
-    @pyqtSignature("")
-    def on_actionNewPlugin_triggered(self):
-        self.pluginEditorDock.new_file()
-
-    @pyqtSignature("")
-    def on_actionSavePlugin_triggered(self):
-        self.pluginEditorDock.save_current()
-
-    @pyqtSignature("")
-    def on_actionSavePluginAs_triggered(self):
-        self.pluginEditorDock.save_current(True)
-
-    @pyqtSignature("")
-    def on_actionShowPluginFolder_triggered(self):
-        QDesktopServices.openUrl(QUrl.fromLocalFile(
-            os.path.dirname(self.current_plugin_path())))
-
-    @pyqtSignature("")
-    def on_actionRemotePlugin_triggered(self):
-        import subprocess
-        import pickle
-
-        selections = self.serialize_selections()
-        config = pickle.dumps(self.current_plugin().get_parameters())
-        f = open(self.remote_script, 'r')
-        code = f.read()
-        subprocess.Popen(['python', '-c', '%s' % code,
-                          type(self.current_plugin()).__name__,
-                          self.current_plugin_path(),
-                          selections, '-cf', '-c', config,
-                          '-dd', AnalysisPlugin.data_dir])
-
-    @pyqtSignature("")
-    def on_actionEdit_Startup_Script_triggered(self):
-        self.pluginEditorDock.add_file(self.startup_script)
-
-    @pyqtSignature("")
-    def on_actionRestorePluginConfigurations_triggered(self):
-        self.reload_plugins(False)
-
-    def on_neoAnalysesTreeView_customContextMenuRequested(self, pos):
-        self.menuPlugins.popup(self.neoAnalysesTreeView.mapToGlobal(pos))
-
-    def plugin_saved(self, path):
-        if path == self.startup_script:
-            return
-
-        plugin_path = os.path.normpath(os.path.realpath(path))
-        in_dirs = False
-        for p in self.plugin_paths:
-            dir = os.path.normpath(os.path.realpath(p))
-            if os.path.commonprefix([plugin_path, dir]) == dir:
-                in_dirs = True
-                break
-
-        if in_dirs:
-            self.reload_plugins()
-        else:
-            if QMessageBox.question(self, 'Warning',
-                                    'The file "%s"' % plugin_path +
-                                    ' is not in the currently valid plugin '
-                                    'directories. Do you want to open the '
-                                    'directory'
-                                    'settings now?',
-                                    QMessageBox.Yes | QMessageBox.No) == \
-                    QMessageBox.No:
-                return
-            self.on_actionSettings_triggered()
