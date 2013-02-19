@@ -274,13 +274,15 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
 
         self.tabs.setTabText(self.tabs.indexOf(editor), text)
 
-    def code(self):
-        return [self.tabs.currentWidget().get_text_line(l)
-                for l in xrange(self.tabs.currentWidget().get_line_count())]
+    def code(self, editor=None):
+        if editor is None:
+            editor = self.tabs.currentWidget()
+        return [editor.get_text_line(l)
+                for l in xrange(editor.get_line_count())]
 
 
-    def code_has_errors(self):
-        code = '\n'.join(self.code()).encode('UTF-8')
+    def code_has_errors(self, editor=None):
+        code = '\n'.join(self.code(editor)).encode('UTF-8')
         try:
             compile(code, '<filter>', 'exec')
         except SyntaxError as e:
@@ -304,7 +306,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         else:
             file_name = editor.file_name
 
-        err = self.code_has_errors()
+        err = self.code_has_errors(editor)
         if err:
             QMessageBox.critical(self, 'Error saving plugin',
                 'Compile error:\n' + err)
@@ -312,7 +314,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
 
         try:
             f = open(file_name, 'w')
-            f.write('\n'.join(self.code()).encode('UTF-8'))
+            f.write('\n'.join(self.code(editor)).encode('UTF-8'))
             f.close()
         except IOError, e:
             QMessageBox.critical(self, 'Error saving plugin',
