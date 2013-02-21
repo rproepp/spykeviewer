@@ -9,6 +9,7 @@ from spyderlib.widgets.sourcecode import codeeditor
 from spyderlib.widgets.editor import ThreadManager
 from spyderlib.utils.module_completion import moduleCompletion
 from spyderlib.utils.dochelpers import getsignaturesfromtext
+from spyderlib.widgets.findreplace import FindReplace
 
 
 class PluginEditorDock(QDockWidget):
@@ -16,7 +17,7 @@ class PluginEditorDock(QDockWidget):
     """
 
     template_code = \
-"""from spykeutils.plugin import analysis_plugin, gui_data
+        """from spykeutils.plugin import analysis_plugin, gui_data
 
 class SamplePlugin(analysis_plugin.AnalysisPlugin):
     def get_name(self):
@@ -36,8 +37,9 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         self.thread_manager = ThreadManager(self)
         try:
             self.rope_project = codeeditor.get_rope_project()
-        except IOError: # Might happen when frozen
+        except IOError:  # Might happen when frozen
             self.rope_project = None
+
         data_path = QDesktopServices.storageLocation(
             QDesktopServices.DataLocation)
         self.default_path = default_path or os.getcwd()
@@ -60,10 +62,15 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         self.tabs = QTabWidget()
         self.tabs.setTabsClosable(True)
         self.tabs.tabCloseRequested.connect(self.close_file)
+        self.tabs.currentChanged.connect(self.current_editor_changed)
+
+        self.find_widget = FindReplace(self, enable_replace=True)
+        self.find_widget.hide()
 
         self.content_widget = QWidget()
         layout = QGridLayout(self.content_widget)
         layout.addWidget(self.tabs)
+        layout.addWidget(self.find_widget)
 
         self.setWidget(self.content_widget)
 
@@ -72,10 +79,10 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         font.setStyleHint(font.TypeWriter, font.PreferDefault)
         editor = codeeditor.CodeEditor(self)
         editor.setup_editor(linenumbers=True, language='py',
-            scrollflagarea=False, codecompletion_enter=True,
-            tab_mode=False, edge_line=False, font=font,
-            codecompletion_auto=True, go_to_definition=True,
-            codecompletion_single=True, calltips=True)
+                            scrollflagarea=False, codecompletion_enter=True,
+                            tab_mode=False, edge_line=False, font=font,
+                            codecompletion_auto=True, go_to_definition=True,
+                            codecompletion_single=True, calltips=True)
         editor.setCursor(Qt.IBeamCursor)
         editor.horizontalScrollBar().setCursor(Qt.ArrowCursor)
         editor.verticalScrollBar().setCursor(Qt.ArrowCursor)
@@ -94,8 +101,8 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
                 words = words[-1].split(',')
             if comp_list:
                 editor.show_completion_list(comp_list,
-                    completion_text=words[-1],
-                    automatic=automatic)
+                                            completion_text=words[-1],
+                                            automatic=automatic)
             return
         elif text.startswith('from '):
             comp_list = moduleCompletion(text)
@@ -105,19 +112,19 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
             if ',' in words[-1]:
                 words = words[:-2] + words[-1].split(',')
             editor.show_completion_list(comp_list,
-                completion_text=words[-1],
-                automatic=automatic)
+                                        completion_text=words[-1],
+                                        automatic=automatic)
             return
         elif self.rope_project:
-            textlist = self.rope_project.get_completion_list(source_code,
-                offset, editor.file_name or self.rope_temp_path)
+            textlist = self.rope_project.get_completion_list(
+                source_code, offset, editor.file_name or self.rope_temp_path)
             if textlist:
                 completion_text = re.split(r"[^a-zA-Z0-9_]", text)[-1]
                 if text.lstrip().startswith('#') and text.endswith('.'):
                     return
                 else:
                     editor.show_completion_list(textlist, completion_text,
-                        automatic)
+                                                automatic)
                 return
 
     def trigger_calltip(self, position, auto=True):
@@ -128,8 +135,8 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         source_code = unicode(editor.toPlainText())
         offset = position
 
-        textlist = self.rope_project.get_calltip_text(source_code, offset,
-            editor.file_name or self.rope_temp_path)
+        textlist = self.rope_project.get_calltip_text(
+            source_code, offset, editor.file_name or self.rope_temp_path)
         if not textlist:
             return
         obj_fullname = ''
@@ -158,7 +165,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
             else:
                 text = doc_text
             editor.show_calltip(obj_fullname, text,
-                at_position=position)
+                                at_position=position)
 
     def go_to_definition(self, position):
         if not self.rope_project:
@@ -167,8 +174,8 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         editor = self.tabs.currentWidget()
         source_code = unicode(editor.toPlainText())
         offset = position
-        fname, lineno = self.rope_project.get_definition_location(source_code,
-            offset, editor.file_name or self.rope_temp_path)
+        fname, lineno = self.rope_project.get_definition_location(
+            source_code, offset, editor.file_name or self.rope_temp_path)
         self.show_position(fname, lineno)
 
     def show_position(self, file_name, line):
@@ -181,22 +188,23 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
 
         editor = self.tabs.currentWidget()
         cursor = editor.textCursor()
-        cursor.setPosition(0,QTextCursor.MoveAnchor)
-        cursor.movePosition(QTextCursor.Down, QTextCursor.MoveAnchor,line-1)
+        cursor.setPosition(0, QTextCursor.MoveAnchor)
+        cursor.movePosition(QTextCursor.Down, QTextCursor.MoveAnchor, line - 1)
         editor.setTextCursor(cursor)
         editor.raise_()
         editor.setFocus()
+        self.raise_()
 
     def _finalize_new_editor(self, editor, tab_name):
         editor.file_was_changed = False
         editor.textChanged.connect(lambda: self.file_changed(editor))
         #editor.trigger_code_completion.connect(self.trigger_code_completion)
         self.connect(editor, SIGNAL('trigger_code_completion(bool)'),
-            self.trigger_code_completion)
+                     self.trigger_code_completion)
         self.connect(editor, SIGNAL('trigger_calltip(int)'),
-            self.trigger_calltip)
+                     self.trigger_calltip)
         self.connect(editor, SIGNAL("go_to_definition(int)"),
-            self.go_to_definition)
+                     self.go_to_definition)
 
         self.tabs.addTab(editor, tab_name)
         self.tabs.setCurrentWidget(editor)
@@ -213,7 +221,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
     def add_file(self, file_name):
         if file_name and not file_name.endswith('py'):
             QMessageBox.warning(self, 'Cannot load file',
-                'Only Python files are supported for editing')
+                                'Only Python files are supported for editing')
             return False
 
         for i in xrange(self.tabs.count()):
@@ -236,11 +244,12 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
 
     def close_file(self, tab_index):
         if self.tabs.widget(tab_index).file_was_changed and \
-           self.tabs.widget(tab_index).file_name:
+                self.tabs.widget(tab_index).file_name:
             fname = os.path.split(self.tabs.widget(tab_index).file_name)[1]
             if not fname:
                 fname = 'New Plugin'
-            ans = QMessageBox.question(self, 'File was changed',
+            ans = QMessageBox.question(
+                self, 'File was changed',
                 'Do you want to save "%s" before closing?' % fname,
                 QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
             if ans == QMessageBox.Yes:
@@ -280,7 +289,6 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         return [editor.get_text_line(l)
                 for l in xrange(editor.get_line_count())]
 
-
     def code_has_errors(self, editor=None):
         code = '\n'.join(self.code(editor)).encode('UTF-8')
         try:
@@ -294,7 +302,8 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
             return
 
         if force_dialog or not editor.file_name:
-            d = QFileDialog(self, 'Choose where to save plugin',
+            d = QFileDialog(
+                self, 'Choose where to save plugin',
                 self.tabs.currentWidget().file_name or self.default_path)
             d.setAcceptMode(QFileDialog.AcceptSave)
             d.setNameFilter("Python files (*.py)")
@@ -309,7 +318,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         err = self.code_has_errors(editor)
         if err:
             QMessageBox.critical(self, 'Error saving plugin',
-                'Compile error:\n' + err)
+                                 'Compile error:\n' + err)
             return False
 
         try:
@@ -318,7 +327,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
             f.close()
         except IOError, e:
             QMessageBox.critical(self, 'Error saving plugin',
-                str(e))
+                                 str(e))
             return False
 
         editor.file_name = file_name
@@ -331,3 +340,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
     def save_current(self, force_dialog=False):
         editor = self.tabs.currentWidget()
         self.save_file(editor, force_dialog)
+
+    def current_editor_changed(self, index):
+        editor = self.tabs.widget(index)
+        self.find_widget.set_editor(editor)

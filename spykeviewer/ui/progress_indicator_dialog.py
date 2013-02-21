@@ -3,10 +3,11 @@ from PyQt4.QtGui import QProgressDialog
 from spykeutils.progress_indicator import (ProgressIndicator,
                                            CancelException)
 
+
 class ProgressIndicatorDialog(ProgressIndicator, QProgressDialog):
     """ This class implements
-    :class:`~SpikeUtils.progress_indicator.ProgressIndicator` as a
-    QProgressDialog. It can be used to indicate progress in a graphical
+    :class:`spykeutils.progress_indicator.ProgressIndicator` as a
+    ``QProgressDialog``. It can be used to indicate progress in a graphical
     user interface. Qt needs to be initialized in order to use it.
     """
     def __init__(self, parent, title='Processing...'):
@@ -29,7 +30,7 @@ class ProgressIndicatorDialog(ProgressIndicator, QProgressDialog):
             self.reset()
             self.open()
 
-    def step(self, num_steps = 1):
+    def step(self, num_steps=1):
         if not self.isVisible():
             return
 
