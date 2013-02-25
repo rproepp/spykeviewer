@@ -6,9 +6,10 @@ from PyQt4.QtCore import Qt
 
 from settings_ui import Ui_Settings
 
+
 class SettingsWindow(QDialog, Ui_Settings):
     def __init__(self, selection_path, filter_path, data_path,
-                 remote_script, plugin_paths, parent = None):
+                 remote_script, plugin_paths, parent=None):
         QDialog.__init__(self, parent)
 
         self.setupUi(self)
@@ -33,7 +34,7 @@ class SettingsWindow(QDialog, Ui_Settings):
 
     def plugin_paths(self):
         return [i.text() for i in self.pathListWidget.findItems('*',
-            Qt.MatchWrap | Qt.MatchWildcard)]
+                Qt.MatchWrap | Qt.MatchWildcard)]
 
     def _makeDirDialog(self, name):
         d = QFileDialog(self, name, os.getcwd())

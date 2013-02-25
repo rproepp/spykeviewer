@@ -2,18 +2,16 @@ import re
 import codecs
 from collections import OrderedDict
 
+
 def _move_ordered_dict_item(o_dict, item_key, new_position):
     """ Move an item in an ordered dictionary to a new position
-        :Parameters:
-            o_dict : OrderedDict
-                The dictionary on which the move takes place
-            item_key : key
-                The key of the item to move. If the key does not exist in
-                the dictionary, this function will do nothing.
-            new_position : key
-                The item to move will be inserted after the item with this
-                key. If this key does not exist in the dictionary, the item
-                will be moved to the first position.
+
+    :param OrderedDict o_dict: The dictionary on which the move takes place
+    :param key item_key: The key of the item to move. If the key does not
+        exist in the dictionary, this function will do nothing.
+    :param key new_position: The item to move will be inserted after the
+        item with this key. If this key does not exist in the dictionary,
+        the item will be moved to the first position.
     """
     # Bad performance, use only on small dictionaries
     # and/or non time-critical places
@@ -34,27 +32,25 @@ def _move_ordered_dict_item(o_dict, item_key, new_position):
         if i[0] == new_position:
             o_dict[item_key] = item
 
+
 class FilterManager:
-    """ Manage custom filters for NEO object selection
+    """ Manage custom filters for object selection.
     """
 
     class Filter:
-        """ Represents a single filter
+        """ Represents a single filter.
         """
         def __init__(self, code, parent, active=True, combined=False,
                      on_exception=True):
-            """ Creates a new filter
-                :Parameters:
-                    code : list
-                        List of lines of code in the filter function
-                    active : bool
-                        Is the filter active?
-                    combined : bool
-                        When True, the filter gets a list of items and returns
-                        a filtered list. Otherwise, the filter gets a single
-                        item and returns ``True`` or ``False``.
-                    on_exception : bool
-                        Should the filter return True on an exception?
+            """ Creates a new filter.
+
+            :param str code: List of lines of code in the filter function.
+            :param bool active: Is the filter active?
+            :param bool combined : When True, the filter gets a list of items
+                and returns a filtered list. Otherwise, the filter gets a
+                single item and returns ``True`` or ``False``.
+            :param bool on_exception: Should the filter return ``True`` on an
+                exception?
             """
             self.code = code
             self.active = active
@@ -66,33 +62,31 @@ class FilterManager:
             return self._parent._get_filter_function(self)
 
     class FilterGroup:
-        """ Represents either a filter group
+        """ Represents a filter group.
         """
         def __init__(self, exclusive=False):
             self.filters = OrderedDict()
             self.exclusive = exclusive
 
         def list_items(self):
-            """ Returns a list of (name, filter) tuples
+            """ Returns a list of (name, filter) tuples.
             """
             return self.filters.items()
 
         def move_filter(self, item, new_pos):
-            """ Move an item to a new position
-                :Parameters:
-                item : str
-                    The key of the item to move. If the key does not exist,
-                    this method will do nothing.
-                new_position : str
-                    The item to move will be inserted after the item with
-                    this key. If this key does not exist, the item will be
-                    moved to the first position.
+            """ Move an item to a new position.
+
+            :param str item: The key of the item to move. If the key does
+                not exist, this method will do nothing.
+            :param str new_pos: The item to move will be inserted after
+                the item with this key. If this key does not exist, the
+                item will be moved to the first position.
             """
             _move_ordered_dict_item(self.filters, item, new_pos)
 
     def __init__(self, parameter_list, filename):
         """ Constructs filter object with a given method parameter list
-            (given as string) and filename
+        (given as string) and filename.
         """
         self.signature = parameter_list
         self.filename = filename
@@ -107,9 +101,11 @@ class FilterManager:
     def _load_filter_group(self, s, group):
         # Work regular expression magic to extract method names and code
         s = s.replace('    ', '\t')
-        nl = '(?:\n|\r|\r\n)' # Different possibilities for newline
-        it = re.finditer('^def filter\\(%s(?P<plural>s?)\\):(?P<flags>\s*#.*)?%s\t"""(?P<name>[^"]*)"""%s(?P<body>(?:\t.*%s)*)'
-            % (self.signature, nl,nl,nl), s, re.M)
+        nl = '(?:\n|\r|\r\n)'  # Different possibilities for newline
+        it = re.finditer('^def filter\\(%s(?P<plural>s?)\\)'
+                         ':(?P<flags>\s*#.*)?%s\t"""(?P<name>[^"]*)"""'
+                         '%s(?P<body>(?:\t.*%s)*)'
+                         % (self.signature, nl, nl, nl), s, re.M)
         for i in it:
             name = i.group('name')
             # Remove starting tabs
@@ -132,7 +128,7 @@ class FilterManager:
             self.add_filter(name, body, active, combined, on_exception, group)
 
     def load(self):
-        """ Clears all filters and reloads them from file
+        """ Clears all filters and reloads them from file.
         """
         self.currently_loading = True
         f = codecs.open(self.filename, 'r', 'utf-8')
@@ -184,14 +180,14 @@ class FilterManager:
             file.write('\t%s\n' % l)
 
     def save(self):
-        """ Saves all filters to file
+        """ Saves all filters to file.
         """
         f = codecs.open(self.filename, 'w', 'utf-8')
         f.write('# Filter file. All functions need to have the same parameter list.\n')
         f.write('# All code outside of functions (e.g. imports) will be ignored!\n')
         f.write('# When editing this file manually, use tab indentation or indent by 4 spaces,\n')
         f.write('# otherwise the filter functions will not be recognized!\n')
-        for n,i in self.filters.iteritems():
+        for n, i in self.filters.iteritems():
             if isinstance(i, self.FilterGroup):
                 f.write('\n#GROUP %s\n' % n)
                 if i.exclusive:
@@ -204,21 +200,18 @@ class FilterManager:
         f.close()
 
     def add_item(self, item, name, group_name=None, overwrite=False):
-        """ Adds an existing item (Filter or FilterGroup)
-            :Parameters:
-                name : str
-                    Name of the new filter
-                item : Filter or FilterGroup
-                    The item to add
-                group_name : str
-                    Name of the group that the new filter belongs to. If this
-                    is None, the filter will not belong to any groop (root level)
-                    Default: None
-                overwrite : bool
-                    If true, an existing item with the same name will be
-                    overwritten. If false and an item with the same name
-                    exists, a value error is raised.
-                    Default : False
+        """ Adds an existing item (Filter or FilterGroup).
+
+        :param str name: Name of the new filter.
+        :param item: The item to add.
+        :type item: :class:`Filter` or :class:`FilterGroup`
+        :param str group_name: Name of the group that the new filter belongs
+            to. If this is None, the filter will not belong to any groop
+            (root level) Default: None
+        :param bool overwrite: If ``True``, an existing item with the same
+            name will be overwritten. If ``False`` and an item with the
+            same name exists, a value error is raised.
+            Default: ``False``
         """
         if not group_name:
             if name in self.filters:
@@ -226,10 +219,10 @@ class FilterManager:
                     raise ValueError('A filter or filter group named "%s" already exists!' % str(name))
                 prev = self.filters[name]
                 if isinstance(prev, FilterManager.FilterGroup) \
-                    and isinstance(item, FilterManager.Filter):
+                        and isinstance(item, FilterManager.Filter):
                     raise ValueError('A filter group named "%s" already exists!' % str(name))
                 if isinstance(prev, FilterManager.Filter) \
-                    and isinstance(item, FilterManager.FilterGroup):
+                        and isinstance(item, FilterManager.FilterGroup):
                     raise ValueError('A filter named "%s" already exists!' % str(name))
 
             self.filters[name] = item
@@ -247,20 +240,15 @@ class FilterManager:
             g.filters[name] = item
 
     def add_group(self, name, exclusive, group_filters=None, overwrite=False):
-        """ Adds a filter group
-            :Parameters:
-                name : str
-                    Name of the new filter
-                exclusive : bool
-                    Determines if only one item in the group can be active
-                group_filters : OrderedDict
-                    An ordered dictionary, indexed by name, of filters
-                    belonging to the group
-                overwrite : bool
-                    If true, an existing group with the same name will be
-                    overwritten. If false and a group with the same name
-                    exists, a value error is raised.
-                    Default : False
+        """ Adds a filter group.
+
+        :param str name: The name of the new filter group.
+        :param bool exclusive: Determines if the new group is exclusive, i.e.
+            only one of its items can be active at the same time.
+        :param bool overwrite: If ``True``, an existing group with the same
+            name will be overwritten. If ``False`` and a group with the same
+            name exists, a value error is raised.
+            Default: False
         """
         if name in self.filters:
             prev = self.filters[name]
@@ -282,44 +270,35 @@ class FilterManager:
 
     def add_filter(self, name, code, active=True, combined=False,
                    on_exception=True, group_name=None, overwrite=False):
-        """ Adds a filter
-            :Parameters:
-                name : str
-                    Name of the new filter
-                code : list
-                    List of lines of code in the filter function
-                active : bool
-                    Is the filter active?
-                    Default: True
-                on_exception : bool
-                    Should the filter return True on an exception?
-                    Default: True
-                group_name : str
-                    Name of the group that the new filter belongs to. If this
-                    is None, the filter will not belong to any groop
-                    (root level)
-                    Default: None
-                overwrite : bool
-                    If true, an existing filter with the same name will be
-                    overwritten. If false and a filter with the same name
-                    exists, a value error is raised.
-                    Default : False
+        """ Adds a filter.
+
+        :param str name: Name of the new filter.
+        :param list code: List of lines of code in the filter function.
+        :param bool active: Is the filter active?
+            Default: ``True``
+        :param bool on_exception: Should the filter return True on an
+            exception?
+            Default: ``True``
+        :param str group_name: Name of the group that the new filter belongs
+            to. If this is None, the filter will not belong to any group (root
+            level).
+            Default: None
+        :param bool overwrite: If ``True``, an existing filter with the same
+            name will be overwritten. If ``False`` and a filter with the
+            same name exists, a value error is raised. Default: ``False``
         """
         self.add_item(self.Filter(code, self, active, combined, on_exception),
-            name, group_name, overwrite)
+                      name, group_name, overwrite)
 
     def get_item(self, name, group=None):
-        """ Returns a filter or filter group object
-            :Parameters:
-                item : str
-                    Name of the selected filter or filter group
-                group : str
-                    Name of the group to which the filter belongs. Only
-                    valid for filter objects, not for filter groups.
-                    If this is None, a top level item is used.
-                    Default: None
-            :Returns:
-                FilterManager.Filter : The filter object
+        """ Returns a filter or filter group object.
+
+        :param str name : Name of the selected filter or filter group.
+        :param str group: Name of the group to which the filter belongs. Only
+            valid for filter objects, not for filter groups. If this is None,
+            a top level item is used.
+            Default: None
+        :returns: :class:`Filter` or :class:`FilterGroup`
         """
         if not group:
             if not name in self.filters:
@@ -337,6 +316,11 @@ class FilterManager:
             return g.filters[name]
 
     def get_group_filters(self, group):
+        """ Returns a list of all filters for a given filter group.
+
+        :param str group: Name of the group.
+        :returns: list
+        """
         if not group in self.filters:
             raise KeyError('No item named "%s" exists!' % str(group))
         g = self.filters[group]
@@ -352,23 +336,23 @@ class FilterManager:
             plural = 's'
         s = 'def fun(%s%s):\n\t' % (self.signature, plural)
         s += '\n\t'.join(filter.code)
-        exec(s,{},local)
+        exec(s, {}, local)
         return local['fun']
 
     def list_items(self):
-        """ Returns a list of (name, filter/FilterManager.FilterGroup) tuples
+        """ Returns a list of (name, :class:`Filter` or :class:`FilterGroup`)
+        tuples.
         """
         return self.filters.items()
 
     def move_item(self, item, new_pos, group_name=None):
-        """ Move an item to a new position
-            :Parameters:
-            item_key : key
-                The key of the item to move. If the key does not exist,
-                this method will do nothing.
-            new_position : key
-                The item to move will be inserted after the item with this key.
-                 If this key does not exist, the item will be moved to the first position.
+        """ Move an item to a new position.
+
+        :param key item: The key of the item to move. If the key does
+            not exist, this method will do nothing.
+        :param key new_pos: The item to move will be inserted after the item
+            with this key. If this key does not exist, the item will be moved
+            to the first position.
         """
         if not group_name:
             _move_ordered_dict_item(self.filters, item, new_pos)
@@ -377,7 +361,7 @@ class FilterManager:
 
     def get_active_filters(self):
         """ Returns a list of tuples with all active filters contained in
-            this manager and their names
+        this manager and their names.
         """
         ret = []
         for i_name, i in self.filters.iteritems():
@@ -391,7 +375,7 @@ class FilterManager:
         return ret
 
     def list_group_names(self):
-        """ Returns a list of names of filter groups
+        """ Returns a list of names of filter groups.
         """
         names = []
         for n, i in self.filters.iteritems():
@@ -400,14 +384,12 @@ class FilterManager:
         return names
 
     def remove_item(self, item, group=None):
-        """ Removes an item from the filter tree
-            :Parameters:
-                item : str
-                    Name of the item to be removed
-                group : str
-                    Name of the group to which the item belongs. If this is
-                    None, a top level item will be removed
-                    Default: None
+        """ Removes an item from the filter tree.
+
+        :param str item: Name of the item to be removed.
+        :param str group: Name of the group to which the item belongs.
+            If this is None, a top level item will be removed.
+            Default: None
         """
         if not group:
             if not item in self.filters:
@@ -425,7 +407,7 @@ class FilterManager:
             g.filters.pop(item)
 
     def group_exclusive(self, name):
-        """ Returns if a group is exclusvie
+        """ Returns if a group is exclusvie.
         """
         if not name in self.filters or not isinstance(self.filters[name], self.FilterGroup):
             return False

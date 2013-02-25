@@ -78,11 +78,12 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         font = QFont('Some font that does not exist')
         font.setStyleHint(font.TypeWriter, font.PreferDefault)
         editor = codeeditor.CodeEditor(self)
-        editor.setup_editor(linenumbers=True, language='py',
-                            scrollflagarea=False, codecompletion_enter=True,
-                            tab_mode=False, edge_line=False, font=font,
-                            codecompletion_auto=True, go_to_definition=True,
-                            codecompletion_single=True, calltips=True)
+        editor.setup_editor(
+            linenumbers=True, language='py',
+            scrollflagarea=False, codecompletion_enter=True,
+            tab_mode=False, edge_line=False, font=font,
+            codecompletion_auto=True, go_to_definition=True,
+            codecompletion_single=True, calltips=True)
         editor.setCursor(Qt.IBeamCursor)
         editor.horizontalScrollBar().setCursor(Qt.ArrowCursor)
         editor.verticalScrollBar().setCursor(Qt.ArrowCursor)
@@ -164,8 +165,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
                 text = signature + note + doc_text
             else:
                 text = doc_text
-            editor.show_calltip(obj_fullname, text,
-                                at_position=position)
+            editor.show_calltip(obj_fullname, text, at_position=position)
 
     def go_to_definition(self, position):
         if not self.rope_project:
@@ -189,7 +189,8 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         editor = self.tabs.currentWidget()
         cursor = editor.textCursor()
         cursor.setPosition(0, QTextCursor.MoveAnchor)
-        cursor.movePosition(QTextCursor.Down, QTextCursor.MoveAnchor, line - 1)
+        cursor.movePosition(QTextCursor.Down, QTextCursor.MoveAnchor,
+                            line - 1)
         editor.setTextCursor(cursor)
         editor.raise_()
         editor.setFocus()
@@ -290,8 +291,8 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         return [editor.get_text_line(l)
                 for l in xrange(editor.get_line_count())]
 
-    def code_has_errors(self, editor=None):
-        code = '\n'.join(self.code(editor)).encode('UTF-8')
+    def code_has_errors(self):
+        code = '\n'.join(self.code()).encode('UTF-8')
         try:
             compile(code, '<filter>', 'exec')
         except SyntaxError as e:
@@ -327,8 +328,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
             f.write('\n'.join(self.code(editor)).encode('UTF-8'))
             f.close()
         except IOError, e:
-            QMessageBox.critical(self, 'Error saving plugin',
-                                 str(e))
+            QMessageBox.critical(self, 'Error saving plugin', str(e))
             return False
 
         editor.file_name = file_name

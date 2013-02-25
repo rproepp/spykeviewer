@@ -74,9 +74,11 @@ QGroupBox::title {
     <addaction name="actionSave_selection"/>
     <addaction name="actionLoad_selection"/>
     <addaction name="actionSwitch_Modes"/>
+    <addaction name="separator"/>
     <addaction name="actionClearCache"/>
     <addaction name="actionSave_Data"/>
     <addaction name="actionSave_Selected_Data"/>
+    <addaction name="separator"/>
     <addaction name="actionEdit_Startup_Script"/>
     <addaction name="actionSettings"/>
     <addaction name="actionExit"/>
@@ -101,15 +103,17 @@ QGroupBox::title {
      <string>Plugins</string>
     </property>
     <addaction name="actionRunPlugin"/>
+    <addaction name="actionRemotePlugin"/>
     <addaction name="actionConfigurePlugin"/>
+    <addaction name="separator"/>
+    <addaction name="actionRefreshPlugins"/>
+    <addaction name="actionRestorePluginConfigurations"/>
+    <addaction name="separator"/>
     <addaction name="actionNewPlugin"/>
     <addaction name="actionEditPlugin"/>
     <addaction name="actionSavePlugin"/>
     <addaction name="actionSavePluginAs"/>
     <addaction name="actionShowPluginFolder"/>
-    <addaction name="actionRefreshPlugins"/>
-    <addaction name="actionRestorePluginConfigurations"/>
-    <addaction name="actionRemotePlugin"/>
    </widget>
    <widget class="QMenu" name="menuFilter">
     <property name="title">
@@ -156,55 +160,7 @@ QGroupBox::title {
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_3"/>
   </widget>
-  <widget class="QDockWidget" name="filterDock">
-   <property name="windowTitle">
-    <string>Filter</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>4</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_5">
-    <layout class="QGridLayout" name="gridLayout_5">
-     <item row="0" column="0" colspan="2">
-      <widget class="QTreeWidget" name="filterTreeWidget">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>3</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="contextMenuPolicy">
-        <enum>Qt::CustomContextMenu</enum>
-       </property>
-       <property name="dragEnabled">
-        <bool>true</bool>
-       </property>
-       <property name="dragDropMode">
-        <enum>QAbstractItemView::InternalMove</enum>
-       </property>
-       <property name="defaultDropAction">
-        <enum>Qt::MoveAction</enum>
-       </property>
-       <property name="alternatingRowColors">
-        <bool>false</bool>
-       </property>
-       <property name="uniformRowHeights">
-        <bool>false</bool>
-       </property>
-       <attribute name="headerVisible">
-        <bool>false</bool>
-       </attribute>
-       <column>
-        <property name="text">
-         <string>1</string>
-        </property>
-       </column>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-  </widget>
-  <widget class="QDockWidget" name="analysisDock">
+  <widget class="QDockWidget" name="pluginDock">
    <property name="windowTitle">
     <string>Plugins</string>
    </property>
@@ -214,7 +170,7 @@ QGroupBox::title {
    <widget class="QWidget" name="dockWidgetContents_6">
     <layout class="QGridLayout" name="gridLayout_11">
      <item row="0" column="0" colspan="2">
-      <widget class="QTreeView" name="neoAnalysesTreeView">
+      <widget class="QTreeView" name="pluginsTreeView">
        <property name="contextMenuPolicy">
         <enum>Qt::CustomContextMenu</enum>
        </property>
@@ -235,97 +191,7 @@ QGroupBox::title {
     </layout>
    </widget>
   </widget>
-  <widget class="QDockWidget" name="navigationNeoDock">
-   <property name="windowTitle">
-    <string>Navigation</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>1</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_12">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <layout class="QVBoxLayout" name="verticalLayout_31">
-       <item>
-        <widget class="QLabel" name="label_34">
-         <property name="text">
-          <string>Blocks:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QListWidget" name="neoBlockList">
-         <property name="selectionMode">
-          <enum>QAbstractItemView::ExtendedSelection</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_36">
-         <property name="text">
-          <string>Channel Groups:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QListWidget" name="neoChannelGroupList">
-         <property name="selectionMode">
-          <enum>QAbstractItemView::ExtendedSelection</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_37">
-         <property name="text">
-          <string>Channels:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QListWidget" name="neoChannelList">
-         <property name="selectionMode">
-          <enum>QAbstractItemView::ExtendedSelection</enum>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QVBoxLayout" name="verticalLayout_29">
-       <item>
-        <widget class="QLabel" name="label_35">
-         <property name="text">
-          <string>Segments:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QListWidget" name="neoSegmentList">
-         <property name="selectionMode">
-          <enum>QAbstractItemView::ExtendedSelection</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_38">
-         <property name="text">
-          <string>Units:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QListWidget" name="neoUnitList">
-         <property name="selectionMode">
-          <enum>QAbstractItemView::ExtendedSelection</enum>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-    </layout>
-   </widget>
-  </widget>
-  <widget class="QDockWidget" name="neoFilesDock">
+  <widget class="QDockWidget" name="filesDock">
    <property name="windowTitle">
     <string>Files</string>
    </property>
@@ -357,7 +223,7 @@ QGroupBox::title {
       </widget>
      </item>
      <item row="1" column="0">
-      <widget class="QPushButton" name="neoLoadFilesButton">
+      <widget class="QPushButton" name="loadFilesButton">
        <property name="text">
         <string>Load</string>
        </property>
