@@ -291,8 +291,8 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         return [editor.get_text_line(l)
                 for l in xrange(editor.get_line_count())]
 
-    def code_has_errors(self):
-        code = '\n'.join(self.code()).encode('UTF-8')
+    def code_has_errors(self, editor=None):
+        code = '\n'.join(self.code(editor)).encode('UTF-8')
         try:
             compile(code, '<filter>', 'exec')
         except SyntaxError as e:

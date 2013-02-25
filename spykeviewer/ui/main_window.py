@@ -45,7 +45,7 @@ logger.addHandler(ch)
 
 #noinspection PyCallByClass,PyTypeChecker,PyArgumentList
 class MainWindow(QMainWindow, Ui_MainWindow):
-    """ The main window of SpikeViewer
+    """ The main window of Spyke Viewer.
     """
 
     def __init__(self, parent=None):
@@ -59,6 +59,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.setupUi(self)
         self.dir = os.getcwd()
+
+        # Configuration
+        self.config = {}
+        self.config['ask_plugin_path'] = True
 
         # Python console
         self.console = None
@@ -1093,7 +1097,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if in_dirs:
             self.reload_plugins()
-        else:
+        elif self.config['ask_plugin_path']:
             if QMessageBox.question(self, 'Warning',
                                     'The file "%s"' % plugin_path +
                                     ' is not in the currently valid plugin '
