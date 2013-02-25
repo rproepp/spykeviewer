@@ -227,6 +227,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         for i in xrange(self.tabs.count()):
             if file_name == self.tabs.widget(i).file_name:
                 self.tabs.setCurrentIndex(i)
+                self.raise_()
                 return True
 
         editor = self._setup_editor()
