@@ -8,6 +8,7 @@ stop_prop = gui_data.ValueProp(False)
 align_prop = gui_data.ValueProp(False)
 optimize_prop = gui_data.ValueProp(False)
 
+
 class PSTHPlugin(analysis_plugin.AnalysisPlugin):
     """ Peristimulus Time Histogram
     """
@@ -51,5 +52,8 @@ class PSTHPlugin(analysis_plugin.AnalysisPlugin):
         else:
             events = None
 
-        plot.psth(trains, events, start, stop, bin_size, True,
-             self.diagram_type == 0, progress=current.progress)
+        plot.psth(
+            trains, events, start, stop, bin_size, 
+            rate_correction=True, unit=self.unit,
+            bar_plot=self.diagram_type == 0, 
+            progress=current.progress)

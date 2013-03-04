@@ -17,7 +17,7 @@ class ISIPlugin(analysis_plugin.AnalysisPlugin):
         current.progress.begin('Creating Interspike Interval Histogram...')
         d = current.spike_trains_by_unit()
         current.progress.done()
-        plot.ISI(d, self.bin_size*pq.ms,
+        plot.isi(d, self.bin_size*pq.ms,
             self.cut_off*pq.ms, self.diagram_type == 0, pq.ms)
 
 

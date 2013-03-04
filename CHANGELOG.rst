@@ -1,5 +1,5 @@
-Version 0.2.2
--------------
+* Added search and replace functionality to plugin editor (access with
+  ``Ctrl``+``F`` and ``Ctrl``+``H``).
 * Added startup script. Can be modified using File->Edit startup script.
 * Plugin configurations are now restored when saving or refreshing plugins
   and when restarting the program. All plugin configurations can be reset
