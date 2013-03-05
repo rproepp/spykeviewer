@@ -51,12 +51,9 @@ class FilterDock(QDockWidget):
         self.filter_path = filter_path
         self.menuFilter = menu
         self.filter_managers = {}
+        self.type_list = type_list
 
-        for t in type_list:
-            self.filter_managers[t[0]] = FilterManager(
-                t[1], os.path.join(self.filter_path, t[1] + '.py'))
-
-        self.populate_filter_tree()
+        self.reload_filters(filter_path)
 
         self.filterTreeWidget.dragMoveEvent = self._filter_drag_move
         self.filterTreeWidget.dropEvent = self._filter_drag_end
@@ -69,6 +66,21 @@ class FilterDock(QDockWidget):
             self._current_filter_changed)
         self.filterTreeWidget.customContextMenuRequested.connect(
             self._context_menu)
+
+    def reload_filters(self, filter_path=None):
+        """ Reload filters from disk.
+
+        :param str filter_path: Folder in the filesystem where filters are
+            saved and loaded. If ``None``, previous filter path is used.
+            Default: ``None``
+        """
+        if filter_path:
+            self.filter_path = filter_path
+
+        for t in self.type_list:
+            self.filter_managers[t[0]] = FilterManager(
+                t[1], os.path.join(filter_path, t[1] + '.py'))
+        self.populate_filter_tree()
 
     def get_active_filters(self, filter_type):
         """ Return currently active filters for a filter type.

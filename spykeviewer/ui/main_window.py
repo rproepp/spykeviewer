@@ -1170,7 +1170,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if settings.exec_() == settings.Accepted:
             self.selection_path = settings.selection_path()
             self.filter_path = settings.filter_path()
+            self.filterDock.reload_filters(self.filter_path)
             self.remote_script = settings.remote_script()
+            AnalysisPlugin.data_dir = settings.data_path()
             self.plugin_paths = settings.plugin_paths()
             if self.plugin_paths:
                 self.pluginEditorDock.set_default_path(self.plugin_paths[-1])
@@ -1241,6 +1243,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         settings.setValue('pluginPaths', self.plugin_paths)
         settings.setValue('selectionPath', self.selection_path)
         settings.setValue('filterPath', self.filter_path)
+        settings.setValue('dataPath', AnalysisPlugin.data_dir)
         settings.setValue('remoteScript', self.remote_script)
 
         # Store plugin configurations
