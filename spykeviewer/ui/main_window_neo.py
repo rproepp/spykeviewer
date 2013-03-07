@@ -134,7 +134,7 @@ class MainWindowNeo(MainWindow):
                     # Should be a subclass of AnalysisPlugin...
                     if not issubclass(cl, BaseIO):
                         continue
-                        # ...but should not be AnalysisPlugin (can happen
+                    # ...but should not be AnalysisPlugin (can happen
                     # when directly imported)
                     if cl == BaseIO:
                         continue
@@ -168,6 +168,9 @@ class MainWindowNeo(MainWindow):
         if blocks is None:
             logger.error('Could not read file "%s"' %
                          self.load_worker.file_name)
+            self.progress.done()
+            self.load_progress.reset()
+            return
 
         for block in blocks:
             name = block.name
