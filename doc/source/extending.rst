@@ -111,6 +111,8 @@ http://neo.readthedocs.org/en/latest/io_developers_guide.html to learn how
 to do it) and placing the Python file with the class in a plugin directory
 (the search for IO plugins is not recursive, so you have to place the file
 directly in one of the directories that you defined in the :ref:`settings`).
+The filename has to end with "IO.py" or "io.py" (e.g. "MyFileIO.py") to
+signal that it contains an io plugin.
 If you create an IO class for a file format that is also used outside of your
 lab, please consider sharing it with the Neo community.
 

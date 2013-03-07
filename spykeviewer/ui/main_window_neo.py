@@ -110,6 +110,10 @@ class MainWindowNeo(MainWindow):
         self.reload_neo_io_plugins()
 
     def reload_neo_io_plugins(self):
+        # Clean previous plugins
+        neo.io.iolist = [io for io in neo.io.iolist
+                         if not hasattr(io, '_is_spyke_plugin')]
+
         for pp in self.plugin_paths:
             for f in os.listdir(pp):
                 p = os.path.join(pp, f)
@@ -139,8 +143,8 @@ class MainWindowNeo(MainWindow):
                     if cl == BaseIO:
                         continue
 
-                    if not cl in neo.io.iolist:
-                        neo.io.iolist.append(cl)
+                    cl._is_spyke_plugin = True
+                    neo.io.iolist.append(cl)
 
     def get_letter_id(self, id, small=False):
         """ Return a name consisting of letters given an integer
