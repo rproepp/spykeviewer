@@ -1011,6 +1011,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 else:
                     break
             traceback.print_exception(type(e), e, tb)
+            self.provider.progress.done()
             return None
 
     @pyqtSignature("")
