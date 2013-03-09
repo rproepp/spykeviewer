@@ -7,6 +7,7 @@ import logging
 import webbrowser
 import copy
 import pickle
+import platform
 
 from PyQt4.QtGui import (QMainWindow, QMessageBox,
                          QApplication, QFileDialog, QInputDialog,
@@ -181,7 +182,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.run_startup_script()
         self.reload_plugins()
         self.load_plugin_configs()
-        self.load_current_selection()
 
     def get_filter_types(self):
         """ Return a list of filter type tuples as required by
@@ -265,6 +265,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if self.plugin_paths:
             self.pluginEditorDock.set_default_path(self.plugin_paths[-1])
+
+        self.load_current_selection()
 
     def set_initial_layout(self):
         """ Set an initial layout for the docks (when no previous
@@ -386,15 +388,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         ns['current'] = self.provider
         ns['selections'] = self.selections
+
+        font = QFont("Monospace")
+        font.setStyleHint(font.TypeWriter, font.PreferDefault)
+        if not platform.system() == 'Darwin':
+            font.setPointSize(9)
         self.console = FixedInternalShell(
             self.consoleDock, namespace=ns, multithreaded=False,
-            message=msg, max_line_count=1000)
+            message=msg, max_line_count=10000, font=font)
         #self.console.clear_terminal()
 
-        font = QFont("Courier new")
-        font.setStyleHint(font.TypeWriter, font.PreferDefault)
-        font.setPointSize(9)
-        self.console.set_font(font)
         self.console.set_codecompletion_auto(True)
         self.console.set_calltips(True)
         self.console.setup_calltips(size=600, font=font)
@@ -1011,7 +1014,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 else:
                     break
             traceback.print_exception(type(e), e, tb)
-            self.provider.progress.done()
             return None
 
     @pyqtSignature("")
@@ -1170,9 +1172,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if settings.exec_() == settings.Accepted:
             self.selection_path = settings.selection_path()
             self.filter_path = settings.filter_path()
-            self.filterDock.reload_filters(self.filter_path)
             self.remote_script = settings.remote_script()
-            AnalysisPlugin.data_dir = settings.data_path()
             self.plugin_paths = settings.plugin_paths()
             if self.plugin_paths:
                 self.pluginEditorDock.set_default_path(self.plugin_paths[-1])
@@ -1243,7 +1243,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         settings.setValue('pluginPaths', self.plugin_paths)
         settings.setValue('selectionPath', self.selection_path)
         settings.setValue('filterPath', self.filter_path)
-        settings.setValue('dataPath', AnalysisPlugin.data_dir)
         settings.setValue('remoteScript', self.remote_script)
 
         # Store plugin configurations
