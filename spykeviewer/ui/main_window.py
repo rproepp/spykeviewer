@@ -242,7 +242,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                        'removing from configuration...' % p)
                     else:
                         self.plugin_paths.append(p)
-            else:
+            
+            if not self.plugin_paths:
                 logger.warning('No plugin paths set! Setting default path...')
                 self.set_default_plugin_path()
 
