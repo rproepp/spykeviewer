@@ -81,7 +81,7 @@ class MainWindowNeo(MainWindow):
         return d
 
     def set_initial_layout(self):
-        self.navigationNeoDock.setVisible(True)
+        self.neoNavigationDock.setVisible(True)
         super(MainWindowNeo, self).set_initial_layout()
 
     def set_current_selection(self, data):
