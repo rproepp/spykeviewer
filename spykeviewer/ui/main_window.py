@@ -200,6 +200,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.menuView.setTitle('View')
         self.mainMenu.insertMenu(self.menuHelp.menuAction(), self.menuView)
 
+    def set_default_plugin_path(self):
+        """ Set the default plugin path (contains the standard plugins
+        after installation).
+        """
+        if hasattr(sys, 'frozen'):
+            module_path = os.path.dirname(sys.executable)
+        else:
+            file_path = os.path.abspath(os.path.dirname(__file__))
+            module_path = os.path.dirname(file_path)
+        plugin_path = os.path.join(module_path, 'plugins')
+
+        if os.path.isdir(plugin_path):
+            self.plugin_paths.append(plugin_path)
+        else:
+            logger.warning('Plugin path "%s" does not exist, no plugin '
+                           'path set!' %
+                           plugin_path)
+
     def restore_state(self):
         """ Restore previous state of the GUI and settings from saved
         configuration.
@@ -213,19 +231,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.restoreState(settings.value('windowState'))
 
         if not settings.contains('pluginPaths'):
-            if hasattr(sys, 'frozen'):
-                module_path = os.path.dirname(sys.executable)
-            else:
-                file_path = os.path.abspath(os.path.dirname(__file__))
-                module_path = os.path.dirname(file_path)
-            plugin_path = os.path.join(module_path, 'plugins')
-
-            if os.path.isdir(plugin_path):
-                self.plugin_paths.append(plugin_path)
-            else:
-                logger.warning('Plugin path "%s" does not exist, no plugin '
-                               'path set!' %
-                               plugin_path)
+            self.set_default_plugin_path()
         else:
             paths = settings.value('pluginPaths')
             self.plugin_paths = []
@@ -237,7 +243,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     else:
                         self.plugin_paths.append(p)
             else:
-                logger.warning('No plugin paths set!')
+                logger.warning('No plugin paths set! Setting default path...')
+                self.set_default_plugin_path()
 
         if not settings.contains('selectionPath'):
             self.selection_path = os.path.join(self.data_path, 'selections')
