@@ -182,6 +182,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.run_startup_script()
         self.reload_plugins()
         self.load_plugin_configs()
+        self.load_current_selection()
 
     def get_filter_types(self):
         """ Return a list of filter type tuples as required by
@@ -273,8 +274,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if self.plugin_paths:
             self.pluginEditorDock.set_default_path(self.plugin_paths[-1])
-
-        self.load_current_selection()
 
     def set_initial_layout(self):
         """ Set an initial layout for the docks (when no previous
