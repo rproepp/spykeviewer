@@ -192,7 +192,7 @@ class FilterDock(QDockWidget):
             # Hack to repaint the whole current item:
             self.filterTreeWidget.currentItem().setExpanded(False)
         elif event.key() == Qt.Key_Delete:
-            self.on_actionDeleteFilter_triggered()
+            self.delete_current_filter()
         else:
             QTreeWidget.keyReleaseEvent(self.filterTreeWidget, event)
 
@@ -347,6 +347,11 @@ class FilterDock(QDockWidget):
         wants to remove the filter.
         """
         item = self.filterTreeWidget.currentItem()
+        if not item:
+            return
+        if not item.parent():
+            return
+            
         if QMessageBox.question(self, 'Please confirm',
                                 'Do you really want to delete "%s"?' % item.text(0),
                                 QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
