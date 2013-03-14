@@ -106,7 +106,7 @@ IO plugins
 ----------
 If you have data in a format that is not supported by Neo, you can still load
 it with Spyke Viewer by creating an IO plugin. This is identical to writing
-a regular Neo IO class (see
+a regular Neo IO class [#relative]_ (see
 http://neo.readthedocs.org/en/latest/io_developers_guide.html to learn how
 to do it) and placing the Python file with the class in a plugin directory
 (the search for IO plugins is not recursive, so you have to place the file
@@ -153,3 +153,14 @@ in spykeutils plots (for colored items like spikes in a rasterplot)::
     # Let's make everything pink!
     from spykeutils.plot import helper
     helper.set_color_scheme(['#F52887', '#C12267'])
+
+
+.. [#relative] There is one small difference between regular Neo IO classes
+               and IO plugins: In plugins, you cannot use relative imports.
+               For example, instead of::
+
+                   from .tools import create_many_to_one_relationship
+
+               as in the Neo example IO, you would write::
+
+                   from neo.io.tools import create_many_to_one_relationship
