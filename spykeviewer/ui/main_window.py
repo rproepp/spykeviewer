@@ -1012,6 +1012,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except CancelException:
             return None
         except Exception, e:
+            self.progress.done()
             # Only print stack trace from plugin on
             tb = sys.exc_info()[2]
             while not ('self' in tb.tb_frame.f_locals and
