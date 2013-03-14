@@ -971,7 +971,29 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.selected_plugin_changed(selected_index)
         self.set_plugin_configs(old_configs)
 
+    def _equal_path(self, index, path):
+        path_list = list(reversed(path.split('/')))
+
+        while index.row() >= 0:
+            if not path_list or index.data() != path_list.pop(0):
+                return False
+            index = index.parent()
+        return True
+
     def load_plugin_configs(self):
+        # Restore closed plugin folders
+        settings = QSettings()
+        if settings.contains('closedPluginFolders'):
+            paths = settings.value('closedPluginFolders')
+            if paths is not None:
+                folders = self.plugin_model.get_all_folders()
+                for p in paths:
+                    for f in folders:
+                        print f.data(), p
+                        if self._equal_path(f, p):
+                            self.pluginsTreeView.setExpanded(f, False)
+                            break
+
         # Restore plugin configurations
         configs_path = os.path.join(self.data_path, 'plugin_configs.p')
         if os.path.isfile(configs_path):
@@ -1253,11 +1275,27 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         settings.setValue('filterPath', self.filter_path)
         settings.setValue('remoteScript', self.remote_script)
 
-        # Store plugin configurations
+        # Save plugin configurations
         configs = self.get_plugin_configs()
         configs_path = os.path.join(self.data_path, 'plugin_configs.p')
         with open(configs_path, 'w') as f:
             pickle.dump(configs, f)
+
+        # Save closed plugin folders
+        folders = self.plugin_model.get_all_folders()
+        paths = []
+        for f in folders:
+            if self.pluginsTreeView.isExpanded(f):
+                continue
+            path = [f.data()]
+            p = f.parent()
+            while p.row() >= 0:
+                path.append(p.data())
+                p = p.parent()
+
+            paths.append('/'.join(reversed(path)))
+        print >> sys.stderr, paths
+        settings.setValue('closedPluginFolders', paths)
 
         super(MainWindow, self).closeEvent(event)
 

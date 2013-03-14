@@ -3,8 +3,9 @@
 * Added startup script. Can be modified using File->Edit startup script.
 * Plugin configurations are now restored when saving or refreshing plugins
   and when restarting the program. All plugin configurations can be reset
-  to their defaults using Plugins->Restore Plugin configurations
-
+  to their defaults using Plugins->Restore Plugin configurations.
+* Plugin folders return to their previous state (expanded or minimized)
+  when restarting the program.
 
 Version 0.2.1
 -------------
