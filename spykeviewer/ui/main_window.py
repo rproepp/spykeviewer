@@ -939,6 +939,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             configuration parameters after reloading.
             Default: ``True``
         """
+        old_closed = self._get_closed_folders()
         old_path = None
         old_configs = {}
         if hasattr(self, 'plugin_model'):
@@ -970,6 +971,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.selected_plugin_changed)
         self.selected_plugin_changed(selected_index)
         self.set_plugin_configs(old_configs)
+        self.restore_closed_plugin_folders(old_closed)
 
     def _equal_path(self, index, path):
         path_list = list(reversed(path.split('/')))
@@ -980,18 +982,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             index = index.parent()
         return True
 
-    def load_plugin_configs(self):
+    def restore_closed_plugin_folders(self, paths):
+        if paths is not None:
+            folders = self.plugin_model.get_all_folders()
+            for p in paths:
+                for f in folders:
+                    if self._equal_path(f, p):
+                        self.pluginsTreeView.setExpanded(f, False)
+                        break
+
+    def load_plugin_configs(self, closed_folders=None):
         # Restore closed plugin folders
-        settings = QSettings()
-        if settings.contains('closedPluginFolders'):
-            paths = settings.value('closedPluginFolders')
-            if paths is not None:
-                folders = self.plugin_model.get_all_folders()
-                for p in paths:
-                    for f in folders:
-                        if self._equal_path(f, p):
-                            self.pluginsTreeView.setExpanded(f, False)
-                            break
+        paths = closed_folders
+        if paths is None:
+            settings = QSettings()
+            if settings.contains('closedPluginFolders'):
+                paths = settings.value('closedPluginFolders')
+        self.restore_closed_plugin_folders(paths)
 
         # Restore plugin configurations
         configs_path = os.path.join(self.data_path, 'plugin_configs.p')
@@ -1236,6 +1243,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_actionDocumentation_triggered(self):
         webbrowser.open('http://spyke-viewer.readthedocs.org')
 
+    def _get_closed_folders(self):
+        if not hasattr(self, 'plugin_model'):
+            return []
+
+        folders = self.plugin_model.get_all_folders()
+        paths = []
+        for f in folders:
+            if self.pluginsTreeView.isExpanded(f):
+                continue
+            path = [f.data()]
+            p = f.parent()
+            while p.row() >= 0:
+                path.append(p.data())
+                p = p.parent()
+
+            paths.append('/'.join(reversed(path)))
+        return paths
+
     def closeEvent(self, event):
         """ Saves filters, plugin configs and GUI state.
         """
@@ -1281,20 +1306,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             pickle.dump(configs, f)
 
         # Save closed plugin folders
-        folders = self.plugin_model.get_all_folders()
-        paths = []
-        for f in folders:
-            if self.pluginsTreeView.isExpanded(f):
-                continue
-            path = [f.data()]
-            p = f.parent()
-            while p.row() >= 0:
-                path.append(p.data())
-                p = p.parent()
-
-            paths.append('/'.join(reversed(path)))
-        print >> sys.stderr, paths
-        settings.setValue('closedPluginFolders', paths)
+        settings.setValue('closedPluginFolders', self._get_closed_folders())
 
         super(MainWindow, self).closeEvent(event)
 
