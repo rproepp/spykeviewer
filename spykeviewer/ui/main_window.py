@@ -989,7 +989,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 folders = self.plugin_model.get_all_folders()
                 for p in paths:
                     for f in folders:
-                        print f.data(), p
                         if self._equal_path(f, p):
                             self.pluginsTreeView.setExpanded(f, False)
                             break
