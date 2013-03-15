@@ -44,6 +44,21 @@ ch.setLevel(logging.WARNING)
 logger.addHandler(ch)
 
 
+# Monkeypatch variable editor
+from spyderlib.widgets.dicteditor import DictDelegate
+_orig_createEditor = DictDelegate.createEditor
+
+
+def _patched_createEditor(*args, **kwargs):
+    try:
+        _orig_createEditor(*args, **kwargs)
+    except Exception, msg:
+        QMessageBox.critical(None, 'Edit item',
+                             'Could not create editor for selected data!')
+
+DictDelegate.createEditor = _patched_createEditor
+
+
 #noinspection PyCallByClass,PyTypeChecker,PyArgumentList
 class MainWindow(QMainWindow, Ui_MainWindow):
     """ The main window of Spyke Viewer.
