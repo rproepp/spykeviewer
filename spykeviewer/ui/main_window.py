@@ -83,6 +83,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.config['ask_plugin_path'] = True
         # Save and reload a modified plugin before starting
         self.config['save_plugin_before_starting'] = True
+        # Use Enter key for code completion in console
+        self.config['codecomplete_console_enter'] = True
 
         # Python console
         self.console = None
@@ -428,6 +430,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.console.set_calltips(True)
         self.console.setup_calltips(size=600, font=font)
         self.console.setup_completion(size=(370, 240), font=font)
+        self.console.set_codecompletion_enter(
+            self.config['codecomplete_console_enter'])
 
         self.consoleDock.setWidget(self.console)
 

@@ -8,6 +8,8 @@
 * Plugin folders return to their previous state (expanded or minimized)
   when restarting the program.
 * Plugin editor tabs can be reordered by dragging.
+* Code completion in console can be selected using Enter (in addition to
+  Tab as before).
 
 Version 0.2.1
 -------------
