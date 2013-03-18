@@ -5,6 +5,7 @@ from PyQt4.QtCore import Qt, SIGNAL
 
 from spyderlib.widgets.sourcecode.codeeditor import CodeEditor
 
+
 class FilterDialog(QDialog):
     """ A dialog for editing filters
     """
@@ -15,7 +16,6 @@ class FilterDialog(QDialog):
     combi_signatures = ['def filter(blocks):', 'def filter(segments):',
                         'def filter(rcgs):', 'def filter(rcs):',
                         'def filter(units):']
-
 
     def __init__(self, groups, type=None, group=None, name=None, code=None, combined=False, on_exception=False, parent=None):
         QDialog.__init__(self, parent)
@@ -58,12 +58,15 @@ class FilterDialog(QDialog):
 
         font = QFont('Some font that does not exist')
         font.setStyleHint(font.TypeWriter, font.PreferDefault)
-        self.editor = CodeEditor()
-        self.editor.setup_editor(linenumbers=False, language='py',
+        self.editor = CodeEditor(self)
+        self.editor.setup_editor(
+            linenumbers=False, language='py',
             scrollflagarea=False, codecompletion_enter=True, font=font,
             highlight_current_line=False, occurence_highlighting=False)
-        self.editor.set_text('return True')
         self.editor.setCursor(Qt.IBeamCursor)
+        self.editor.horizontalScrollBar().setCursor(Qt.ArrowCursor)
+        self.editor.verticalScrollBar().setCursor(Qt.ArrowCursor)
+        self.editor.set_text('return True')
 
         self.onExceptionCheckBox = QCheckBox(self)
         self.onExceptionCheckBox.setText('True on exception')
@@ -92,7 +95,8 @@ class FilterDialog(QDialog):
         self.dialogButtonBox = QDialogButtonBox(self)
         self.dialogButtonBox.setAutoFillBackground(False)
         self.dialogButtonBox.setOrientation(Qt.Horizontal)
-        self.dialogButtonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
+        self.dialogButtonBox.setStandardButtons(
+            QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
         self.dialogButtonBox.setCenterButtons(True)
 
         gridLayout = QGridLayout(self)
@@ -110,14 +114,18 @@ class FilterDialog(QDialog):
 
         self.connect(self.dialogButtonBox, SIGNAL('accepted()'), self.accept)
         self.connect(self.dialogButtonBox, SIGNAL('rejected()'), self.reject)
-        self.combinedCheckBox.stateChanged.connect(self.combined_state_changed)
-        self.connect(self.filterTypeComboBox, SIGNAL('currentIndexChanged(int)'), self.on_filterTypeComboBox_currentIndexChanged)
+        self.combinedCheckBox.stateChanged.connect(
+            self.combined_state_changed)
+        self.connect(self.filterTypeComboBox,
+                     SIGNAL('currentIndexChanged(int)'),
+                     self.on_filterTypeComboBox_currentIndexChanged)
 
     def name(self):
         return self.nameLineEdit.text()
 
     def code(self):
-        return [self.editor.get_text_line(l) for l in xrange(self.editor.get_line_count())]
+        return [self.editor.get_text_line(l) for l in xrange(
+            self.editor.get_line_count())]
 
     def type(self):
         return self.filterTypeComboBox.currentText()
@@ -147,11 +155,13 @@ class FilterDialog(QDialog):
 
     def set_signature(self):
         if self.combinedCheckBox.isChecked():
-            self.signatureLabel.setText(self.combi_signatures[
-                                        self.filterTypeComboBox.currentIndex()])
+            self.signatureLabel.setText(
+                self.combi_signatures[
+                    self.filterTypeComboBox.currentIndex()])
         else:
-            self.signatureLabel.setText(self.solo_signatures[
-                                        self.filterTypeComboBox.currentIndex()])
+            self.signatureLabel.setText(
+                self.solo_signatures[
+                    self.filterTypeComboBox.currentIndex()])
 
     def on_filterTypeComboBox_currentIndexChanged(self, index):
         self.set_signature()
@@ -160,14 +170,17 @@ class FilterDialog(QDialog):
     #noinspection PyCallByClass,PyTypeChecker,PyArgumentList
     def accept(self):
         if len(self.nameLineEdit.text()) < 1:
-            QMessageBox.critical(self, 'Error saving filter', 'Please provide a name for the filter.')
+            QMessageBox.critical(self, 'Error saving filter',
+                                 'Please provide a name for the filter.')
             return
         if '"' in self.nameLineEdit.text():
-            QMessageBox.critical(self, 'Error saving filter', 'You cannot use " in the name of a filter.')
+            QMessageBox.critical(self, 'Error saving filter',
+                                 'You cannot use " in the name of a filter.')
             return
         err = self.code_errors()
         if err:
-            QMessageBox.critical(self, 'Error saving filter', 'Compile error:\n' + err)
+            QMessageBox.critical(self, 'Error saving filter',
+                                 'Compile error:\n' + err)
             return
 
         QDialog.accept(self)
