@@ -232,8 +232,13 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
         """ Set the selected data. All data in the selection has to be loaded
         before!
         """
-        block_list = [NeoDataProvider.get_block(b[1], b[0], False)
-                      for b in data['blocks']]
+        block_list = []
+        for b in data['blocks']:
+            loaded = NeoDataProvider.get_block(b[1], b[0], False)
+            if loaded is None:
+                raise IOError('One of the files contained in the '
+                              'selection could not be loaded!')
+            block_list.append(loaded)
         rcg_list = [block_list[rcg[1]].recordingchannelgroups[rcg[0]]
                     for rcg in data['channel_groups']]
 

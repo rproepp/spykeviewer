@@ -730,10 +730,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except Exception, e:
             self.progress.done()
             QMessageBox.critical(self, 'Error loading selection',
-                                 str(type(e).__name__) + ': ' +
                                  str(e).decode('utf8'))
-            logger.warning('Error loading selection:\n' +
-                           traceback.format_exc() + '\n')
+            #logger.warning('Error loading selection:\n' +
+            #               traceback.format_exc() + '\n')
         finally:
             self.populate_selection_menu()
 
