@@ -4,8 +4,10 @@
 * Plugin configurations are now restored when saving or refreshing plugins
   and when restarting the program. All plugin configurations can be reset
   to their defaults using Plugins->Restore Plugin configurations.
+* A modified plugin is automatically saved before it is run.
 * Plugin folders return to their previous state (expanded or minimized)
   when restarting the program.
+* Plugin editor tabs can be reordered by dragging.
 
 Version 0.2.1
 -------------

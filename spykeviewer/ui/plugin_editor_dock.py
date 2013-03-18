@@ -63,6 +63,8 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         self.tabs.setTabsClosable(True)
         self.tabs.tabCloseRequested.connect(self.close_file)
         self.tabs.currentChanged.connect(self._current_editor_changed)
+        self.tabs.setMovable(True)
+        self.tabs.setDocumentMode(True)
 
         self.find_widget = FindReplace(self, enable_replace=True)
         self.find_widget.hide()
