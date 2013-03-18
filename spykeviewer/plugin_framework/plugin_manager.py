@@ -58,11 +58,11 @@ class PluginManager:
             """
             return len(self.children)
 
-        def get_dir_child(self, dir):
+        def get_dir_child(self, path):
             """ Return child node with given directory name.
             """
             for n in self.children:
-                if os.path.split(n.path)[1] == os.path.split(dir)[1] and \
+                if os.path.split(n.path)[1] == os.path.split(path)[1] and \
                         isinstance(n, PluginManager.DirNode):
                     return n
             return None
@@ -128,6 +128,7 @@ class PluginManager:
                         # Plugin class found, add it to tree
                         try:
                             instance = cl()
+                            instance.source_file = p
                         except Exception:
                             etype, evalue, etb = sys.exc_info()
                             evalue = etype('Exception while creating %s: %s' %

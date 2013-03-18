@@ -52,7 +52,7 @@ _orig_createEditor = DictDelegate.createEditor
 def _patched_createEditor(*args, **kwargs):
     try:
         _orig_createEditor(*args, **kwargs)
-    except Exception, msg:
+    except Exception:
         QMessageBox.critical(None, 'Edit item',
                              'Could not create editor for selected data!')
 
@@ -78,7 +78,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Configuration
         self.config = {}
+        # Ask about plugin paths if saving a file to a path that is not
+        # a plugin path
         self.config['ask_plugin_path'] = True
+        # Save and reload a modified plugin before starting
+        self.config['save_plugin_before_starting'] = True
 
         # Python console
         self.console = None
@@ -1044,6 +1048,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not ana:
             return
 
+        if self.config['save_plugin_before_starting']:
+            e = self.pluginEditorDock.get_editor(ana.source_file)
+            if self.pluginEditorDock.file_was_changed(e):
+                if not self.pluginEditorDock.save_file(e):
+                    return
+                ana = self.current_plugin()
+                if not ana:
+                    return
+
         self._run_plugin(ana)
 
     def _run_plugin(self, plugin):
@@ -1205,6 +1218,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if len(plugins) > 1:
             raise SpykeException('Multiple plugins named "%s" exist!' % name)
 
+        if self.config['save_plugin_before_starting']:
+            e = self.pluginEditorDock.get_editor(plugins[0].source_file)
+            if self.pluginEditorDock.file_was_changed(e):
+                if not self.pluginEditorDock.save_file(e):
+                    return
+
+                plugins = self.plugin_model.get_plugins_for_name(name)
+                if not plugins:
+                    return None
+                if len(plugins) > 1:
+                    raise SpykeException(
+                        'Multiple plugins named "%s" exist!' % name)
+
         return self._run_plugin(plugins[0])
 
     def on_file_available(self, available):
@@ -1217,8 +1243,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @pyqtSignature("")
     def on_actionSettings_triggered(self):
         settings = SettingsWindow(self.selection_path, self.filter_path,
-                                  AnalysisPlugin.data_dir, self.remote_script, self.plugin_paths,
-                                  self)
+                                  AnalysisPlugin.data_dir, self.remote_script,
+                                  self.plugin_paths, self)
 
         if settings.exec_() == settings.Accepted:
             self.selection_path = settings.selection_path()

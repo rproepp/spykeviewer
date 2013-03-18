@@ -62,7 +62,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         self.tabs = QTabWidget()
         self.tabs.setTabsClosable(True)
         self.tabs.tabCloseRequested.connect(self.close_file)
-        self.tabs.currentChanged.connect(self.current_editor_changed)
+        self.tabs.currentChanged.connect(self._current_editor_changed)
 
         self.find_widget = FindReplace(self, enable_replace=True)
         self.find_widget.hide()
@@ -89,7 +89,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         editor.verticalScrollBar().setCursor(Qt.ArrowCursor)
         return editor
 
-    def trigger_code_completion(self, automatic):
+    def _trigger_code_completion(self, automatic):
         editor = self.tabs.currentWidget()
         source_code = unicode(editor.toPlainText())
         offset = editor.get_position('cursor')
@@ -128,7 +128,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
                                                 automatic)
                 return
 
-    def trigger_calltip(self, position, auto=True):
+    def _trigger_calltip(self, position, auto=True):
         if not self.rope_project:
             return
 
@@ -167,7 +167,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
                 text = doc_text
             editor.show_calltip(obj_fullname, text, at_position=position)
 
-    def go_to_definition(self, position):
+    def _go_to_definition(self, position):
         if not self.rope_project:
             return
 
@@ -198,14 +198,13 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
 
     def _finalize_new_editor(self, editor, tab_name):
         editor.file_was_changed = False
-        editor.textChanged.connect(lambda: self.file_changed(editor))
-        #editor.trigger_code_completion.connect(self.trigger_code_completion)
+        editor.textChanged.connect(lambda: self._file_changed(editor))
         self.connect(editor, SIGNAL('trigger_code_completion(bool)'),
-                     self.trigger_code_completion)
+                     self._trigger_code_completion)
         self.connect(editor, SIGNAL('trigger_calltip(int)'),
-                     self.trigger_calltip)
+                     self._trigger_calltip)
         self.connect(editor, SIGNAL("go_to_definition(int)"),
-                     self.go_to_definition)
+                     self._go_to_definition)
 
         self.tabs.addTab(editor, tab_name)
         self.tabs.setCurrentWidget(editor)
@@ -273,7 +272,23 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
                 return False
         return True
 
-    def file_changed(self, editor):
+    def get_editor(self, file_name):
+        """ Get editor object for a file name. Returns None if no editor
+        for the given file name exists.
+        """
+        for i in xrange(self.tabs.count()):
+            if file_name == self.tabs.widget(i).file_name:
+                return self.tabs.widget(i)
+        return None
+
+    def file_was_changed(self, editor):
+        """ Returns if the file for an editor object has been changed.
+        """
+        if not editor:
+            return False
+        return editor.file_was_changed
+
+    def _file_changed(self, editor):
         editor.file_was_changed = True
 
         if not editor.file_name:
@@ -286,12 +301,17 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         self.tabs.setTabText(self.tabs.indexOf(editor), text)
 
     def code(self, editor=None):
+        """ Returns code for an editor object as a list of strings (one
+        for each line).
+        """
         if editor is None:
             editor = self.tabs.currentWidget()
         return [editor.get_text_line(l)
                 for l in xrange(editor.get_line_count())]
 
     def code_has_errors(self, editor=None):
+        """ Returns if the code from an editor object can be compiled.
+        """
         code = '\n'.join(self.code(editor)).encode('UTF-8')
         try:
             compile(code, '<filter>', 'exec')
@@ -299,7 +319,13 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
             return e.msg + ' (Line %d)' % (e.lineno)
         return None
 
-    def save_file(self, editor, force_dialog):
+    def save_file(self, editor, force_dialog=False):
+        """ Save the file from an editor object.
+
+        :param editor: The editor for which the while should be saved.
+        :param bool force_dialog: If True, a "Save as..." dialog will be
+            shown even if a file name is associated with the editor.
+        """
         if not editor:
             return
 
@@ -342,6 +368,6 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         editor = self.tabs.currentWidget()
         self.save_file(editor, force_dialog)
 
-    def current_editor_changed(self, index):
+    def _current_editor_changed(self, index):
         editor = self.tabs.widget(index)
         self.find_widget.set_editor(editor)

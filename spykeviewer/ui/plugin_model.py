@@ -140,7 +140,6 @@ class PluginModel(PluginManager, QAbstractItemModel):
 
         return indices
 
-
     def get_plugins_for_name(self, name):
         """ Return list of plugins with given name
         """
