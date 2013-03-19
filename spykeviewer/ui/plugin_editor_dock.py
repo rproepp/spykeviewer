@@ -333,7 +333,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
 
         if force_dialog or not editor.file_name:
             d = QFileDialog(
-                self, 'Choose where to save plugin',
+                self, 'Choose where to save file',
                 self.tabs.currentWidget().file_name or self.default_path)
             d.setAcceptMode(QFileDialog.AcceptSave)
             d.setNameFilter("Python files (*.py)")
@@ -347,16 +347,21 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
 
         err = self.code_has_errors(editor)
         if err:
-            QMessageBox.critical(self, 'Error saving plugin',
-                                 'Compile error:\n' + err)
-            return False
+            if QMessageBox.warning(
+                    self, 'Error saving "%s"' % editor.file_name,
+                    'Compile error:\n' + err + '\n\nIf this file contains '
+                    'a plugin, it will disappear from the plugin list.\n'
+                    'Save anyway?',
+                    QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
+                return False
 
         try:
             f = open(file_name, 'w')
             f.write('\n'.join(self.code(editor)).encode('UTF-8'))
             f.close()
         except IOError, e:
-            QMessageBox.critical(self, 'Error saving plugin', str(e))
+            QMessageBox.critical(
+                self, 'Error saving "%s"' % editor.file_name, str(e))
             return False
 
         editor.file_name = file_name
