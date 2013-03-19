@@ -79,6 +79,7 @@ QGroupBox::title {
     <addaction name="actionSave_Data"/>
     <addaction name="actionSave_Selected_Data"/>
     <addaction name="separator"/>
+    <addaction name="actionLoad_Python_File"/>
     <addaction name="actionEdit_Startup_Script"/>
     <addaction name="actionSettings"/>
     <addaction name="actionExit"/>
@@ -581,6 +582,11 @@ QGroupBox::title {
    </property>
    <property name="toolTip">
     <string>Restore Plugin configurations to their default values</string>
+   </property>
+  </action>
+  <action name="actionLoad_Python_File">
+   <property name="text">
+    <string>Load Python File...</string>
    </property>
   </action>
  </widget>

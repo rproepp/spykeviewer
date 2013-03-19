@@ -149,6 +149,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.show_filter_exceptions = True
 
+        # Plugins
+        self.menuPluginsContext = QMenu(self)
+        self.menuPluginsContext.addAction(self.actionRunPlugin)
+        self.menuPluginsContext.addAction(self.actionRemotePlugin)
+        self.menuPluginsContext.addAction(self.actionConfigurePlugin)
+        self.menuPluginsContext.addAction(self.actionShowPluginFolder)
+
         # Plugin Editor
         self.pluginEditorDock = PluginEditorDock()
         self.pluginEditorDock.setObjectName('editorDock')
@@ -768,7 +775,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         d.setFileMode(QFileDialog.ExistingFile)
         d.setNameFilter("Selection files (*.sel)")
         if d.exec_():
-            filename = str(d.selectedFiles()[0])
+            filename = unicode(d.selectedFiles()[0])
         else:
             return
 
@@ -1095,6 +1102,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.pluginEditorDock.add_file(path)
 
     @pyqtSignature("")
+    def on_actionLoad_Python_File_triggered(self):
+        path = ''
+        if self.plugin_paths:
+            path = self.plugin_paths[-1]
+        d = QFileDialog(self, 'Choose file to edit', path)
+        d.setAcceptMode(QFileDialog.AcceptOpen)
+        d.setFileMode(QFileDialog.ExistingFiles)
+        d.setNameFilter("Python files (*.py)")
+        if not d.exec_():
+            return
+
+        for p in d.selectedFiles():
+            self.pluginEditorDock.add_file(unicode(p))
+
+    @pyqtSignature("")
     def on_actionConfigurePlugin_triggered(self):
         ana = self.current_plugin()
         if not ana:
@@ -1150,7 +1172,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.on_actionRunPlugin_triggered()
 
     def on_pluginsTreeView_customContextMenuRequested(self, pos):
-        self.menuPlugins.popup(self.pluginsTreeView.mapToGlobal(pos))
+        self.menuPluginsContext.popup(self.pluginsTreeView.mapToGlobal(pos))
 
     def plugin_saved(self, path):
         if path == self.startup_script:
