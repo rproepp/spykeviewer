@@ -20,6 +20,7 @@ from PyQt4.QtCore import (Qt, pyqtSignature, SIGNAL, QMimeData,
 from spyderlib.widgets.internalshell import InternalShell
 from spyderlib.widgets.externalshell.namespacebrowser import NamespaceBrowser
 from spyderlib.widgets.sourcecode.codeeditor import CodeEditor
+from spyderlib.utils.misc import get_error_match
 
 import spykeutils
 from spykeutils.plugin.data_provider import DataProvider
@@ -85,6 +86,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.config['save_plugin_before_starting'] = True
         # Use Enter key for code completion in console
         self.config['codecomplete_console_enter'] = True
+        # Use Enter key for code completion in editor
+        self.config['codecomplete_editor_enter'] = True
 
         # Python console
         self.console = None
@@ -167,8 +170,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.consoleDock.edit_script = lambda (path): \
             self.pluginEditorDock.add_file(path)
 
-        from spyderlib.utils.misc import get_error_match
-
         def p(x):
             match = get_error_match(unicode(x))
             if match:
@@ -208,6 +209,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.update_view_menu()
         self.restore_state()
         self.run_startup_script()
+        self.set_config_options()
         self.reload_plugins()
         self.load_plugin_configs()
         self.load_current_selection()
@@ -354,6 +356,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                            self.startup_script + ':\n' +
                            traceback.format_exc() + '\n')
 
+    def set_config_options(self):
+        self.console.set_codecompletion_enter(
+            self.config['codecomplete_console_enter'])
+        self.pluginEditorDock.enter_completion = \
+            self.config['codecomplete_editor_enter']
+
     ##### Interactive Python #############################################
     def get_console_objects(self):
         """ Return a dictionary of objects that should be included in the
@@ -437,8 +445,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.console.set_calltips(True)
         self.console.setup_calltips(size=600, font=font)
         self.console.setup_completion(size=(370, 240), font=font)
-        self.console.set_codecompletion_enter(
-            self.config['codecomplete_console_enter'])
 
         self.consoleDock.setWidget(self.console)
 

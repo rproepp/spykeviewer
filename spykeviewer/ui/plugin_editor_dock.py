@@ -45,6 +45,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         self.default_path = default_path or os.getcwd()
         self.rope_temp_path = os.path.join(data_path, '.temp')
         self.tabs.currentChanged.connect(self._tab_changed)
+        self.enter_completion = True
 
     def _tab_changed(self, tab):
         self.file_available.emit(tab != -1)
@@ -82,7 +83,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         editor = codeeditor.CodeEditor(self)
         editor.setup_editor(
             linenumbers=True, language='py',
-            scrollflagarea=False, codecompletion_enter=True,
+            scrollflagarea=False, codecompletion_enter=self.enter_completion,
             tab_mode=False, edge_line=False, font=font,
             codecompletion_auto=True, go_to_definition=True,
             codecompletion_single=True, calltips=True)
