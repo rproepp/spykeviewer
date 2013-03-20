@@ -1296,15 +1296,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         from .. import __version__
 
         about = QMessageBox(self)
-        about.setWindowTitle(u'About Spyke Viewer ' + __version__)
+        about.setWindowTitle(u'About Spyke Viewer')
         about.setTextFormat(Qt.RichText)
         about.setIconPixmap(QPixmap(':/Application/Main'))
         about.setText(
-            u'Spyke Viewer is an application for navigating, '
+            u'Version ' + __version__ +
+            u'<br><br>Spyke Viewer is an application for navigating, '
             u'analyzing and visualizing electrophysiological datasets.<br>'
             u'<br><a href=http://www.ni.tu-berlin.de/software/spykeviewer>'
             u'www.ni.tu-berlin.de/software/spykeviewer</a>'
-            u'<br><br>Copyright 2012 \xa9 Robert Pr\xf6pper<br>'
+            u'<br><br>Copyright 2012, 2013 \xa9 Robert Pr\xf6pper<br>'
             u'Neural Information Processing Group<br>'
             u'TU Berlin, Germany<br><br>'
             u'Licensed under the terms of the BSD license.<br>'
