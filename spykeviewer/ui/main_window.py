@@ -157,6 +157,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.menuPluginsContext.addAction(self.actionRunPlugin)
         self.menuPluginsContext.addAction(self.actionRemotePlugin)
         self.menuPluginsContext.addAction(self.actionConfigurePlugin)
+        self.menuPluginsContext.addAction(self.actionEditPlugin)
         self.menuPluginsContext.addAction(self.actionShowPluginFolder)
 
         # Plugin Editor
