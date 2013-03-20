@@ -33,15 +33,13 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
         return 'Signal Plot'
 
     def start(self, current, selections):
-        num_signals = current.num_analog_signals(self.which_signals + 1)
-        
-        if num_signals < 1:
-            raise SpykeException('No signals selected!')
-
         current.progress.begin('Creating signal plot...')
 
         signals = current.analog_signals_by_segment(self.which_signals + 1)
 
+        if not signals:
+            raise SpykeException('No signals selected!')
+            
         # Load supplemental data
         events = None
         if self.show_events:
