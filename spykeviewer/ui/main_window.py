@@ -396,11 +396,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if hasattr(o, 'flush'):
                         o.flush()
 
-        # Fixing autocompletion bugs in the internal shell
+        # Fixing bugs in the internal shell
         class FixedInternalShell(InternalShell):
             def __init__(self, *args, **kwargs):
                 super(FixedInternalShell, self).__init__(*args, **kwargs)
 
+            # Do not try to show a completion list when completions is None
             def show_completion_list(self, completions, completion_text="",
                                      automatic=True):
                 if completions is None:
@@ -408,10 +409,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 super(FixedInternalShell, self).show_completion_list(
                     completions, completion_text, automatic)
 
+            # Do not get dir() for non-text objects
             def get_dir(self, objtxt):
                 if not isinstance(objtxt, (str, unicode)):
                     return
                 return super(FixedInternalShell, self).get_dir(objtxt)
+
+            # Fix exception when using non-ascii characters
+            def run_command(self, cmd, history=True, new_prompt=True):
+                """Run command in interpreter"""
+                if not cmd:
+                    cmd = ''
+                else:
+                    if history:
+                        self.add_to_history(cmd)
+                cmd_line = cmd + '\n'
+                self.interpreter.stdin_write.write(cmd_line.encode('utf-8'))
+                if not self.multithreaded:
+                    self.interpreter.run_line()
+                    self.emit(SIGNAL("refresh()"))
 
         # Console
         msg = ('current and selections can be used to access selected data'
