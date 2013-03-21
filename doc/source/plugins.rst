@@ -97,10 +97,12 @@ Included spikes
   objects, or both.
 
 Plot type
-  Three different plot types can be selected: "Separate Axes" creates a
-  subplot for each channel, "Split Horizontally" creates one plot where the
-  channels are concatenated and "Split Vertically" creates one plot where the
-  channels are stacked vertically.
+  Three different plot types can be selected: "One plot per channel" creates a
+  subplot for each channel, "One plot per unit" creates a subplot for each
+  unit and "Single plot" creates one plot containing all channels and units.
+
+Split channels
+  Multichannel waveforms can be split either horizontally or vertically.
 
 Correlogram
 -----------
