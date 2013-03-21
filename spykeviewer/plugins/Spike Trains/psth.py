@@ -54,6 +54,6 @@ class PSTHPlugin(analysis_plugin.AnalysisPlugin):
 
         plot.psth(
             trains, events, start, stop, bin_size, 
-            rate_correction=True, unit=self.unit,
+            rate_correction=True, time_unit=self.unit,
             bar_plot=self.diagram_type == 0, 
             progress=current.progress)
