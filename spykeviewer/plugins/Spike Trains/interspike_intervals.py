@@ -18,7 +18,7 @@ class ISIPlugin(analysis_plugin.AnalysisPlugin):
         d = current.spike_trains_by_unit()
         current.progress.done()
         plot.isi(d, self.bin_size*pq.ms,
-            self.cut_off*pq.ms, self.diagram_type == 0, pq.ms)
+            self.cut_off*pq.ms, self.diagram_type == 0, time_unit=pq.ms)
 
 
 

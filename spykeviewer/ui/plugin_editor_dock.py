@@ -45,6 +45,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         self.default_path = default_path or os.getcwd()
         self.rope_temp_path = os.path.join(data_path, '.temp')
         self.tabs.currentChanged.connect(self._tab_changed)
+        self.enter_completion = True
 
     def _tab_changed(self, tab):
         self.file_available.emit(tab != -1)
@@ -82,7 +83,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         editor = codeeditor.CodeEditor(self)
         editor.setup_editor(
             linenumbers=True, language='py',
-            scrollflagarea=False, codecompletion_enter=True,
+            scrollflagarea=False, codecompletion_enter=self.enter_completion,
             tab_mode=False, edge_line=False, font=font,
             codecompletion_auto=True, go_to_definition=True,
             codecompletion_single=True, calltips=True)
@@ -333,7 +334,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
 
         if force_dialog or not editor.file_name:
             d = QFileDialog(
-                self, 'Choose where to save plugin',
+                self, 'Choose where to save file',
                 self.tabs.currentWidget().file_name or self.default_path)
             d.setAcceptMode(QFileDialog.AcceptSave)
             d.setNameFilter("Python files (*.py)")
@@ -347,16 +348,21 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
 
         err = self.code_has_errors(editor)
         if err:
-            QMessageBox.critical(self, 'Error saving plugin',
-                                 'Compile error:\n' + err)
-            return False
+            if QMessageBox.warning(
+                    self, 'Error saving "%s"' % editor.file_name,
+                    'Compile error:\n' + err + '\n\nIf this file contains '
+                    'a plugin, it will disappear from the plugin list.\n'
+                    'Save anyway?',
+                    QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
+                return False
 
         try:
             f = open(file_name, 'w')
             f.write('\n'.join(self.code(editor)).encode('UTF-8'))
             f.close()
         except IOError, e:
-            QMessageBox.critical(self, 'Error saving plugin', str(e))
+            QMessageBox.critical(
+                self, 'Error saving "%s"' % editor.file_name, str(e))
             return False
 
         editor.file_name = file_name

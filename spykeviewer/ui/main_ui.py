@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/rob/Spyke/viewer/spykeviewer/ui/main.ui'
 #
-# Created: Tue Feb 12 11:40:26 2013
+# Created: Tue Mar 19 16:37:18 2013
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -244,6 +244,8 @@ class Ui_MainWindow(object):
         icon17.addPixmap(QtGui.QPixmap(_fromUtf8(":/Plugins/Restore Config")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionRestorePluginConfigurations.setIcon(icon17)
         self.actionRestorePluginConfigurations.setObjectName(_fromUtf8("actionRestorePluginConfigurations"))
+        self.actionLoad_Python_File = QtGui.QAction(MainWindow)
+        self.actionLoad_Python_File.setObjectName(_fromUtf8("actionLoad_Python_File"))
         self.menuFile.addAction(self.actionSave_selection)
         self.menuFile.addAction(self.actionLoad_selection)
         self.menuFile.addAction(self.actionSwitch_Modes)
@@ -252,6 +254,7 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionSave_Data)
         self.menuFile.addAction(self.actionSave_Selected_Data)
         self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actionLoad_Python_File)
         self.menuFile.addAction(self.actionEdit_Startup_Script)
         self.menuFile.addAction(self.actionSettings)
         self.menuFile.addAction(self.actionExit)
@@ -364,5 +367,6 @@ class Ui_MainWindow(object):
         self.actionEdit_Startup_Script.setText(QtGui.QApplication.translate("MainWindow", "Edit Startup Script", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRestorePluginConfigurations.setText(QtGui.QApplication.translate("MainWindow", "Restore Plugin configurations", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRestorePluginConfigurations.setToolTip(QtGui.QApplication.translate("MainWindow", "Restore Plugin configurations to their default values", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionLoad_Python_File.setText(QtGui.QApplication.translate("MainWindow", "Load Python File...", None, QtGui.QApplication.UnicodeUTF8))
 
 import icons_rc

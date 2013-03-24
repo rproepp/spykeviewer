@@ -20,6 +20,7 @@ from PyQt4.QtCore import (Qt, pyqtSignature, SIGNAL, QMimeData,
 from spyderlib.widgets.internalshell import InternalShell
 from spyderlib.widgets.externalshell.namespacebrowser import NamespaceBrowser
 from spyderlib.widgets.sourcecode.codeeditor import CodeEditor
+from spyderlib.utils.misc import get_error_match
 
 import spykeutils
 from spykeutils.plugin.data_provider import DataProvider
@@ -85,6 +86,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.config['save_plugin_before_starting'] = True
         # Use Enter key for code completion in console
         self.config['codecomplete_console_enter'] = True
+        # Use Enter key for code completion in editor
+        self.config['codecomplete_editor_enter'] = True
 
         # Python console
         self.console = None
@@ -149,6 +152,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.show_filter_exceptions = True
 
+        # Plugins
+        self.menuPluginsContext = QMenu(self)
+        self.menuPluginsContext.addAction(self.actionRunPlugin)
+        self.menuPluginsContext.addAction(self.actionRemotePlugin)
+        self.menuPluginsContext.addAction(self.actionConfigurePlugin)
+        self.menuPluginsContext.addAction(self.actionEditPlugin)
+        self.menuPluginsContext.addAction(self.actionShowPluginFolder)
+
         # Plugin Editor
         self.pluginEditorDock = PluginEditorDock()
         self.pluginEditorDock.setObjectName('editorDock')
@@ -159,8 +170,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.consoleDock.edit_script = lambda (path): \
             self.pluginEditorDock.add_file(path)
-
-        from spyderlib.utils.misc import get_error_match
 
         def p(x):
             match = get_error_match(unicode(x))
@@ -201,6 +210,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.update_view_menu()
         self.restore_state()
         self.run_startup_script()
+        self.set_config_options()
         self.reload_plugins()
         self.load_plugin_configs()
         self.load_current_selection()
@@ -347,6 +357,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                            self.startup_script + ':\n' +
                            traceback.format_exc() + '\n')
 
+    def set_config_options(self):
+        self.console.set_codecompletion_enter(
+            self.config['codecomplete_console_enter'])
+        self.pluginEditorDock.enter_completion = \
+            self.config['codecomplete_editor_enter']
+
     ##### Interactive Python #############################################
     def get_console_objects(self):
         """ Return a dictionary of objects that should be included in the
@@ -380,11 +396,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if hasattr(o, 'flush'):
                         o.flush()
 
-        # Fixing autocompletion bugs in the internal shell
+        # Fixing bugs in the internal shell
         class FixedInternalShell(InternalShell):
             def __init__(self, *args, **kwargs):
                 super(FixedInternalShell, self).__init__(*args, **kwargs)
 
+            # Do not try to show a completion list when completions is None
             def show_completion_list(self, completions, completion_text="",
                                      automatic=True):
                 if completions is None:
@@ -392,10 +409,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 super(FixedInternalShell, self).show_completion_list(
                     completions, completion_text, automatic)
 
+            # Do not get dir() for non-text objects
             def get_dir(self, objtxt):
                 if not isinstance(objtxt, (str, unicode)):
                     return
                 return super(FixedInternalShell, self).get_dir(objtxt)
+
+            # Fix exception when using non-ascii characters
+            def run_command(self, cmd, history=True, new_prompt=True):
+                """Run command in interpreter"""
+                if not cmd:
+                    cmd = ''
+                else:
+                    if history:
+                        self.add_to_history(cmd)
+                cmd_line = cmd + '\n'
+                self.interpreter.stdin_write.write(cmd_line.encode('utf-8'))
+                if not self.multithreaded:
+                    self.interpreter.run_line()
+                    self.emit(SIGNAL("refresh()"))
 
         # Console
         msg = ('current and selections can be used to access selected data'
@@ -430,8 +462,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.console.set_calltips(True)
         self.console.setup_calltips(size=600, font=font)
         self.console.setup_completion(size=(370, 240), font=font)
-        self.console.set_codecompletion_enter(
-            self.config['codecomplete_console_enter'])
 
         self.consoleDock.setWidget(self.console)
 
@@ -768,7 +798,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         d.setFileMode(QFileDialog.ExistingFile)
         d.setNameFilter("Selection files (*.sel)")
         if d.exec_():
-            filename = str(d.selectedFiles()[0])
+            filename = unicode(d.selectedFiles()[0])
         else:
             return
 
@@ -1095,6 +1125,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.pluginEditorDock.add_file(path)
 
     @pyqtSignature("")
+    def on_actionLoad_Python_File_triggered(self):
+        path = ''
+        if self.plugin_paths:
+            path = self.plugin_paths[-1]
+        d = QFileDialog(self, 'Choose file to edit', path)
+        d.setAcceptMode(QFileDialog.AcceptOpen)
+        d.setFileMode(QFileDialog.ExistingFiles)
+        d.setNameFilter("Python files (*.py)")
+        if not d.exec_():
+            return
+
+        for p in d.selectedFiles():
+            self.pluginEditorDock.add_file(unicode(p))
+
+    @pyqtSignature("")
     def on_actionConfigurePlugin_triggered(self):
         ana = self.current_plugin()
         if not ana:
@@ -1150,7 +1195,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.on_actionRunPlugin_triggered()
 
     def on_pluginsTreeView_customContextMenuRequested(self, pos):
-        self.menuPlugins.popup(self.pluginsTreeView.mapToGlobal(pos))
+        self.menuPluginsContext.popup(self.pluginsTreeView.mapToGlobal(pos))
 
     def plugin_saved(self, path):
         if path == self.startup_script:
@@ -1267,15 +1312,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         from .. import __version__
 
         about = QMessageBox(self)
-        about.setWindowTitle(u'About Spyke Viewer ' + __version__)
+        about.setWindowTitle(u'About Spyke Viewer')
         about.setTextFormat(Qt.RichText)
         about.setIconPixmap(QPixmap(':/Application/Main'))
         about.setText(
-            u'Spyke Viewer is an application for navigating, '
+            u'Version ' + __version__ +
+            u'<br><br>Spyke Viewer is an application for navigating, '
             u'analyzing and visualizing electrophysiological datasets.<br>'
             u'<br><a href=http://www.ni.tu-berlin.de/software/spykeviewer>'
             u'www.ni.tu-berlin.de/software/spykeviewer</a>'
-            u'<br><br>Copyright 2012 \xa9 Robert Pr\xf6pper<br>'
+            u'<br><br>Copyright 2012, 2013 \xa9 Robert Pr\xf6pper<br>'
             u'Neural Information Processing Group<br>'
             u'TU Berlin, Germany<br><br>'
             u'Licensed under the terms of the BSD license.<br>'
