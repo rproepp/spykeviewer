@@ -7,7 +7,11 @@ from PyQt4.QtCore import Qt, pyqtSignal, SIGNAL
 
 from spyderlib.widgets.sourcecode import codeeditor
 from spyderlib.widgets.editor import ThreadManager
-from spyderlib.utils.module_completion import moduleCompletion
+try:  # Spyder < 2.2.0
+    from spyderlib.utils.module_completion import moduleCompletion \
+        as module_completion
+except ImportError:  # Spyder >= 2.2.0beta3
+    from spyderlib.utils.module_completion import module_completion
 from spyderlib.utils.dochelpers import getsignaturesfromtext
 from spyderlib.widgets.findreplace import FindReplace
 
@@ -99,7 +103,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         text = editor.get_text('sol', 'cursor')
 
         if text.startswith('import '):
-            comp_list = moduleCompletion(text)
+            comp_list = module_completion(text)
             words = text.split(' ')
             if ',' in words[-1]:
                 words = words[-1].split(',')
@@ -109,7 +113,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
                                             automatic=automatic)
             return
         elif text.startswith('from '):
-            comp_list = moduleCompletion(text)
+            comp_list = module_completion(text)
             words = text.split(' ')
             if '(' in words[-1]:
                 words = words[:-2] + words[-1].split('(')

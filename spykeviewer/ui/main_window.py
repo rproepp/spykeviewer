@@ -8,6 +8,7 @@ import webbrowser
 import copy
 import pickle
 import platform
+import subprocess
 
 from PyQt4.QtGui import (QMainWindow, QMessageBox,
                          QApplication, QFileDialog, QInputDialog,
@@ -1170,17 +1171,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     @pyqtSignature("")
     def on_actionRemotePlugin_triggered(self):
-        import subprocess
-        import pickle
-
         selections = self.serialize_selections()
         config = pickle.dumps(self.current_plugin().get_parameters())
         f = open(self.remote_script, 'r')
         code = f.read()
-        subprocess.Popen(['python', '-c', '%s' % code,
-                          type(self.current_plugin()).__name__,
-                          self.current_plugin_path(),
-                          selections, '-cf', '-c', config,
+        name = type(self.current_plugin()).__name__
+        path = self.current_plugin_path()
+        self.start_plugin_remote(code, name, path, selections, config)
+
+    def start_plugin_remote(self, code, name, path, selections, config):
+        subprocess.Popen(['python', '-c', code,
+                          name, path, selections, '-cf',
+                          '-c', config,
                           '-dd', AnalysisPlugin.data_dir])
 
     @pyqtSignature("")
