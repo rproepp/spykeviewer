@@ -53,7 +53,7 @@ _orig_createEditor = DictDelegate.createEditor
 
 def _patched_createEditor(*args, **kwargs):
     try:
-        _orig_createEditor(*args, **kwargs)
+        return _orig_createEditor(*args, **kwargs)
     except Exception:
         QMessageBox.critical(None, 'Edit item',
                              'Could not create editor for selected data!')
