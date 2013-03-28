@@ -26,6 +26,9 @@
       </item>
       <item>
        <widget class="QListWidget" name="neoBlockList">
+        <property name="contextMenuPolicy">
+         <enum>Qt::CustomContextMenu</enum>
+        </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::ExtendedSelection</enum>
         </property>
@@ -40,6 +43,9 @@
       </item>
       <item>
        <widget class="QListWidget" name="neoChannelGroupList">
+        <property name="contextMenuPolicy">
+         <enum>Qt::CustomContextMenu</enum>
+        </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::ExtendedSelection</enum>
         </property>
@@ -54,6 +60,9 @@
       </item>
       <item>
        <widget class="QListWidget" name="neoChannelList">
+        <property name="contextMenuPolicy">
+         <enum>Qt::CustomContextMenu</enum>
+        </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::ExtendedSelection</enum>
         </property>
@@ -72,6 +81,9 @@
       </item>
       <item>
        <widget class="QListWidget" name="neoSegmentList">
+        <property name="contextMenuPolicy">
+         <enum>Qt::CustomContextMenu</enum>
+        </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::ExtendedSelection</enum>
         </property>
@@ -86,6 +98,9 @@
       </item>
       <item>
        <widget class="QListWidget" name="neoUnitList">
+        <property name="contextMenuPolicy">
+         <enum>Qt::CustomContextMenu</enum>
+        </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::ExtendedSelection</enum>
         </property>

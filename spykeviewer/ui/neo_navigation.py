@@ -1,5 +1,7 @@
-from PyQt4.QtGui import (QDockWidget, QListWidgetItem)
+from PyQt4.QtGui import (QDockWidget, QListWidgetItem, QMenu, QAction)
 from PyQt4.QtCore import Qt
+from spyderlib.widgets.dicteditor import DictEditor
+from spyderlib.utils.qthelpers import get_icon
 
 from spykeutils.plugin.data_provider_neo import NeoDataProvider
 
@@ -14,7 +16,19 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
     def __init__(self, parent):
         QDockWidget.__init__(self, parent)
         self.parent = parent
+
         self.setupUi(self)
+
+        self.neoBlockList.itemDoubleClicked.connect(
+            self._edit_item_annotations)
+        self.neoSegmentList.itemDoubleClicked.connect(
+            self._edit_item_annotations)
+        self.neoChannelGroupList.itemDoubleClicked.connect(
+            self._edit_item_annotations)
+        self.neoChannelList.itemDoubleClicked.connect(
+            self._edit_item_annotations)
+        self.neoUnitList.itemDoubleClicked.connect(
+            self._edit_item_annotations)
 
     def clear(self):
         """ Clear all lists
@@ -183,20 +197,54 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
         self.populate_neo_channel_list()
         self.populate_neo_unit_list()
 
-    def on_neoBlockList_itemDoubleClicked(self, item):
-        print item.data(Qt.UserRole).annotations
+    def _edit_item_annotations(self, item):
+        self.edit_annotations(item.data(Qt.UserRole))
 
-    def on_neoSegmentList_itemDoubleClicked(self, item):
-        print item.data(Qt.UserRole).annotations
+    def edit_annotations(self, data):
+        """ Edit annotations of a Neo object.
+        """
+        editor = DictEditor(self.parent)
+        editor.setup(
+            data.annotations, 'Edit annotations')
+        editor.accepted.connect(lambda d=data, e=editor: self._editor_ok(d, e))
+        editor.show()
+        editor.raise_()
+        editor.activateWindow()
 
-    def on_neoChannelGroupList_itemDoubleClicked(self, item):
-        print item.data(Qt.UserRole).annotations
+    def _editor_ok(self, data, editor):
+        data.annotations = editor.get_value()
 
-    def on_neoChannelList_itemDoubleClicked(self, item):
-        print item.data(Qt.UserRole).annotations
+    def _edit_action(self, list_widget):
+        action = QAction(get_icon('edit.png'), 'Edit annotations...', self)
+        action.triggered.connect(
+            lambda x, i=list_widget.currentItem():
+            self._edit_item_annotations(i))
+        return action
 
-    def on_neoUnitList_itemDoubleClicked(self, item):
-        print item.data(Qt.UserRole).annotations
+    def on_neoBlockList_customContextMenuRequested(self, pos):
+        context_menu = QMenu(self)
+        context_menu.addAction(self._edit_action(self.neoBlockList))
+        context_menu.popup(self.neoBlockList.mapToGlobal(pos))
+
+    def on_neoSegmentList_customContextMenuRequested(self, pos):
+        context_menu = QMenu(self)
+        context_menu.addAction(self._edit_action(self.neoSegmentList))
+        context_menu.popup(self.neoSegmentList.mapToGlobal(pos))
+
+    def on_neoChannelGroupList_customContextMenuRequested(self, pos):
+        context_menu = QMenu(self)
+        context_menu.addAction(self._edit_action(self.neoChannelGroupList))
+        context_menu.popup(self.neoChannelGroupList.mapToGlobal(pos))
+
+    def on_neoChannelList_customContextMenuRequested(self, pos):
+        context_menu = QMenu(self)
+        context_menu.addAction(self._edit_action(self.neoChannelList))
+        context_menu.popup(self.neoChannelList.mapToGlobal(pos))
+
+    def on_neoUnitList_customContextMenuRequested(self, pos):
+        context_menu = QMenu(self)
+        context_menu.addAction(self._edit_action(self.neoUnitList))
+        context_menu.popup(self.neoUnitList.mapToGlobal(pos))
 
     def blocks(self):
         """ Return selected :class:`neo.Block` objects.
