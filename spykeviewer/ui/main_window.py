@@ -230,7 +230,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             a = self.menuView.menuAction()
             self.mainMenu.removeAction(a)
         self.menuView = self.createPopupMenu()
-        self.menuView.setTitle('View')
+        self.menuView.setTitle('&View')
         self.mainMenu.insertMenu(self.menuHelp.menuAction(), self.menuView)
 
     def set_default_plugin_path(self):

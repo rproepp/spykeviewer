@@ -69,7 +69,7 @@ QGroupBox::title {
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>File</string>
+     <string>&amp;File</string>
     </property>
     <addaction name="actionSave_selection"/>
     <addaction name="actionLoad_selection"/>
@@ -86,14 +86,14 @@ QGroupBox::title {
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
-     <string>Help</string>
+     <string>&amp;Help</string>
     </property>
     <addaction name="actionDocumentation"/>
     <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuSelections">
     <property name="title">
-     <string>Selections</string>
+     <string>&amp;Selections</string>
     </property>
     <addaction name="actionNewSelection"/>
     <addaction name="actionClearSelections"/>
@@ -101,7 +101,7 @@ QGroupBox::title {
    </widget>
    <widget class="QMenu" name="menuPlugins">
     <property name="title">
-     <string>Plugins</string>
+     <string>&amp;Plugins</string>
     </property>
     <addaction name="actionRunPlugin"/>
     <addaction name="actionRemotePlugin"/>
@@ -118,7 +118,7 @@ QGroupBox::title {
    </widget>
    <widget class="QMenu" name="menuFilter">
     <property name="title">
-     <string>Filter</string>
+     <string>&amp;Filter</string>
     </property>
     <addaction name="actionNewFilter"/>
     <addaction name="actionNewFilterGroup"/>
@@ -269,7 +269,7 @@ QGroupBox::title {
   </widget>
   <action name="actionExit">
    <property name="text">
-    <string>Exit</string>
+    <string>&amp;Exit</string>
    </property>
    <property name="menuRole">
     <enum>QAction::QuitRole</enum>
@@ -280,12 +280,12 @@ QGroupBox::title {
   </action>
   <action name="actionSave_selection">
    <property name="text">
-    <string>Save Selection Set...</string>
+    <string>&amp;Save Selection Set...</string>
    </property>
   </action>
   <action name="actionLoad_selection">
    <property name="text">
-    <string>Load Selection Set...</string>
+    <string>&amp;Load Selection Set...</string>
    </property>
   </action>
   <action name="actionAbout">
@@ -294,7 +294,7 @@ QGroupBox::title {
      <normaloff>:/Application/Info</normaloff>:/Application/Info</iconset>
    </property>
    <property name="text">
-    <string>About</string>
+    <string>&amp;About</string>
    </property>
   </action>
   <action name="actionSwitch_Modes">
@@ -307,12 +307,12 @@ QGroupBox::title {
   </action>
   <action name="actionNewSelection">
    <property name="text">
-    <string>New</string>
+    <string>&amp;New</string>
    </property>
   </action>
   <action name="actionClearCache">
    <property name="text">
-    <string>Clear Cache</string>
+    <string>&amp;Clear Cache</string>
    </property>
    <property name="visible">
     <bool>true</bool>
@@ -320,7 +320,7 @@ QGroupBox::title {
   </action>
   <action name="actionSave_Selected_Data">
    <property name="text">
-    <string>Save Selected Data as...</string>
+    <string>Save Selected Data &amp;as...</string>
    </property>
   </action>
   <action name="actionSettings">
@@ -330,7 +330,7 @@ QGroupBox::title {
   </action>
   <action name="actionClearSelections">
    <property name="text">
-    <string>Clear</string>
+    <string>&amp;Clear</string>
    </property>
   </action>
   <action name="actionNewPlugin">
@@ -339,7 +339,7 @@ QGroupBox::title {
      <normaloff>:/Plugins/New</normaloff>:/Plugins/New</iconset>
    </property>
    <property name="text">
-    <string>New Plugin</string>
+    <string>&amp;New Plugin</string>
    </property>
    <property name="toolTip">
     <string>Create a new plugin</string>
@@ -354,7 +354,7 @@ QGroupBox::title {
      <normaloff>:/Plugins/Edit</normaloff>:/Plugins/Edit</iconset>
    </property>
    <property name="text">
-    <string>Edit Plugin</string>
+    <string>&amp;Edit Plugin</string>
    </property>
    <property name="toolTip">
     <string>Edit selected plugin</string>
@@ -369,7 +369,7 @@ QGroupBox::title {
      <normaloff>:/Plugins/Reload</normaloff>:/Plugins/Reload</iconset>
    </property>
    <property name="text">
-    <string>Refresh Plugins</string>
+    <string>&amp;Refresh Plugins</string>
    </property>
    <property name="toolTip">
     <string>Refresh all plugins</string>
@@ -387,7 +387,7 @@ QGroupBox::title {
      <normaloff>:/Plugins/Save</normaloff>:/Plugins/Save</iconset>
    </property>
    <property name="text">
-    <string>Save Plugin</string>
+    <string>&amp;Save Plugin</string>
    </property>
    <property name="toolTip">
     <string>Save current file</string>
@@ -405,7 +405,7 @@ QGroupBox::title {
      <normaloff>:/Plugins/Config</normaloff>:/Plugins/Config</iconset>
    </property>
    <property name="text">
-    <string>Configure Plugin</string>
+    <string>&amp;Configure Plugin</string>
    </property>
    <property name="toolTip">
     <string>Configure selected plugin</string>
@@ -423,7 +423,7 @@ QGroupBox::title {
      <normaloff>:/Plugins/Run</normaloff>:/Plugins/Run</iconset>
    </property>
    <property name="text">
-    <string>Run Plugin</string>
+    <string>Run &amp;Plugin</string>
    </property>
    <property name="toolTip">
     <string>Run selected plugin</string>
@@ -456,7 +456,7 @@ QGroupBox::title {
      <normaloff>:/Filter/New Filter</normaloff>:/Filter/New Filter</iconset>
    </property>
    <property name="text">
-    <string>New Filter</string>
+    <string>&amp;New Filter</string>
    </property>
    <property name="toolTip">
     <string>Create a new filter</string>
@@ -471,7 +471,7 @@ QGroupBox::title {
      <normaloff>:/Filter/Copy Filter</normaloff>:/Filter/Copy Filter</iconset>
    </property>
    <property name="text">
-    <string>Copy</string>
+    <string>&amp;Copy</string>
    </property>
    <property name="toolTip">
     <string>Duplicate selected filter or group</string>
@@ -486,7 +486,7 @@ QGroupBox::title {
      <normaloff>:/Filter/Edit Filter</normaloff>:/Filter/Edit Filter</iconset>
    </property>
    <property name="text">
-    <string>Edit</string>
+    <string>&amp;Edit</string>
    </property>
    <property name="toolTip">
     <string>Edit selected filter or filter group</string>
@@ -501,7 +501,7 @@ QGroupBox::title {
      <normaloff>:/Filter/Remove Filter</normaloff>:/Filter/Remove Filter</iconset>
    </property>
    <property name="text">
-    <string>Delete</string>
+    <string>&amp;Delete</string>
    </property>
    <property name="toolTip">
     <string>Delete selected filter or filter group</string>
@@ -513,7 +513,7 @@ QGroupBox::title {
      <normaloff>:/Filter/New Filter Group</normaloff>:/Filter/New Filter Group</iconset>
    </property>
    <property name="text">
-    <string>New Filter Group</string>
+    <string>New Filter &amp;Group</string>
    </property>
    <property name="toolTip">
     <string>Create a new filter group</string>
@@ -528,7 +528,7 @@ QGroupBox::title {
      <normaloff>:/Plugins/Save As</normaloff>:/Plugins/Save As</iconset>
    </property>
    <property name="text">
-    <string>Save Plugin as...</string>
+    <string>Save Plugin &amp;as...</string>
    </property>
    <property name="toolTip">
     <string>Save current file as...</string>
@@ -540,7 +540,7 @@ QGroupBox::title {
      <normaloff>:/Application/Help</normaloff>:/Application/Help</iconset>
    </property>
    <property name="text">
-    <string>Documentation</string>
+    <string>&amp;Documentation</string>
    </property>
    <property name="toolTip">
     <string>Open documentation website
@@ -549,7 +549,7 @@ QGroupBox::title {
   </action>
   <action name="actionSave_Data">
    <property name="text">
-    <string>Save Data as...</string>
+    <string>Save &amp;Data as...</string>
    </property>
   </action>
   <action name="actionShowPluginFolder">
@@ -561,7 +561,7 @@ QGroupBox::title {
      <normaloff>:/Plugins/Show Folder</normaloff>:/Plugins/Show Folder</iconset>
    </property>
    <property name="text">
-    <string>Open containing folder...</string>
+    <string>&amp;Open containing folder...</string>
    </property>
    <property name="toolTip">
     <string>Open folder that contains selected plugin</string>
@@ -586,7 +586,7 @@ QGroupBox::title {
   </action>
   <action name="actionLoad_Python_File">
    <property name="text">
-    <string>Load Python File...</string>
+    <string>Load &amp;Python File...</string>
    </property>
   </action>
  </widget>
