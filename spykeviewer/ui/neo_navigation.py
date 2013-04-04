@@ -1,9 +1,12 @@
-from PyQt4.QtGui import (QDockWidget, QListWidgetItem, QMenu, QAction)
-from PyQt4.QtCore import Qt
+from PyQt4.QtGui import (QDockWidget, QListWidgetItem, QMenu, QAction,
+                         QMessageBox)
+from PyQt4.QtCore import Qt, pyqtSignal
 from spyderlib.widgets.dicteditor import DictEditor
 from spyderlib.utils.qthelpers import get_icon
+import neo
 
 from spykeutils.plugin.data_provider_neo import NeoDataProvider
+import spykeutils.tools
 
 from neo_navigation_ui import Ui_neoNavigationDock
 
@@ -13,6 +16,9 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
     with :class:`main_window_neo.MainWindowNeo`, the main reason for this
     class to exist is to keep the dock out of the general ui file.
     """
+
+    object_removed = pyqtSignal()  # Signal to remove an object
+
     def __init__(self, parent):
         QDockWidget.__init__(self, parent)
         self.parent = parent
@@ -35,21 +41,21 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
         """
         self.neoBlockList.clear()
 
-    def get_letter_id(self, id, small=False):
+    def get_letter_id(self, id_, small=False):
         """ Return a name consisting of letters given an integer
         """
-        if id < 0:
+        if id_ < 0:
             return ''
 
         name = ''
-        id += 1
+        id_ += 1
         if small:
             start = ord('a') - 1
         else:
             start = ord('A') - 1
-        while id >= 1:
-            name += str(chr(start + (id % 26)))
-            id /= 26
+        while id_ >= 1:
+            name += str(chr(start + (id_ % 26)))
+            id_ /= 26
         return name[::-1]
 
     def populate_neo_block_list(self):
@@ -204,9 +210,12 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
         """ Edit annotations of a Neo object.
         """
         editor = DictEditor(self.parent)
-        editor.setup(
-            data.annotations, 'Edit annotations')
-        editor.accepted.connect(lambda d=data, e=editor: self._editor_ok(d, e))
+        title = 'Edit annotations'
+        if data.name:
+            title += ' for %s' % data.name
+        editor.setup(data.annotations, title)
+        editor.accepted.connect(
+            lambda: self._editor_ok(data, editor))
         editor.show()
         editor.raise_()
         editor.activateWindow()
@@ -214,36 +223,82 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
     def _editor_ok(self, data, editor):
         data.annotations = editor.get_value()
 
-    def _edit_action(self, list_widget):
-        action = QAction(get_icon('edit.png'), 'Edit annotations...', self)
-        action.triggered.connect(
-            lambda x, i=list_widget.currentItem():
-            self._edit_item_annotations(i))
-        return action
+    def remove_selected(self, list_widget):
+        """ Remove all selected objects from the given list widget.
+        """
+        items = list_widget.selectedItems()
+        if len(items) < 1:
+            return
+
+        question = ('Do you really want to remove %d %s' %
+                    (len(items),
+                    type(items[0].data(Qt.UserRole)).__name__))
+        if len(items) > 1:
+            question += 's'
+        question += '?'
+
+        if QMessageBox.question(
+                self, 'Please confirm', question,
+                QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
+            return
+
+        for i in list_widget.selectedItems():
+            data = i.data(Qt.UserRole)
+            if isinstance(data, neo.Block):
+                self.parent.block_names.pop(data)
+            else:
+                spykeutils.tools.remove_from_hierarchy(data)
+            list_widget.setItemSelected(i, False)
+
+        self.object_removed.emit()
+
+    def _context_actions(self, list_widget):
+        c = list_widget.currentItem()
+        if not c:
+            return []
+
+        data = c.data(Qt.UserRole)
+
+        edit_action = QAction(get_icon('edit.png'),
+                              'Edit annotations...', self)
+        edit_action.triggered.connect(
+            lambda x:
+            self._edit_item_annotations(c))
+
+        delete_name = 'Delete %s' % type(data).__name__
+        if len(list_widget.selectedItems()) > 1:
+            delete_name += 's'
+        delete_action = QAction(get_icon('editdelete.png'),
+                                delete_name, self)
+        delete_action.triggered.connect(
+            lambda x:
+            self.remove_selected(list_widget))
+
+        return [edit_action, delete_action]
 
     def on_neoBlockList_customContextMenuRequested(self, pos):
         context_menu = QMenu(self)
-        context_menu.addAction(self._edit_action(self.neoBlockList))
+        context_menu.addActions(self._context_actions(self.neoBlockList))
         context_menu.popup(self.neoBlockList.mapToGlobal(pos))
 
     def on_neoSegmentList_customContextMenuRequested(self, pos):
         context_menu = QMenu(self)
-        context_menu.addAction(self._edit_action(self.neoSegmentList))
+        context_menu.addActions(self._context_actions(self.neoSegmentList))
         context_menu.popup(self.neoSegmentList.mapToGlobal(pos))
 
     def on_neoChannelGroupList_customContextMenuRequested(self, pos):
         context_menu = QMenu(self)
-        context_menu.addAction(self._edit_action(self.neoChannelGroupList))
+        context_menu.addActions(self._context_actions(self.neoChannelGroupList))
         context_menu.popup(self.neoChannelGroupList.mapToGlobal(pos))
 
     def on_neoChannelList_customContextMenuRequested(self, pos):
         context_menu = QMenu(self)
-        context_menu.addAction(self._edit_action(self.neoChannelList))
+        context_menu.addActions(self._context_actions(self.neoChannelList))
         context_menu.popup(self.neoChannelList.mapToGlobal(pos))
 
     def on_neoUnitList_customContextMenuRequested(self, pos):
         context_menu = QMenu(self)
-        context_menu.addAction(self._edit_action(self.neoUnitList))
+        context_menu.addActions(self._context_actions(self.neoUnitList))
         context_menu.popup(self.neoUnitList.mapToGlobal(pos))
 
     def blocks(self):

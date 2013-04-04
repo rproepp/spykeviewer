@@ -71,8 +71,15 @@ no name, only the identifier is shown). Blocks use capital letters; recording
 channel groups use small letters; recording channels, units and segments use
 numbers. For example, a unit might have an identifier "A-b-2": This denotes
 unit number 2 of recording channel group "b" of block "A". The identifiers are
-recreated whenever you load data - they are just a visual aid to help with
-navigation and ensure that unnamed objects have a reasonable label.
+recreated whenever the structure of the loaded data changes - they are just
+a visual aid to help with navigation and ensure that unnamed objects have
+a reasonable label.
+
+Each list in the *Navigation* dock has a context menu accessed by
+right-clicking or control-clicking on OS X. You can use it to remove the
+selected objects (they will only be removed from Spyke Viewer, not from the
+loaded files) or open an annotation editor for the current object. The
+annotation editor can also be opened by double-clicking a list entry.
 
 The sets of selected objects from all container types is called a selection.
 The selected items you see in the *Navigation* dock are called the current
@@ -183,7 +190,8 @@ a number of plugins that enable you to create various plots from your data.
 Select the *Plugins* dock (located next to the *Filter* dock in the
 initial layout) to see the list of available plugins. To start a plugin,
 simply double-click it or select it and then click on "Run Plugin" in the
-plugin toolbar or menu. You can also start a plugin in a different process
+plugin toolbar or menu (there is also a context menu available when you
+right-click a plugin). You can also start a plugin in a different process
 (so that you can continue using Spyke Viewer while the plugin is busy) by
 selecting "Start with Remote Script" in the "Plugins" menu.
 

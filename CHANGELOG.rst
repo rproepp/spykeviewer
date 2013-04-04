@@ -1,6 +1,8 @@
 * Added search and replace functionality to plugin editor (access with
   ``Ctrl``+``F`` and ``Ctrl``+``H``).
 * Added startup script. Can be modified using File->Edit startup script.
+* Added context menu for navigation. Includes entries for removing objects
+  and an annotation editor.
 * Plugin configurations are now restored when saving or refreshing plugins
   and when restarting the program. All plugin configurations can be reset
   to their defaults using Plugins->Restore Plugin configurations.

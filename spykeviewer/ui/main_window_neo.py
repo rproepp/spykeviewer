@@ -41,6 +41,7 @@ class MainWindowNeo(MainWindow):
         self.neoNavigationDock.setObjectName('neoNavigationDock')
         self.addDockWidget(Qt.LeftDockWidgetArea, self.neoNavigationDock)
         self.neoNavigationDock.setVisible(True)
+        self.neoNavigationDock.object_removed.connect(self.refresh_neo_view)
 
         # Initialize filters
         self.filter_populate_function = \
@@ -146,10 +147,10 @@ class MainWindowNeo(MainWindow):
                     cl._is_spyke_plugin = True
                     neo.io.iolist.append(cl)
 
-    def get_letter_id(self, id, small=False):
+    def get_letter_id(self, id_, small=False):
         """ Return a name consisting of letters given an integer
         """
-        return self.neoNavigationDock.get_letter_id(id, small)
+        return self.neoNavigationDock.get_letter_id(id_, small)
 
     class LoadWorker(QThread):
         def __init__(self, file_name, indices):
