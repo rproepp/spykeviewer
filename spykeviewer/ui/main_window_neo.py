@@ -236,7 +236,8 @@ class MainWindowNeo(MainWindow):
         self.load_worker.start()
 
     def on_fileTreeView_doubleClicked(self, index):
-        self.on_loadFilesButton_pressed()
+        if not self.fileTreeView.model().isDir(index):
+            self.on_loadFilesButton_pressed()
 
     def refresh_neo_view(self):
         self.set_current_selection(self.provider.data_dict())
