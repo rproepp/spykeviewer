@@ -759,12 +759,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 else:
                     self.add_selection(s)
         except Exception, e:
-            self.progress.done()
             QMessageBox.critical(self, 'Error loading selection',
                                  str(e).decode('utf8'))
             #logger.warning('Error loading selection:\n' +
             #               traceback.format_exc() + '\n')
         finally:
+            self.progress.done()
             self.populate_selection_menu()
 
     def load_current_selection(self):
@@ -1097,12 +1097,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         try:
             return plugin.start(self.provider, self.selections)
         except SpykeException, err:
-            self.progress.done()
             QMessageBox.critical(self, 'Error executing plugin', str(err))
         except CancelException:
             return None
         except Exception, e:
-            self.progress.done()
             # Only print stack trace from plugin on
             tb = sys.exc_info()[2]
             while not ('self' in tb.tb_frame.f_locals and
@@ -1113,6 +1111,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     break
             traceback.print_exception(type(e), e, tb)
             return None
+        finally:
+            self.progress.done()
 
     @pyqtSignature("")
     def on_actionEditPlugin_triggered(self):
