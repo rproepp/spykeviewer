@@ -55,8 +55,8 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
         else:
             start = ord('A') - 1
         while id_ >= 1:
-            name += str(chr(start + (id_ % 26)))
-            id_ /= 26
+            name += str(chr(start + (id_ % 27)))
+            id_ /= 27
         return name[::-1]
 
     def populate_neo_block_list(self):
