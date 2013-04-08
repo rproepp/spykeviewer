@@ -137,15 +137,21 @@ modify ``sys.path`` to include the path to your files::
     sys.path.insert(0, '/path/to/my/files')
 
 You can also use the startup script to configure anything that is accessible
-by Python code. The Spyke Viewer window can be accessed as ``viewer``, so
-you can modify the GUI to suit your preferences. For example, to change the
-font size of the Python console (effective for new input) and title of the
-window::
+by Python code. In particular, you can use the Spyke Viewer :ref:`api` to
+access configuration options and the main window itself. For example, to
+change the font size of the Python console (effective for new input) and
+title of the window::
 
-    f = viewer.console.font()
+    import spykeviewer.api as spyke  # This line is included in the default startup script
+    f = spyke.window.console.font()
     f.setPointSize(18) # Gigantic!
-    viewer.console.set_pythonshell_font(f)
-    viewer.setWindowTitle('Big is beatiful')
+    spyke.window.console.set_pythonshell_font(f)
+    spyke.window.setWindowTitle('Big is beatiful')
+
+If you want the Enter key to always finish a line in the console and only
+use the Tab key for autocompletion::
+
+    spyke.config['codecomplete_console_enter'] = False
 
 As a final example, you can customize the colors that are used
 in spykeutils plots (for colored items like spikes in a rasterplot)::
@@ -154,6 +160,9 @@ in spykeutils plots (for colored items like spikes in a rasterplot)::
     from spykeutils.plot import helper
     helper.set_color_scheme(['#F52887', '#C12267'])
 
+
+Footnotes
+---------
 
 .. [#relative] There is one small difference between regular Neo IO classes
                and IO plugins: In plugins, you cannot use relative imports.

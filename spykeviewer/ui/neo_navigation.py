@@ -9,6 +9,7 @@ from spykeutils.plugin.data_provider_neo import NeoDataProvider
 import spykeutils.tools
 
 from neo_navigation_ui import Ui_neoNavigationDock
+from .. import api
 
 
 class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
@@ -145,6 +146,7 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
         Qt.UserRole+1: The channel index
         """
         self.neoChannelList.clear()
+        channels = set()
 
         filters = self.parent.get_active_filters(
             'Recording Channel')
@@ -155,9 +157,12 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
             rcs = self.parent.filter_list(
                 channel_group.recordingchannels, filters)
             for rc in rcs:
+                if not api.config['duplicate_channels'] and rc in channels:
+                    continue
                 if self.parent.is_filtered(rc, filters):
                     continue
 
+                channels.add(rc)
                 identifier = '%s.%d' % \
                              (self.parent.channel_group_names[channel_group],
                               rc.index)

@@ -29,6 +29,7 @@ from spykeutils.plugin.analysis_plugin import AnalysisPlugin
 from spykeutils.progress_indicator import CancelException
 from spykeutils import SpykeException
 
+from .. import api
 from main_ui import Ui_MainWindow
 from settings import SettingsWindow
 from filter_dock import FilterDock
@@ -69,6 +70,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         QMainWindow.__init__(self, parent)
 
+        api.window = self
+
         QCoreApplication.setOrganizationName('SpykeUtils')
         QCoreApplication.setApplicationName('Spyke Viewer')
         self.data_path = QDesktopServices.storageLocation(
@@ -77,20 +80,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.setupUi(self)
         self.dir = os.getcwd()
-
-        # Configuration
-        self.config = {}
-        # Ask about plugin paths if saving a file to a path that is not
-        # a plugin path
-        self.config['ask_plugin_path'] = True
-        # Save and reload a modified plugin before starting
-        self.config['save_plugin_before_starting'] = True
-        # Use Enter key for code completion in console
-        self.config['codecomplete_console_enter'] = True
-        # Use Enter key for code completion in editor
-        self.config['codecomplete_editor_enter'] = True
-        # Additional parameters for remote script
-        self.config['remote_script_parameters'] = []
 
         # Python console
         self.console = None
@@ -338,7 +327,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """
         if not os.path.isfile(self.startup_script):
             content = ('# Startup script for Spyke Viewer\n'
-                       '# "viewer" is the main window')
+                       'import spykeviewer.api as spyke')
             with open(self.startup_script, 'w') as f:
                 f.write(content)
 
@@ -354,7 +343,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         lines.pop(1)
                     source = ''.join(lines).decode('utf-8')
                     code = compile(source, self.startup_script, 'exec')
-                    exec(code, {'viewer': self})
+                    exec(code, {})
         except Exception:
             logger.warning('Error during execution of startup script ' +
                            self.startup_script + ':\n' +
@@ -362,9 +351,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def set_config_options(self):
         self.console.set_codecompletion_enter(
-            self.config['codecomplete_console_enter'])
+            api.config['codecomplete_console_enter'])
         self.pluginEditorDock.enter_completion = \
-            self.config['codecomplete_editor_enter']
+            api.config['codecomplete_editor_enter']
 
     ##### Interactive Python #############################################
     def get_console_objects(self):
@@ -380,7 +369,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         plt.ion()
         guiplt.ion()
 
-        return {'np': numpy, 'sp': scipy, 'plt': plt, 'guiplt': guiplt}
+        return {'np': numpy, 'sp': scipy, 'plt': plt, 'guiplt': guiplt,
+                'spyke': api}
 
     def init_python(self):
         """ Initialize the Python docks: console, history and variable
@@ -1084,7 +1074,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not ana:
             return
 
-        if self.config['save_plugin_before_starting']:
+        if api.config['save_plugin_before_starting']:
             e = self.pluginEditorDock.get_editor(ana.source_file)
             if self.pluginEditorDock.file_was_changed(e):
                 if not self.pluginEditorDock.save_file(e):
@@ -1186,7 +1176,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                   name, path, selections, '-cf',
                   '-c', config,
                   '-dd', AnalysisPlugin.data_dir]
-        params.extend(self.config['remote_script_parameters'])
+        params.extend(api.config['remote_script_parameters'])
         subprocess.Popen(params)
 
     @pyqtSignature("")
@@ -1217,7 +1207,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if in_dirs:
             self.reload_plugins()
-        elif self.config['ask_plugin_path']:
+        elif api.config['ask_plugin_path']:
             if QMessageBox.question(self, 'Warning',
                                     'The file "%s"' % plugin_path +
                                     ' is not in the currently valid plugin '
@@ -1272,7 +1262,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if len(plugins) > 1:
             raise SpykeException('Multiple plugins named "%s" exist!' % name)
 
-        if self.config['save_plugin_before_starting']:
+        if api.config['save_plugin_before_starting']:
             e = self.pluginEditorDock.get_editor(plugins[0].source_file)
             if self.pluginEditorDock.file_was_changed(e):
                 if not self.pluginEditorDock.save_file(e):

@@ -27,9 +27,10 @@ from PyQt4 import QtGui
 # The entry point for Spyke Viewer
 def main():
     from ui.main_window_neo import MainWindowNeo
+    import api
 
-    app = QtGui.QApplication(sys.argv)
+    api.app = QtGui.QApplication(sys.argv)
     ui = MainWindowNeo()
     ui.show()
     ui.raise_()
-    sys.exit(app.exec_())
+    sys.exit(api.app.exec_())
