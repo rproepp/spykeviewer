@@ -5,6 +5,8 @@ config = {}
 config['ask_plugin_path'] = True
 # Save and reload a modified plugin before starting
 config['save_plugin_before_starting'] = True
+# Load selection on start
+config['load_selection_on_start'] = True
 # Use Enter key for code completion in console
 config['codecomplete_console_enter'] = True
 # Use Enter key for code completion in editor

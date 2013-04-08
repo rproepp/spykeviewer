@@ -21,6 +21,10 @@ objects to access the main window and application and convenience functions.
     save_plugin_before_starting (:class:`bool`)
         Save and reload a modified plugin before starting. Default: ``True``
 
+    load_selection_on_start (:class:`bool`):
+        Load the selection that was automatically saved when shutting down
+        Spyke Viewer automatically on startup. Default: ``True``
+
     duplicate_channels (:class:`bool`)
         Treat :class:`neo.core.RecordingChannel` objects that are
         referenced in multiple :class:`neo.core.RecordingChannelGroup`
@@ -36,7 +40,10 @@ objects to access the main window and application and convenience functions.
         Use Enter key for code completion in editor. Default: ``True``
 
     remote_script_parameters (:class:`list`)
-        Additional parameters for remote script. Default: ``[]``
+        Additional parameters for remote script. Use this if you have a custom
+        remote script that needs nonstandard parameters. The format is the same
+        as for :class:`subprocess.Popen`, e.g.
+        ``['--param1', 'first value', '-p2', '2']``. Default: ``[]``
 
 
 .. data:: spykeviewer.api.window

@@ -205,7 +205,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.set_config_options()
         self.reload_plugins()
         self.load_plugin_configs()
-        self.load_current_selection()
+        if api.config['load_selection_on_start']:
+            self.load_current_selection()
 
     def get_filter_types(self):
         """ Return a list of filter type tuples as required by
