@@ -89,6 +89,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.config['codecomplete_console_enter'] = True
         # Use Enter key for code completion in editor
         self.config['codecomplete_editor_enter'] = True
+        # Additional parameters for remote script
+        self.config['remote_script_parameters'] = []
 
         # Python console
         self.console = None
@@ -1180,10 +1182,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.start_plugin_remote(code, name, path, selections, config)
 
     def start_plugin_remote(self, code, name, path, selections, config):
-        subprocess.Popen(['python', '-c', code,
-                          name, path, selections, '-cf',
-                          '-c', config,
-                          '-dd', AnalysisPlugin.data_dir])
+        params = ['python', '-c', code,
+                  name, path, selections, '-cf',
+                  '-c', config,
+                  '-dd', AnalysisPlugin.data_dir]
+        params.extend(self.config['remote_script_parameters'])
+        subprocess.Popen(params)
 
     @pyqtSignature("")
     def on_actionEdit_Startup_Script_triggered(self):
