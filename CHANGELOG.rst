@@ -1,5 +1,5 @@
 * Added search and replace functionality to plugin editor (access with
-  ``Ctrl``+``F`` and ``Ctrl``+``H``).
+  ``Ctrl`` + ``F`` and ``Ctrl`` + ``H``).
 * Added startup script. Can be modified using File->Edit startup script.
 * Added context menu for navigation. Includes entries for removing objects
   and an annotation editor.
