@@ -19,11 +19,13 @@ objects to access the main window and application and convenience functions.
         Default: ``True``
 
     save_plugin_before_starting (:class:`bool`)
-        Save and reload a modified plugin before starting. Default: ``True``
+        Automatically save and reload a modified plugin before starting.
+        Default: ``True``
 
     load_selection_on_start (:class:`bool`)
         Load the selection that was automatically saved when shutting down
-        Spyke Viewer automatically on startup. Default: ``True``
+        Spyke Viewer automatically on startup. This parameter is
+        only effective when set in the startup script. Default: ``True``
 
     duplicate_channels (:class:`bool`)
         Treat :class:`neo.core.RecordingChannel` objects that are
@@ -34,10 +36,12 @@ objects to access the main window and application and convenience functions.
         for the first reference encountered. Default: ``False``
 
     codecomplete_console_enter (:class:`bool`)
-        Use Enter key for code completion in console. Default: ``True``
+        Use Enter key for code completion in console. This parameter is
+        only effective when set in the startup script. Default: ``True``
 
     codecomplete_editor_enter (:class:`bool`)
-        Use Enter key for code completion in editor. Default: ``True``
+        Use Enter key for code completion in editor. This parameter is
+        only effective when set in the startup script. Default: ``True``
 
     remote_script_parameters (:class:`list`)
         Additional parameters for remote script. Use this if you have a custom
