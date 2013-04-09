@@ -1,6 +1,8 @@
-from PyQt4.QtGui import (QDockWidget, QListWidgetItem, QMenu, QAction,
-                         QMessageBox)
-from PyQt4.QtCore import Qt, pyqtSignal
+from PyQt4.QtGui import (QDockWidget, QMenu, QAction, QMessageBox,
+                         QItemSelectionRange, QItemSelection,
+                         QStandardItemModel, QStandardItem,
+                         QItemSelectionModel)
+from PyQt4.QtCore import Qt, pyqtSignal, QModelIndex
 from spyderlib.widgets.dicteditor import DictEditor
 from spyderlib.utils.qthelpers import get_icon
 import neo
@@ -26,21 +28,39 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
 
         self.setupUi(self)
 
-        self.neoBlockList.itemDoubleClicked.connect(
-            self._edit_item_annotations)
-        self.neoSegmentList.itemDoubleClicked.connect(
-            self._edit_item_annotations)
-        self.neoChannelGroupList.itemDoubleClicked.connect(
-            self._edit_item_annotations)
-        self.neoChannelList.itemDoubleClicked.connect(
-            self._edit_item_annotations)
-        self.neoUnitList.itemDoubleClicked.connect(
-            self._edit_item_annotations)
+        self.block_model = QStandardItemModel()
+        self.segment_model = QStandardItemModel()
+        self.channelgroup_model = QStandardItemModel()
+        self.channel_model = QStandardItemModel()
+        self.unit_model = QStandardItemModel()
+
+        self.neoBlockList.setModel(self.block_model)
+        self.neoSegmentList.setModel(self.segment_model)
+        self.neoChannelGroupList.setModel(self.channelgroup_model)
+        self.neoChannelList.setModel(self.channel_model)
+        self.neoUnitList.setModel(self.unit_model)
+
+        self.neoBlockList.doubleClicked.connect(
+            lambda x: self._edit_item_annotations(x, self.block_model))
+        self.neoSegmentList.doubleClicked.connect(
+            lambda x: self._edit_item_annotations(x, self.segment_model))
+        self.neoChannelGroupList.doubleClicked.connect(
+            lambda x: self._edit_item_annotations(x, self.channelgroup_model))
+        self.neoChannelList.doubleClicked.connect(
+            lambda x: self._edit_item_annotations(x, self.channel_model))
+        self.neoUnitList.doubleClicked.connect(
+            lambda x: self._edit_item_annotations(x, self.unit_model))
+
+        self.neoBlockList.selectionModel().selectionChanged.connect(
+            self.selected_blocks_changed)
+        self.neoChannelGroupList.selectionModel().selectionChanged.connect(
+            self.selected_channel_groups_changed)
 
     def clear(self):
         """ Clear all lists
         """
-        self.neoBlockList.clear()
+        self.neoBlockList.clearSelection()
+        self.block_model.clear()
 
     def get_letter_id(self, id_, small=False):
         """ Return a name consisting of letters given an integer
@@ -63,7 +83,7 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
         """ Fill the block list with appropriate entries.
         Qt.UserRole: The :class:`neo.Block` object
         """
-        self.neoBlockList.clear()
+        self.block_model.clear()
 
         filters = self.parent.get_active_filters('Block')
 
@@ -73,22 +93,22 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
             if self.parent.is_filtered(b, filters):
                 continue
 
-            item = QListWidgetItem(self.parent.block_names[b])
-            item.setData(Qt.UserRole, b)
-            self.neoBlockList.addItem(item)
+            item = QStandardItem(self.parent.block_names[b])
+            item.setData(b, Qt.UserRole)
+            self.block_model.appendRow(item)
 
-        self.neoBlockList.setCurrentRow(0)
+        self.neoBlockList.setCurrentIndex(self.block_model.index(0, 0))
 
     def populate_neo_segment_list(self):
         """ Fill the segment list with appropriate entries.
         Qt.UserRole: The :class:`neo.Segment` object
         """
-        self.neoSegmentList.clear()
+        self.segment_model.clear()
 
         filters = self.parent.get_active_filters('Segment')
 
-        for item in self.neoBlockList.selectedItems():
-            block = item.data(Qt.UserRole)
+        for index in self.neoBlockList.selectedIndexes():
+            block = self.block_model.data(index, Qt.UserRole)
 
             segments = self.parent.filter_list(block.segments, filters)
             for i, s in enumerate(segments):
@@ -101,24 +121,25 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
                 else:
                     name = '%s-%i' % (self.parent.block_ids[s.block], i)
 
-                new_item = QListWidgetItem(name)
-                new_item.setData(Qt.UserRole, s)
-                self.neoSegmentList.addItem(new_item)
+                new_item = QStandardItem(name)
+                new_item.setData(s, Qt.UserRole)
+                self.segment_model.appendRow(new_item)
 
-        self.neoSegmentList.setCurrentRow(0)
+        self.neoSegmentList.setCurrentIndex(self.segment_model.index(0, 0))
 
     def populate_neo_channel_group_list(self):
         """ Fill the channel group list with appropriate entries.
         Qt.UserRole: The :class:`neo.RecordingChannelGroup` object
         """
-        self.neoChannelGroupList.clear()
+        self.neoChannelGroupList.clearSelection()
+        self.channelgroup_model.clear()
         self.parent.channel_group_names.clear()
 
         filters = self.parent.get_active_filters(
             'Recording Channel Group')
 
-        for item in self.neoBlockList.selectedItems():
-            block = item.data(Qt.UserRole)
+        for index in self.neoBlockList.selectedIndexes():
+            block = self.block_model.data(index, Qt.UserRole)
 
             rcgs = self.parent.filter_list(
                 block.recordingchannelgroups, filters)
@@ -134,25 +155,26 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
                                       self.parent.channel_group_names[rcg]
                 else:
                     name = self.parent.channel_group_names[rcg]
-                new_item = QListWidgetItem(name)
-                new_item.setData(Qt.UserRole, rcg)
-                self.neoChannelGroupList.addItem(new_item)
+                new_item = QStandardItem(name)
+                new_item.setData(rcg, Qt.UserRole)
+                self.channelgroup_model.appendRow(new_item)
 
-        self.neoChannelGroupList.setCurrentRow(0)
+        self.neoChannelGroupList.setCurrentIndex(
+            self.channelgroup_model.index(0, 0))
 
     def populate_neo_channel_list(self):
         """ Fill the channel list with appropriate entries. Data slots:
         Qt.UserRole: The :class:`neo.RecordingChannel`
         Qt.UserRole+1: The channel index
         """
-        self.neoChannelList.clear()
+        self.channel_model.clear()
         channels = set()
 
         filters = self.parent.get_active_filters(
             'Recording Channel')
 
-        for item in self.neoChannelGroupList.selectedItems():
-            channel_group = item.data(Qt.UserRole)
+        for index in self.neoChannelGroupList.selectedIndexes():
+            channel_group = self.channelgroup_model.data(index, Qt.UserRole)
 
             rcs = self.parent.filter_list(
                 channel_group.recordingchannels, filters)
@@ -170,22 +192,24 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
                     name = rc.name + ' (%s)' % identifier
                 else:
                     name = identifier
-                new_item = QListWidgetItem(name)
-                new_item.setData(Qt.UserRole, rc)
-                new_item.setData(Qt.UserRole + 1, rc.index)
-                self.neoChannelList.addItem(new_item)
-                self.neoChannelList.setItemSelected(new_item, True)
+
+                new_item = QStandardItem(name)
+                new_item.setData(rc, Qt.UserRole)
+                new_item.setData(rc.index, Qt.UserRole + 1)
+                self.channel_model.appendRow(new_item)
+
+        self.neoChannelList.selectAll()
 
     def populate_neo_unit_list(self):
         """ Fill the unit list with appropriate entries.
         Qt.UserRole: The :class:`neo.Unit` object
         """
-        self.neoUnitList.clear()
+        self.unit_model.clear()
 
         filters = self.parent.get_active_filters('Unit')
 
-        for item in self.neoChannelGroupList.selectedItems():
-            rcg = item.data(Qt.UserRole)
+        for index in self.neoChannelGroupList.selectedIndexes():
+            rcg = self.channelgroup_model.data(index, Qt.UserRole)
 
             units = self.parent.filter_list(rcg.units, filters)
             for i, u in enumerate(units):
@@ -196,20 +220,20 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
                            (self.parent.channel_group_names[rcg], i)
                 else:
                     name = '%s-%d' % (self.parent.channel_group_names[rcg], i)
-                new_item = QListWidgetItem(name)
-                new_item.setData(Qt.UserRole, u)
-                self.neoUnitList.addItem(new_item)
+                new_item = QStandardItem(name)
+                new_item.setData(u, Qt.UserRole)
+                self.unit_model.appendRow(new_item)
 
-    def on_neoBlockList_itemSelectionChanged(self):
+    def selected_blocks_changed(self):
         self.populate_neo_channel_group_list()
         self.populate_neo_segment_list()
 
-    def on_neoChannelGroupList_itemSelectionChanged(self):
+    def selected_channel_groups_changed(self):
         self.populate_neo_channel_list()
         self.populate_neo_unit_list()
 
-    def _edit_item_annotations(self, item):
-        self.edit_annotations(item.data(Qt.UserRole))
+    def _edit_item_annotations(self, index, model):
+        self.edit_annotations(model.data(index, Qt.UserRole))
 
     def edit_annotations(self, data):
         """ Edit annotations of a Neo object.
@@ -309,32 +333,32 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
     def blocks(self):
         """ Return selected :class:`neo.Block` objects.
         """
-        return [t.data(Qt.UserRole) for t in
-                self.neoBlockList.selectedItems()]
+        return [self.block_model.data(i, Qt.UserRole) for i in
+                self.neoBlockList.selectedIndexes()]
 
     def segments(self):
         """ Return selected :class:`neo.Segment` objects.
         """
-        return [t.data(Qt.UserRole) for t in
-                self.neoSegmentList.selectedItems()]
+        return [self.segment_model.data(i, Qt.UserRole) for i in
+                self.neoSegmentList.selectedIndexes()]
 
     def recording_channel_groups(self):
         """ Return selected :class:`neo.RecordingChannelGroup` objects.
         """
-        return [t.data(Qt.UserRole) for t in
-                self.neoChannelGroupList.selectedItems()]
+        return [self.channelgroup_model.data(i, Qt.UserRole) for i in
+                self.neoChannelGroupList.selectedIndexes()]
 
     def recording_channels(self):
         """ Return selected :class:`neo.RecordingChannel` objects.
         """
-        return [t.data(Qt.UserRole) for t in
-                self.neoChannelList.selectedItems()]
+        return [self.channel_model.data(i, Qt.UserRole) for i in
+                self.neoChannelList.selectedIndexes()]
 
     def units(self):
         """ Return selected :class:`neo.Unit` objects.
         """
-        return [t.data(Qt.UserRole) for t in
-                self.neoUnitList.selectedItems()]
+        return [self.unit_model.data(i, Qt.UserRole) for i in
+                self.neoUnitList.selectedIndexes()]
 
     def set_selection(self, data):
         """ Set the selected data. All data in the selection has to be loaded
@@ -351,15 +375,22 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
                     for rcg in data['channel_groups']]
 
         # Select blocks
-        for i in self.neoBlockList.findItems(
+        selection = QItemSelection()
+        for i in self.block_model.findItems(
                 '*', Qt.MatchWrap | Qt.MatchWildcard):
             block = i.data(Qt.UserRole)
             t = [NeoDataProvider.block_indices[block],
                  self.parent.block_files[block]]
-            i.setSelected(t in data['blocks'])
+
+            if t in data['blocks']:
+                selection.append(QItemSelectionRange(
+                    self.block_model.indexFromItem(i)))
+        self.neoBlockList.selectionModel().select(
+            selection, QItemSelectionModel.ClearAndSelect)
 
         # Select segments
-        for i in self.neoSegmentList.findItems(
+        selection = QItemSelection()
+        for i in self.segment_model.findItems(
                 '*', Qt.MatchWrap | Qt.MatchWildcard):
             segment = i.data(Qt.UserRole)
             if not segment.block in block_list:
@@ -368,10 +399,15 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
 
             seg_idx = segment.block.segments.index(segment)
             block_idx = block_list.index(segment.block)
-            i.setSelected([seg_idx, block_idx] in data['segments'])
+            if [seg_idx, block_idx] in data['segments']:
+                selection.append(QItemSelectionRange(
+                    self.segment_model.indexFromItem(i)))
+        self.neoSegmentList.selectionModel().select(
+            selection, QItemSelectionModel.ClearAndSelect)
 
         # Select recording channel groups
-        for i in self.neoChannelGroupList.findItems(
+        selection = QItemSelection()
+        for i in self.channelgroup_model.findItems(
                 '*', Qt.MatchWrap | Qt.MatchWildcard):
             rcg = i.data(Qt.UserRole)
             if not rcg.block in block_list:
@@ -380,13 +416,17 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
 
             rcg_idx = rcg.block.recordingchannelgroups.index(rcg)
             block_idx = block_list.index(rcg.block)
-            i.setSelected([rcg_idx, block_idx] in data['channel_groups'])
+            if [rcg_idx, block_idx] in data['channel_groups']:
+                selection.append(QItemSelectionRange(
+                    self.channelgroup_model.indexFromItem(i)))
+        self.neoChannelGroupList.selectionModel().select(
+            selection, QItemSelectionModel.ClearAndSelect)
 
         # Select channels
+        selection = QItemSelection()
         rcg_set = set(rcg_list)
-        for i in self.neoChannelList.findItems(
+        for i in self.channel_model.findItems(
                 '*', Qt.MatchWrap | Qt.MatchWildcard):
-            i.setSelected(False)
             channel = i.data(Qt.UserRole)
             if not set(channel.recordingchannelgroups).intersection(rcg_set):
                 continue
@@ -394,11 +434,15 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
             for rcg in channel.recordingchannelgroups:
                 if [rcg.recordingchannels.index(channel),
                         rcg_list.index(rcg)] in data['channels']:
-                    i.setSelected(True)
+                    selection.append(QItemSelectionRange(
+                        self.channel_model.indexFromItem(i)))
                     break
+        self.neoChannelList.selectionModel().select(
+            selection, QItemSelectionModel.ClearAndSelect)
 
         # Select units
-        for i in self.neoUnitList.findItems(
+        selection = QItemSelection()
+        for i in self.unit_model.findItems(
                 '*', Qt.MatchWrap | Qt.MatchWildcard):
             unit = i.data(Qt.UserRole)
             if unit.recordingchannelgroup not in rcg_list:
@@ -407,4 +451,8 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
 
             rcg_idx = rcg_list.index(unit.recordingchannelgroup)
             unit_idx = unit.recordingchannelgroup.units.index(unit)
-            i.setSelected([unit_idx, rcg_idx] in data['units'])
+            if [unit_idx, rcg_idx] in data['units']:
+                selection.append(QItemSelectionRange(
+                    self.unit_model.indexFromItem(i)))
+        self.neoUnitList.selectionModel().select(
+            selection, QItemSelectionModel.ClearAndSelect)

@@ -25,7 +25,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QListWidget" name="neoBlockList">
+       <widget class="QListView" name="neoBlockList">
         <property name="contextMenuPolicy">
          <enum>Qt::CustomContextMenu</enum>
         </property>
@@ -42,7 +42,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QListWidget" name="neoChannelGroupList">
+       <widget class="QListView" name="neoChannelGroupList">
         <property name="contextMenuPolicy">
          <enum>Qt::CustomContextMenu</enum>
         </property>
@@ -59,7 +59,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QListWidget" name="neoChannelList">
+       <widget class="QListView" name="neoChannelList">
         <property name="contextMenuPolicy">
          <enum>Qt::CustomContextMenu</enum>
         </property>
@@ -80,7 +80,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QListWidget" name="neoSegmentList">
+       <widget class="QListView" name="neoSegmentList">
         <property name="contextMenuPolicy">
          <enum>Qt::CustomContextMenu</enum>
         </property>
@@ -97,7 +97,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QListWidget" name="neoUnitList">
+       <widget class="QListView" name="neoUnitList">
         <property name="contextMenuPolicy">
          <enum>Qt::CustomContextMenu</enum>
         </property>
