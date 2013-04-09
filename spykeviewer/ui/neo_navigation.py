@@ -255,13 +255,14 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
     def remove_selected(self, list_widget):
         """ Remove all selected objects from the given list widget.
         """
-        items = list_widget.selectedItems()
+        items = list_widget.selectedIndexes()
         if len(items) < 1:
             return
+        model = list_widget.model()
 
         question = ('Do you really want to remove %d %s' %
                     (len(items),
-                    type(items[0].data(Qt.UserRole)).__name__))
+                    type(model.data(items[0], Qt.UserRole)).__name__))
         if len(items) > 1:
             question += 's'
         question += '?'
@@ -271,31 +272,30 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
                 QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
             return
 
-        for i in list_widget.selectedItems():
-            data = i.data(Qt.UserRole)
+        for i in list_widget.selectedIndexes():
+            data = model.data(i, Qt.UserRole)
             if isinstance(data, neo.Block):
                 self.parent.block_names.pop(data)
             else:
                 spykeutils.tools.remove_from_hierarchy(data)
-            list_widget.setItemSelected(i, False)
+            list_widget.selectionModel().select(i, QItemSelectionModel.Deselect)
 
         self.object_removed.emit()
 
     def _context_actions(self, list_widget):
-        c = list_widget.currentItem()
-        if not c:
+        idx = list_widget.currentIndex()
+        if not idx:
             return []
 
-        data = c.data(Qt.UserRole)
+        data = list_widget.model().data(idx, Qt.UserRole)
 
         edit_action = QAction(get_icon('edit.png'),
                               'Edit annotations...', self)
         edit_action.triggered.connect(
-            lambda x:
-            self._edit_item_annotations(c))
+            lambda x: self._edit_item_annotations(idx, list_widget.model()))
 
         delete_name = 'Delete %s' % type(data).__name__
-        if len(list_widget.selectedItems()) > 1:
+        if len(list_widget.selectedIndexes()) > 1:
             delete_name += 's'
         delete_action = QAction(get_icon('editdelete.png'),
                                 delete_name, self)
