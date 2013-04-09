@@ -21,7 +21,7 @@ objects to access the main window and application and convenience functions.
     save_plugin_before_starting (:class:`bool`)
         Save and reload a modified plugin before starting. Default: ``True``
 
-    load_selection_on_start (:class:`bool`):
+    load_selection_on_start (:class:`bool`)
         Load the selection that was automatically saved when shutting down
         Spyke Viewer automatically on startup. Default: ``True``
 
@@ -57,3 +57,5 @@ objects to access the main window and application and convenience functions.
 
 
 .. autofunction:: spykeviewer.api.start_plugin
+
+.. autofunction:: spykeviewer.api.get_plugin

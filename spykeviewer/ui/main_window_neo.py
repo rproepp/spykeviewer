@@ -145,7 +145,7 @@ class MainWindowNeo(MainWindow):
                         continue
 
                     cl._is_spyke_plugin = True
-                    neo.io.iolist.append(cl)
+                    neo.io.iolist.insert(0, cl)
 
     def get_letter_id(self, id_, small=False):
         """ Return a name consisting of letters given an integer
