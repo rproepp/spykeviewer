@@ -8,8 +8,11 @@ objects to access the main window and application and convenience functions.
 
 .. data:: spykeviewer.api.config
 
-    A dictionary, indexed by strings, that contains the global configuration
-    options for Spyke Viewer. They can be set in the :ref:`startup`, from the
+    Global configuration options for Spyke Viewer. Single options can be set
+    by string like a dictionary (e.g.
+    ``spykeviewer.api.config['ask_plugin_path'] = False``) or directly (e.g.
+    ``spykeviewer.api.config.ask_plugin_path = False``).
+    They can be set in the :ref:`startup`, from the
     console or even in plugins. However, some configuration options are only
     effective when changed from the startup script.
     The configurations options are:

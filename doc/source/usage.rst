@@ -304,5 +304,8 @@ selecting "Settings" (on OS X, open the "Spyke Viewer" menu and select
     paths. The search for IO plugins is not recursive, so you have to put
     them directly into one of the paths in this list.
 
+More configuration options can be set using the :ref:`api`, for example in the
+:ref:`startup`.
+
 
 .. _`scipy`: http://scipy.org/

@@ -205,7 +205,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.set_config_options()
         self.reload_plugins()
         self.load_plugin_configs()
-        if api.config['load_selection_on_start']:
+        if api.config.load_selection_on_start:
             self.load_current_selection()
 
     def get_filter_types(self):
@@ -352,9 +352,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def set_config_options(self):
         self.console.set_codecompletion_enter(
-            api.config['codecomplete_console_enter'])
+            api.config.codecomplete_console_enter)
         self.pluginEditorDock.enter_completion = \
-            api.config['codecomplete_editor_enter']
+            api.config.codecomplete_editor_enter
 
     ##### Interactive Python #############################################
     def get_console_objects(self):
@@ -1075,7 +1075,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not ana:
             return
 
-        if api.config['save_plugin_before_starting']:
+        if api.config.save_plugin_before_starting:
             e = self.pluginEditorDock.get_editor(ana.source_file)
             if self.pluginEditorDock.file_was_changed(e):
                 if not self.pluginEditorDock.save_file(e):
@@ -1177,7 +1177,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                   name, path, selections, '-cf',
                   '-c', config,
                   '-dd', AnalysisPlugin.data_dir]
-        params.extend(api.config['remote_script_parameters'])
+        params.extend(api.config.remote_script_parameters)
         subprocess.Popen(params)
 
     @pyqtSignature("")
@@ -1208,7 +1208,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if in_dirs:
             self.reload_plugins()
-        elif api.config['ask_plugin_path']:
+        elif api.config.ask_plugin_path:
             if QMessageBox.question(self, 'Warning',
                                     'The file "%s"' % plugin_path +
                                     ' is not in the currently valid plugin '
@@ -1263,7 +1263,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if len(plugins) > 1:
             raise SpykeException('Multiple plugins named "%s" exist!' % name)
 
-        if api.config['save_plugin_before_starting']:
+        if api.config.save_plugin_before_starting:
             e = self.pluginEditorDock.get_editor(plugins[0].source_file)
             if self.pluginEditorDock.file_was_changed(e):
                 if not self.pluginEditorDock.save_file(e):

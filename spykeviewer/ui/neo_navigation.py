@@ -179,7 +179,7 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
             rcs = self.parent.filter_list(
                 channel_group.recordingchannels, filters)
             for rc in rcs:
-                if not api.config['duplicate_channels'] and rc in channels:
+                if not api.config.duplicate_channels and rc in channels:
                     continue
                 if self.parent.is_filtered(rc, filters):
                     continue
@@ -394,7 +394,6 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
                 '*', Qt.MatchWrap | Qt.MatchWildcard):
             segment = i.data(Qt.UserRole)
             if not segment.block in block_list:
-                i.setSelected(False)
                 continue
 
             seg_idx = segment.block.segments.index(segment)
@@ -411,7 +410,6 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
                 '*', Qt.MatchWrap | Qt.MatchWildcard):
             rcg = i.data(Qt.UserRole)
             if not rcg.block in block_list:
-                i.setSelected(False)
                 continue
 
             rcg_idx = rcg.block.recordingchannelgroups.index(rcg)
@@ -446,7 +444,6 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
                 '*', Qt.MatchWrap | Qt.MatchWildcard):
             unit = i.data(Qt.UserRole)
             if unit.recordingchannelgroup not in rcg_list:
-                i.setSelected(False)
                 continue
 
             rcg_idx = rcg_list.index(unit.recordingchannelgroup)

@@ -1,22 +1,29 @@
-config = {}
+class __ConfigOptions:
+    def __init__(self, **kw):
+        # Ask about plugin paths if saving a file to a path that is not
+        # a plugin path
+        self.ask_plugin_path = True
+        # Save and reload a modified plugin before starting
+        self.save_plugin_before_starting = True
+        # Load selection on start
+        self.load_selection_on_start = True
+        # Use Enter key for code completion in console
+        self.codecomplete_console_enter = True
+        # Use Enter key for code completion in editor
+        self.codecomplete_editor_enter = True
+        # Additional parameters for remote script
+        self.remote_script_parameters = []
+        # Multiple channels in view
+        self.duplicate_channels = False
 
-# Ask about plugin paths if saving a file to a path that is not
-# a plugin path
-config['ask_plugin_path'] = True
-# Save and reload a modified plugin before starting
-config['save_plugin_before_starting'] = True
-# Load selection on start
-config['load_selection_on_start'] = True
-# Use Enter key for code completion in console
-config['codecomplete_console_enter'] = True
-# Use Enter key for code completion in editor
-config['codecomplete_editor_enter'] = True
-# Additional parameters for remote script
-config['remote_script_parameters'] = []
-# Multiple channels in view
-config['duplicate_channels'] = False
+    def __setitem__(self, key, value):
+        self.__dict__[key] = value
+
+    def __getitem__(self, item):
+        return self.__dict__[item]
 
 
+config = __ConfigOptions()
 window = None
 app = None
 
