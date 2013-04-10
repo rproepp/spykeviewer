@@ -24,13 +24,15 @@ Loading Data
 The first thing you want to do when using Spyke Viewer is to load your data.
 The *Files* dock contains a view of all the files on your system. You can
 use it to select one or more files, then click on the "Load" button below to
-load the selected files into Spyke Viewer. For each selected file, the
-filetype is selected automatically from the extension (folder-based formats
-are currently not supported). For now, find and select the file "sample.h5"
+load the selected files into Spyke Viewer. Single files can also be loaded
+with a double click (this does not work for directories, they will just be
+expanded. If you want to load a directory, you need to use the "Load" button).
+For each selected file, the filetype is selected
+automatically from the extension. For now, find and select the file "sample.h5"
 that you just unpacked (an HDF5 File) and load it.
 
-The data file input/output is based on :mod:`neo` and supports most of the
-formats that have a
+The data file input/output is based on :mod:`neo` and supports formats that
+have a
 `Neo IO class <http://neo.readthedocs.org/en/latest/io.html>`_. If you want
 to use a file format that is not supported by Neo, you can write a plugin:
 :ref:`ioplugins`.

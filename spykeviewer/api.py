@@ -48,7 +48,3 @@ def get_plugin(name):
         directory.
     """
     return window.get_plugin(name)
-
-
-
-
