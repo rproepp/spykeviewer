@@ -312,7 +312,7 @@ QGroupBox::title {
   </action>
   <action name="actionClearCache">
    <property name="text">
-    <string>&amp;Clear Cache</string>
+    <string>&amp;Clear Data</string>
    </property>
    <property name="visible">
     <bool>true</bool>

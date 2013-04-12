@@ -118,10 +118,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.seldrag_target = None
         self.seldrag_target_upper = False
 
-        # Hide "Clear cache" entry - not useful for now because of
-        # Neo memory leak
-        self.actionClearCache.setVisible(False)
-
         # Filters
         settings = QSettings()
         if not settings.contains('filterPath'):
@@ -695,7 +691,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def on_selection_clear(self):
         if QMessageBox.question(
-            self, 'Confirmation',
+            self, 'Please confirm',
             'Do you really want to remove all selections?',
                 QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
             return
@@ -713,7 +709,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def on_selection_remove(self, selection):
         if QMessageBox.question(
-                self, 'Confirmation',
+                self, 'Please confirm',
                 'Do you really want to remove the selection "%s"?' %
                 selection.name,
                 QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:

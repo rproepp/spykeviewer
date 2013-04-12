@@ -33,6 +33,7 @@ class MainWindowNeo(MainWindow):
         self.block_ids = {}
         self.block_names = OrderedDict()  # Just for the display order
         self.block_files = {}
+        self.block_index = 0
         self.channel_group_names = {}
 
         # Neo navigation
@@ -196,7 +197,7 @@ class MainWindowNeo(MainWindow):
         indices = self.load_worker.indices[1:]
         if not indices:
             self.progress.done()
-            self.neoNavigationDock.populate_neo_block_list()
+            self.refresh_neo_view()
             self.load_worker = None
             return
 
@@ -212,13 +213,7 @@ class MainWindowNeo(MainWindow):
 
     @ignores_cancel
     def on_loadFilesButton_pressed(self):
-        self.neoNavigationDock.clear()
-        self.block_ids.clear()
-        self.block_files.clear()
-        self.block_names.clear()
-
         indices = self.fileTreeView.selectedIndexes()
-        self.block_index = 0
         self.progress.begin('Loading data files...')
         self.progress.set_ticks(len(indices))
 
@@ -267,11 +262,17 @@ class MainWindowNeo(MainWindow):
 
     @pyqtSignature("")
     def on_actionClearCache_triggered(self):
+        if QMessageBox.question(
+                self, 'Please confirm',
+                'Do you really want to unload all data?',
+                QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
+            return
         NeoDataProvider.clear()
         self.neoNavigationDock.clear()
         self.block_ids.clear()
         self.block_files.clear()
         self.block_names.clear()
+        self.block_index = 0
 
         self.neoNavigationDock.populate_neo_block_list()
 
@@ -287,7 +288,6 @@ class MainWindowNeo(MainWindow):
         self.progress.set_ticks(len(data['blocks']))
 
         # Load blocks which are not currently displayed
-        i = len(self.block_names)
         for b in data['blocks']:
             # File already loaded?
             if unicode(b[1]) in self.block_files.values():
@@ -306,13 +306,12 @@ class MainWindowNeo(MainWindow):
                 name = block.name
                 if not name or name == 'One segment only':
                     name = os.path.basename(b[1])
-                name += ' (%s)' % self.get_letter_id(i)
+                name += ' (%s)' % self.get_letter_id(self.block_index)
 
                 self.block_names[block] = name
-                self.block_ids[block] = self.get_letter_id(i)
+                self.block_ids[block] = self.get_letter_id(self.block_index)
                 self.block_files[block] = b[1]
-                i += 1
-
+                self.block_index += 1
             self.progress.step()
 
         self.progress.done()
