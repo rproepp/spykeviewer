@@ -17,6 +17,8 @@
 * Plugin editor tabs can be reordered by dragging.
 * Code completion in console can be selected using Enter (in addition to
   Tab as before).
+* Plugins can import modules from the same directory, even if it is not
+  explicitly on the Python path
 
 Version 0.2.1
 -------------

@@ -108,11 +108,17 @@ class PluginManager:
                             lines.pop(1)
                         source = ''.join(lines).decode('utf-8')
                         code = compile(source, p, 'exec')
+
+                        sys.path.insert(0, path)
                         exec(code, exc_globals)
                     except Exception:
                         logger.warning('Error during execution of ' +
                                        'potential plugin file ' + p + ':\n' +
                                        traceback.format_exc() + '\n')
+                    finally:
+                        if sys.path[0] == path:
+                            sys.path.pop(0)
+
                     for cl in exc_globals.values():
                         if not inspect.isclass(cl):
                             continue
