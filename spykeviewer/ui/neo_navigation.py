@@ -109,6 +109,7 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
             self.block_model.appendRow(item)
 
         self.neoBlockList.setCurrentIndex(self.block_model.index(0, 0))
+        self.set_blocks_label()
 
     def populate_neo_segment_list(self):
         """ Fill the segment list with appropriate entries.
@@ -173,6 +174,7 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
 
         self.neoChannelGroupList.setCurrentIndex(
             self.channelgroup_model.index(0, 0))
+        self.set_channel_groups_label()
 
     def populate_neo_channel_list(self):
         """ Fill the channel list with appropriate entries. Data slots:
@@ -239,18 +241,24 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
 
         self.selected_units_changed()
 
-    def selected_blocks_changed(self):
+    def set_blocks_label(self):
         self.blocksLabel.setText(
             'Blocks (%d/%d):' % (len(self.neoBlockList.selectedIndexes()),
                                  self.block_model.rowCount()))
-        self.populate_neo_channel_group_list()
-        self.populate_neo_segment_list()
 
-    def selected_channel_groups_changed(self):
+    def set_channel_groups_label(self):
         self.channelGroupsLabel.setText(
             'Channel Groups (%d/%d):' % (
                 len(self.neoChannelGroupList.selectedIndexes()),
                 self.channelgroup_model.rowCount()))
+
+    def selected_blocks_changed(self):
+        self.set_blocks_label()
+        self.populate_neo_channel_group_list()
+        self.populate_neo_segment_list()
+
+    def selected_channel_groups_changed(self):
+        self.set_channel_groups_label()
         self.populate_neo_channel_list()
         self.populate_neo_unit_list()
 

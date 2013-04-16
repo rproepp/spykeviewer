@@ -34,6 +34,7 @@ class MainWindowNeo(MainWindow):
         self.block_names = OrderedDict()  # Just for the display order
         self.block_files = {}
         self.block_index = 0
+        self.was_empty = True
         self.channel_group_names = {}
 
         # Neo navigation
@@ -197,7 +198,11 @@ class MainWindowNeo(MainWindow):
         indices = self.load_worker.indices[1:]
         if not indices:
             self.progress.done()
-            self.refresh_neo_view()
+            if not self.was_empty:
+                self.refresh_neo_view()
+            else:
+                self.neoNavigationDock.populate_neo_block_list()
+                self.was_empty = False
             self.load_worker = None
             return
 
@@ -213,6 +218,8 @@ class MainWindowNeo(MainWindow):
 
     @ignores_cancel
     def on_loadFilesButton_pressed(self):
+        if not self.block_index:
+            self.was_empty = True
         indices = self.fileTreeView.selectedIndexes()
         self.progress.begin('Loading data files...')
         self.progress.set_ticks(len(indices))
@@ -295,8 +302,10 @@ class MainWindowNeo(MainWindow):
                 continue
 
             QApplication.setOverrideCursor(Qt.WaitCursor)
-            blocks = NeoDataProvider.get_blocks(b[1], False)
-            QApplication.restoreOverrideCursor()
+            try:
+                blocks = NeoDataProvider.get_blocks(b[1], False)
+            finally:
+                QApplication.restoreOverrideCursor()
             if not blocks:
                 logger.error('Could not read file "%s"' % b[1])
                 self.progress.step()
