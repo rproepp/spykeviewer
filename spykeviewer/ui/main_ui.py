@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/rob/Spyke/viewer/spykeviewer/ui/main.ui'
 #
-# Created: Fri Apr 12 13:56:47 2013
+# Created: Mon Apr 15 15:30:48 2013
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -322,7 +322,7 @@ class Ui_MainWindow(object):
         self.actionAbout.setText(QtGui.QApplication.translate("MainWindow", "&About", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSwitch_Modes.setText(QtGui.QApplication.translate("MainWindow", "Switch Modes", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNewSelection.setText(QtGui.QApplication.translate("MainWindow", "&New", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionClearCache.setText(QtGui.QApplication.translate("MainWindow", "&Clear Blocks", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionClearCache.setText(QtGui.QApplication.translate("MainWindow", "&Clear Data", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_Selected_Data.setText(QtGui.QApplication.translate("MainWindow", "Save Selected Data &as...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSettings.setText(QtGui.QApplication.translate("MainWindow", "Settings...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionClearSelections.setText(QtGui.QApplication.translate("MainWindow", "&Clear", None, QtGui.QApplication.UnicodeUTF8))

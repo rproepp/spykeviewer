@@ -55,6 +55,12 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
             self.selected_blocks_changed)
         self.neoChannelGroupList.selectionModel().selectionChanged.connect(
             self.selected_channel_groups_changed)
+        self.neoChannelList.selectionModel().selectionChanged.connect(
+            self.selected_channels_changed)
+        self.neoUnitList.selectionModel().selectionChanged.connect(
+            self.selected_units_changed)
+        self.neoSegmentList.selectionModel().selectionChanged.connect(
+            self.selected_segments_changed)
 
     def clear(self):
         """ Clear all lists
@@ -131,6 +137,7 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
                 self.segment_model.appendRow(new_item)
 
         self.neoSegmentList.setCurrentIndex(self.segment_model.index(0, 0))
+        self.selected_segments_changed()
 
     def populate_neo_channel_group_list(self):
         """ Fill the channel group list with appropriate entries.
@@ -204,6 +211,7 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
                 self.channel_model.appendRow(new_item)
 
         self.neoChannelList.selectAll()
+        self.selected_channels_changed()
 
     def populate_neo_unit_list(self):
         """ Fill the unit list with appropriate entries.
@@ -229,13 +237,40 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
                 new_item.setData(u, Qt.UserRole)
                 self.unit_model.appendRow(new_item)
 
+        self.selected_units_changed()
+
     def selected_blocks_changed(self):
+        self.blocksLabel.setText(
+            'Blocks (%d/%d):' % (len(self.neoBlockList.selectedIndexes()),
+                                 self.block_model.rowCount()))
         self.populate_neo_channel_group_list()
         self.populate_neo_segment_list()
 
     def selected_channel_groups_changed(self):
+        self.channelGroupsLabel.setText(
+            'Channel Groups (%d/%d):' % (
+                len(self.neoChannelGroupList.selectedIndexes()),
+                self.channelgroup_model.rowCount()))
         self.populate_neo_channel_list()
         self.populate_neo_unit_list()
+
+    def selected_channels_changed(self):
+        self.channelsLabel.setText(
+            'Channels (%d/%d):' % (
+                len(self.neoChannelList.selectedIndexes()),
+                self.channel_model.rowCount()))
+
+    def selected_units_changed(self):
+        self.unitsLabel.setText(
+            'Units (%d/%d):' % (
+                len(self.neoUnitList.selectedIndexes()),
+                self.unit_model.rowCount()))
+
+    def selected_segments_changed(self):
+        self.segmentsLabel.setText(
+            'Segments (%d/%d):' % (
+                len(self.neoSegmentList.selectedIndexes()),
+                self.segment_model.rowCount()))
 
     def _edit_item_annotations(self, index, model):
         self.edit_annotations(model.data(index, Qt.UserRole))

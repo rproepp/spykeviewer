@@ -18,7 +18,7 @@
     <item row="0" column="0">
      <layout class="QVBoxLayout" name="verticalLayout_31">
       <item>
-       <widget class="QLabel" name="label_34">
+       <widget class="QLabel" name="blocksLabel">
         <property name="text">
          <string>Blocks:</string>
         </property>
@@ -35,7 +35,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_36">
+       <widget class="QLabel" name="channelGroupsLabel">
         <property name="text">
          <string>Channel Groups:</string>
         </property>
@@ -52,7 +52,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_37">
+       <widget class="QLabel" name="channelsLabel">
         <property name="text">
          <string>Channels:</string>
         </property>
@@ -73,7 +73,7 @@
     <item row="0" column="1">
      <layout class="QVBoxLayout" name="verticalLayout_29">
       <item>
-       <widget class="QLabel" name="label_35">
+       <widget class="QLabel" name="segmentsLabel">
         <property name="text">
          <string>Segments:</string>
         </property>
@@ -90,7 +90,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_38">
+       <widget class="QLabel" name="unitsLabel">
         <property name="text">
          <string>Units:</string>
         </property>

@@ -1255,7 +1255,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """
         plugins = self.plugin_model.get_plugins_for_name(name)
         if not plugins:
-            return None
+            raise SpykeException('No plugin named "%s" exists!' % name)
         if len(plugins) > 1:
             raise SpykeException('Multiple plugins named "%s" exist!' % name)
 
