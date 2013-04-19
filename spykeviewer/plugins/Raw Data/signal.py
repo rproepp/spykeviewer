@@ -4,11 +4,15 @@ from spykeutils import plot
 from copy import copy
 
 spike_prop = gui_data.ValueProp(False)
+subplot_prop = gui_data.ValueProp(False)
 
 class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
     """ Signal Plot
     """
-    subplots = gui_data.BoolItem('Use subplots', default=True)
+    subplots = gui_data.BoolItem('Use subplots', default=True).set_prop(
+        'display', store=subplot_prop)
+    subplot_titles = gui_data.BoolItem(
+        'Show subplot names', default=True).set_prop('display', active=subplot_prop)
     which_signals = gui_data.ChoiceItem('Included signals',
                                         ('AnalogSignal',
                                          'AnalogSignalArray', 'Both'),
@@ -104,6 +108,7 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
                          epochs=seg_epochs, spike_trains=seg_trains,
                          spikes=seg_spikes, use_subplots=self.subplots, 
                          show_waveforms=(self.spike_form==0),
+                         subplot_names=self.subplot_titles,
                          progress=current.progress)
             
             if not self.multiple_plots:

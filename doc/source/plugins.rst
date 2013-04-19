@@ -4,13 +4,8 @@ Plugins
 =======
 
 This section describes the configuration options of the plugins that are
-included with Spyke Viewer. All included plugins create plots. They will
-automatically use only the first selected object if using the whole selection
-would require multiple plot windows (e.g. the signal plot plugin will only
-create a plot for the first selected segment).
-
-For information on how to create your own plugins, see
-:ref:`analysisplugins`.
+included with Spyke Viewer. All included plugins create plots. For
+information on how to create your own plugins, see :ref:`analysisplugins`.
 
 Signal Plot
 -----------
@@ -22,6 +17,10 @@ additional information in the plot.
 Use Subplots
   Determines whether multiple subplots are used or all signals are shown in
   one large plot.
+
+Show subplot names
+    Only valid when subplots are used. Determines if each subplot has a title
+    with the signal name (if available) or the recording channel name.
 
 Included signals
   This option can be used to tune which type of signals are shown:
@@ -37,6 +36,11 @@ Show events
 Show epochs
   When this is checked, periods in the selected trial will be shown in the
   plot.
+
+One plot per segment
+    When this is not checked, only one plot with signals from the first
+    selected segment is created. Otherwise, one plot for each selected
+    segment is created.
 
 Show spikes
   Determines whether spikes are included in the plot. The following options
