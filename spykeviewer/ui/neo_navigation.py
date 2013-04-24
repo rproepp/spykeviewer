@@ -354,26 +354,36 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
         return [edit_action, delete_action]
 
     def on_neoBlockList_customContextMenuRequested(self, pos):
+        if not self.neoBlockList.selectedIndexes():
+            return
         context_menu = QMenu(self)
         context_menu.addActions(self._context_actions(self.neoBlockList))
         context_menu.popup(self.neoBlockList.mapToGlobal(pos))
 
     def on_neoSegmentList_customContextMenuRequested(self, pos):
+        if not self.neoSegmentList.selectedIndexes():
+            return
         context_menu = QMenu(self)
         context_menu.addActions(self._context_actions(self.neoSegmentList))
         context_menu.popup(self.neoSegmentList.mapToGlobal(pos))
 
     def on_neoChannelGroupList_customContextMenuRequested(self, pos):
+        if not self.neoChannelGroupList.selectedIndexes():
+            return
         context_menu = QMenu(self)
         context_menu.addActions(self._context_actions(self.neoChannelGroupList))
         context_menu.popup(self.neoChannelGroupList.mapToGlobal(pos))
 
     def on_neoChannelList_customContextMenuRequested(self, pos):
+        if not self.neoChannelList.selectedIndexes():
+            return
         context_menu = QMenu(self)
         context_menu.addActions(self._context_actions(self.neoChannelList))
         context_menu.popup(self.neoChannelList.mapToGlobal(pos))
 
     def on_neoUnitList_customContextMenuRequested(self, pos):
+        if not self.neoUnitList.selectedIndexes():
+            return
         context_menu = QMenu(self)
         context_menu.addActions(self._context_actions(self.neoUnitList))
         context_menu.popup(self.neoUnitList.mapToGlobal(pos))
