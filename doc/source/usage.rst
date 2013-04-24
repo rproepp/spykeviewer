@@ -24,13 +24,15 @@ Loading Data
 The first thing you want to do when using Spyke Viewer is to load your data.
 The *Files* dock contains a view of all the files on your system. You can
 use it to select one or more files, then click on the "Load" button below to
-load the selected files into Spyke Viewer. For each selected file, the
-filetype is selected automatically from the extension (folder-based formats
-are currently not supported). For now, find and select the file "sample.h5"
+load the selected files into Spyke Viewer. Single files can also be loaded
+with a double click (this does not work for directories, they will just be
+expanded. If you want to load a directory, you need to use the "Load" button).
+For each selected file, the filetype is selected
+automatically from the extension. For now, find and select the file "sample.h5"
 that you just unpacked (an HDF5 File) and load it.
 
-The data file input/output is based on :mod:`neo` and supports most of the
-formats that have a
+The data file input/output is based on :mod:`neo` and supports formats that
+have a
 `Neo IO class <http://neo.readthedocs.org/en/latest/io.html>`_. If you want
 to use a file format that is not supported by Neo, you can write a plugin:
 :ref:`ioplugins`.
@@ -71,8 +73,15 @@ no name, only the identifier is shown). Blocks use capital letters; recording
 channel groups use small letters; recording channels, units and segments use
 numbers. For example, a unit might have an identifier "A-b-2": This denotes
 unit number 2 of recording channel group "b" of block "A". The identifiers are
-recreated whenever you load data - they are just a visual aid to help with
-navigation and ensure that unnamed objects have a reasonable label.
+recreated whenever the structure of the loaded data changes - they are just
+a visual aid to help with navigation and ensure that unnamed objects have
+a reasonable label.
+
+Each list in the *Navigation* dock has a context menu accessed by
+right-clicking or control-clicking on OS X. You can use it to remove the
+selected objects (they will only be removed from Spyke Viewer, not from the
+loaded files) or open an annotation editor for the current object. The
+annotation editor can also be opened by double-clicking a list entry.
 
 The sets of selected objects from all container types is called a selection.
 The selected items you see in the *Navigation* dock are called the current
@@ -183,7 +192,8 @@ a number of plugins that enable you to create various plots from your data.
 Select the *Plugins* dock (located next to the *Filter* dock in the
 initial layout) to see the list of available plugins. To start a plugin,
 simply double-click it or select it and then click on "Run Plugin" in the
-plugin toolbar or menu. You can also start a plugin in a different process
+plugin toolbar or menu (there is also a context menu available when you
+right-click a plugin). You can also start a plugin in a different process
 (so that you can continue using Spyke Viewer while the plugin is busy) by
 selecting "Start with Remote Script" in the "Plugins" menu.
 
@@ -196,8 +206,13 @@ menu. Select "Show Spikes" and set "Display" to "Lines". When you now start
 the plugin, you will see the analog signals and the spike times of your
 selected units. Go to the configuration again, set "Display" to  "Waveforms"
 and check "Use first spike as template". After another run of the plugin,
-you will see the template spike waveforms overlaid on the analog signals. To
-learn more about the included plugins and how to use them, go to
+you will see the template spike waveforms overlaid on the analog signals. The
+configuration of all plugins is saved when you close Spyke Viewer and will
+be restored on the next start. To set the configurations of all plugins back
+to their default values, use "Restore Plugin configurations" from the
+"Plugins" menu.
+
+To learn more about the included plugins and how to use them, go to
 :ref:`plugins`. When you want to create your own plugins, go to
 :ref:`analysisplugins`.
 
@@ -290,6 +305,9 @@ selecting "Settings" (on OS X, open the "Spyke Viewer" menu and select
     In addition, your IO plugins also have to stored be in one of the plugin
     paths. The search for IO plugins is not recursive, so you have to put
     them directly into one of the paths in this list.
+
+More configuration options can be set using the :ref:`api`, for example in the
+:ref:`startup`.
 
 
 .. _`scipy`: http://scipy.org/

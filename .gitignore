@@ -1,6 +1,7 @@
 *.pyc
 doc/build
-filters
-selections
-bin/build
-bin/dist
+build
+dist
+spykeviewer.egg-info
+bin/freeze/build
+bin/freeze/dist

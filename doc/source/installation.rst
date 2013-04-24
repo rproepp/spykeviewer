@@ -11,7 +11,8 @@ OS X. These packages do not have any additional requirements and can be
 started immediately (from an app in OS X or an executable file in Windows,
 please use the source installation for Linux).
 However, as they are independent of an existing Python installation, you will
-not be able to use installed additional packages from your Python environment.
+not be able to use installed additional packages from your Python environment
+by default (this can be remedied by using the :ref:`startup`).
 The binary packages are especially useful if you do not normally use Python
 or just want to try Spyke Viewer quickly. You can switch to the source
 installation at any time.
@@ -43,8 +44,9 @@ using::
 $ spykeviewer
 
 The next sections describe how to install Spyke Viewer if you do not have
-access to the NeuroDebian_ repositories (e.g. on Windows or OS X) or want
-to install using the Python packaging system.
+access to the NeuroDebian_ repositories (e.g. on Windows or OS X), want
+to install using the Python packaging system or use the most recent
+development version from GitHub.
 
 Dependencies
 ############
@@ -88,10 +90,9 @@ $ easy_install spykeviewer
 Alternatively, you can get the latest version directly from GitHub at
 https://github.com/rproepp/spykeviewer.
 
-The master branch (selected by default) always contains the current stable
-version. If you want the latest development version (not recommended unless
-you need some features that do not exist in the stable version yet), select
-the develop branch. You can download the repository from the GitHub page
+The master branch always contains the current stable version. If you want the
+latest development version, use the develop branch (selected by default).
+You can download the repository from the GitHub page
 or clone it using git and then install from the resulting folder::
 
 $ python setup.py install
@@ -99,6 +100,16 @@ $ python setup.py install
 Once the package is installed, you can start Spyke Viewer using::
 
 $ spykeviewer
+
+.. note::
+
+    You can also start the program without installing it: Simply execute
+    the script ``bin/spykeviewer`` in your Spyke Viewer folder using Python.
+
+On Windows, you might have to start ``spykeviewer.exe`` in the
+``Scripts`` folder in your Python directroy (e.g. ``C:\Python27\Scripts``)
+because most Python versions do not add this folder to the PATH environment
+variable.
 
 .. _`Python`: http://python.org/
 .. _`spykeutils`: http://spykeutils.readthedocs.org/

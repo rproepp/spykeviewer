@@ -4,17 +4,22 @@ from spykeutils import plot
 from copy import copy
 
 spike_prop = gui_data.ValueProp(False)
+subplot_prop = gui_data.ValueProp(False)
 
 class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
     """ Signal Plot
     """
-    subplots = gui_data.BoolItem('Use subplots', default=True)
+    subplots = gui_data.BoolItem('Use subplots', default=True).set_prop(
+        'display', store=subplot_prop)
+    subplot_titles = gui_data.BoolItem(
+        'Show subplot names', default=True).set_prop('display', active=subplot_prop)
     which_signals = gui_data.ChoiceItem('Included signals',
                                         ('AnalogSignal',
                                          'AnalogSignalArray', 'Both'),
                                         default=2)
     show_events = gui_data.BoolItem('Show events', default=True)
     show_epochs = gui_data.BoolItem('Show epochs', default=True)
+    multiple_plots = gui_data.BoolItem('One plot per segment', default=False)
     
     _g = gui_data.BeginGroup('Spikes')
     show_spikes = gui_data.BoolItem(
@@ -32,15 +37,13 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
         return 'Signal Plot'
 
     def start(self, current, selections):
-        num_signals = current.num_analog_signals(self.which_signals + 1)
-        
-        if num_signals < 1:
-            raise SpykeException('No signals selected!')
-
         current.progress.begin('Creating signal plot...')
 
         signals = current.analog_signals_by_segment(self.which_signals + 1)
 
+        if not signals:
+            raise SpykeException('No signals selected!')
+            
         # Load supplemental data
         events = None
         if self.show_events:
@@ -75,21 +78,18 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
             if epochs and epochs.has_key(seg):
                 seg_epochs = epochs[seg]
 
-            seg_trains = None
+            seg_trains = []
             if spike_trains and spike_trains.has_key(seg):
                 seg_trains = spike_trains[seg]
 
-            seg_spikes = None
+            seg_spikes = []
             if spikes and spikes.has_key(seg):
                 seg_spikes = spikes[seg]
             
             # Prepare template spikes
             if self.spike_form == 0 and self.template_mode:
-                if seg_spikes is None:
-                    seg_spikes = []
-
                 template_spikes = {}
-                for s in seg_spikes:
+                for s in seg_spikes[:]:
                     if s.unit not in template_spikes:
                         template_spikes[s.unit] = s
                 for ts in template_spikes.itervalues():
@@ -108,9 +108,9 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
                          epochs=seg_epochs, spike_trains=seg_trains,
                          spikes=seg_spikes, use_subplots=self.subplots, 
                          show_waveforms=(self.spike_form==0),
+                         subplot_names=self.subplot_titles,
                          progress=current.progress)
             
-            # Only do one plot - remove this line to 
-            # create one plot per segment
-            break
+            if not self.multiple_plots:
+                break
         

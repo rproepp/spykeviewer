@@ -27,6 +27,7 @@ Contents:
    usage
    plugins
    extending
+   api
    changelog
    acknowledgements
 

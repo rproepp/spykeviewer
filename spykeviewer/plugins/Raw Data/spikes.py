@@ -10,9 +10,10 @@ class SpikePlotPlugin(analysis_plugin.AnalysisPlugin):
     st_mode = gui_data.ChoiceItem('Included Spikes', ('Spikes', 
                                                       'Spike Trains',
                                                       'Both'))
-    plot_type = gui_data.ChoiceItem('Plot type', ('Separate Axes',
-                                                 'Split vertically',
-                                                 'Split horizontally'))
+    plot_type = gui_data.ChoiceItem('Plot type', ('One plot per channel',
+                                                  'One plot per unit',
+                                                  'Single plot'))
+    split_type = gui_data.ChoiceItem('Split channels', ('Vertically', 'Horizontally'))
     
     def get_name(self):
         return 'Spike Waveform Plot'
@@ -37,6 +38,6 @@ class SpikePlotPlugin(analysis_plugin.AnalysisPlugin):
                     continue
                 spikes.setdefault(u, []).extend(s)
 
-        plot.spikes(spikes, self.plot_type + 1,
+        plot.spikes(spikes, self.plot_type * 2 + self.split_type + 1,
                     anti_alias=self.anti_aliased, 
                     progress=current.progress)

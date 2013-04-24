@@ -7,6 +7,11 @@ Both are created by placing a Python file with an appropriate class into one
 of the plugin directories defined in the :ref:`settings`. This section
 describes how to create them.
 
+In addition, Spyke Viewer include a customizable script that is run each time
+the program is started. :ref:`startup` describes possible applications and how
+to edit this script.
+
+
 .. _analysisplugins:
 
 Analysis plugins
@@ -94,16 +99,77 @@ Next, replace the code in the ``start`` method by::
 If you now set the configuration of the plugin to "Count plot", you will see
 a plot with the spike count for each unit in all trials.
 
+
 .. _ioplugins:
 
 IO plugins
 ----------
 If you have data in a format that is not supported by Neo, you can still load
 it with Spyke Viewer by creating an IO plugin. This is identical to writing
-a regular Neo IO class (see
+a regular Neo IO class [#relative]_ (see
 http://neo.readthedocs.org/en/latest/io_developers_guide.html to learn how
 to do it) and placing the Python file with the class in a plugin directory
 (the search for IO plugins is not recursive, so you have to place the file
 directly in one of the directories that you defined in the :ref:`settings`).
+The filename has to end with "IO.py" or "io.py" (e.g. "MyFileIO.py") to
+signal that it contains an io plugin.
 If you create an IO class for a file format that is also used outside of your
 lab, please consider sharing it with the Neo community.
+
+
+.. _startup:
+
+Startup script
+--------------
+
+The startup script is run whenever Spyke Viewer is started, after the GUI is
+setup and before plugins are loaded. To edit the startup script, select the
+"Edit startup script" item in the "File" menu.
+
+One important use case for this file is manipulating your Python path. For
+example, you may have a Python file or package that you want to use in your
+plugins. If it is not on your Python path (for example because it cannot be
+installed or you are using a binary version of Spyke Viewer, where Python
+packages installed on the system are not accessible by default), you can
+modify ``sys.path`` to include the path to your files::
+
+    import sys
+    sys.path.insert(0, '/path/to/my/files')
+
+You can also use the startup script to configure anything that is accessible
+by Python code. In particular, you can use the Spyke Viewer :ref:`api` to
+access configuration options and the main window itself. For example, to
+change the font size of the Python console (effective for new input) and
+title of the window::
+
+    import spykeviewer.api as spyke  # This line is included in the default startup script
+    f = spyke.window.console.font()
+    f.setPointSize(18) # Gigantic!
+    spyke.window.console.set_pythonshell_font(f)
+    spyke.window.setWindowTitle('Big is beatiful')
+
+If you want the Enter key to always finish a line in the console and only
+use the Tab key for autocompletion::
+
+    spyke.config['codecomplete_console_enter'] = False
+
+As a final example, you can customize the colors that are used
+in spykeutils plots (for colored items like spikes in a rasterplot)::
+
+    # Let's make everything pink!
+    from spykeutils.plot import helper
+    helper.set_color_scheme(['#F52887', '#C12267'])
+
+
+Footnotes
+---------
+
+.. [#relative] There is one small difference between regular Neo IO classes
+               and IO plugins: In plugins, you cannot use relative imports.
+               For example, instead of::
+
+                   from .tools import create_many_to_one_relationship
+
+               as in the Neo example IO, you would write::
+
+                   from neo.io.tools import create_many_to_one_relationship
