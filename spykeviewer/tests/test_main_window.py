@@ -52,14 +52,17 @@ class TestMainWindow(ut.TestCase):
         self.assertNotEqual(self.win.neo_units(), None)
 
     def test_plugins_loaded(self):
-        self.assert_(self.win.plugin_model.hasIndex(0,0),
+        self.assert_(
+            self.win.plugin_model.hasIndex(0, 0),
             'Plugin model is empty')
 
     def test_filter_tree(self):
-        self.assertEqual(self.win.filterTreeWidget.topLevelItemCount(), 5)
+        self.assertEqual(
+            self.win.filterDock.filterTreeWidget.topLevelItemCount(), 5)
 
     def test_file_tree(self):
-        self.assert_(self.win.fileTreeView.model().hasIndex(0,0),
+        self.assert_(
+            self.win.fileTreeView.model().hasIndex(0, 0),
             'Filesystem model is empty')
 
     def test_console(self):
@@ -67,26 +70,31 @@ class TestMainWindow(ut.TestCase):
         QTest.keyClick(self.win.console, Qt.Key_Plus)
         QTest.keyClick(self.win.console, Qt.Key_1)
         lines = self.win.console.get_line_count()
-        self.assertEqual(self.win.console.get_text_line(lines-1), '>>> 1+1')
+        self.assertEqual(
+            self.win.console.get_text_line(lines - 1), '>>> 1+1')
 
         QTest.keyClick(self.win.console, Qt.Key_Enter)
         lines = self.win.console.get_line_count()
-        self.assertEqual(self.win.console.get_text_line(lines-1), '>>> ')
+        self.assertEqual(self.win.console.get_text_line(lines - 1), '>>> ')
 
     def test_history(self):
         history_lines = self.win.history.get_line_count()
         QTest.keyClick(self.win.console, Qt.Key_5)
         QTest.keyClick(self.win.console, Qt.Key_Enter)
-        self.assertEqual(history_lines+1, self.win.history.get_line_count())
-        self.assertEqual(self.win.history.get_text_line(history_lines), '5')
+        self.assertEqual(
+            history_lines + 1, self.win.history.get_line_count())
+        self.assertEqual(
+            self.win.history.get_text_line(history_lines), '5')
 
     def test_plugin_editor(self):
-        self.assertEqual(self.win.pluginEditorDock.tabs.currentWidget(), None)
+        self.assertEqual(
+            self.win.pluginEditorDock.tabs.currentWidget(), None)
         self.win.actionNewPlugin.trigger()
-        self.assertNotEqual(self.win.pluginEditorDock.tabs.currentWidget(),
-            None)
-        self.assertEqual(u'\n'.join(self.win.pluginEditorDock.code()),
-            unicode(self.win.pluginEditorDock.template_code+'\n'))
+        self.assertNotEqual(
+            self.win.pluginEditorDock.tabs.currentWidget(), None)
+        self.assertEqual(
+            u'\n'.join(self.win.pluginEditorDock.code()),
+            unicode(self.win.pluginEditorDock.template_code + '\n'))
 
 
 if __name__ == '__main__':
