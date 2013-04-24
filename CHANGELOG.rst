@@ -10,7 +10,7 @@ Version 0.3.0
 * Added context menu for navigation. Includes entries for removing objects
   and an annotation editor.
 * New files are selected in the file view are now loaded in addition to
-  already loaded files. To unload all data, use File->Clear Blocks.
+  already loaded files. To unload all data, use File->Clear Data.
 * Plugin configurations are now restored when saving or refreshing plugins
   and when restarting the program. All plugin configurations can be reset
   to their defaults using Plugins->Restore Plugin configurations.
