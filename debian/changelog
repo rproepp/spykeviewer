@@ -1,3 +1,9 @@
+spykeviewer (0.3.0-1) experimental; urgency=low
+
+  * Package upstream 0.3.0.
+
+ -- Robert Pröpper <robert.proepper@gmail.com>  Wed, 24 Apr 2013 18:25:26 +0100
+
 spykeviewer (0.2.1-1) experimental; urgency=low
 
   * Package upstream 0.2.1.
