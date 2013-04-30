@@ -35,9 +35,7 @@ from spykeviewer.ui.main_window_neo import MainWindowNeo
 class TestMainWindow(ut.TestCase):
     @classmethod
     def setUpClass(cls):
-        print 'warte mal'
         cls.app = QtGui.QApplication(sys.argv)
-        print "It's a setup!"
         cls.win = MainWindowNeo()
 
     @classmethod
