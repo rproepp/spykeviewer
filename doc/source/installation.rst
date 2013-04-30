@@ -22,12 +22,13 @@ Binary
 If you want to install the binary version, go to the
 `homepage <http://www.ni.tu-berlin.de/software/spykeviewer>`_
 and select the most recent version for your operating system. The downloaded
-file contains an installer (for OS X) or executable (main\\spykeviewer.exe
-for Windows). Note that some features of Spyke Viewer are not available in
-the binary version: If you want an IPython console or advanced plugin editing
-features such as autocompletion, you need the source version. The rest of this 
-page deals with source installation, when using the binary version, you can
-go to :ref:`usage` to learn how to use Spyke Viewer.
+file contains an installer (for OS X) or executable 
+(Spyke Viewer\\spykeviewer.exe for Windows). Note that some features of Spyke
+Viewer are not available in the binary version: If you want an IPython console
+or advanced plugin editing features such as autocompletion, you need the 
+source version. The rest of this page deals with source installation, when 
+using the binary version, you can go to :ref:`usage` to learn how to use 
+Spyke Viewer.
 
 Source
 ------
