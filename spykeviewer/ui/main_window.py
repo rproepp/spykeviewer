@@ -325,8 +325,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not os.path.isfile(self.startup_script):
             content = ('# Startup script for Spyke Viewer\n'
                        'import spykeviewer.api as spyke')
-            with open(self.startup_script, 'w') as f:
-                f.write(content)
+            try:
+                path = os.path.dirname(self.startup_script)
+                if not os.path.isdir(path):
+                    os.makedirs(path)
+
+                with open(self.startup_script, 'w') as f:
+                    f.write(content)
+            except:
+                logger.warning('Could not create startup script ' +
+                               self.startup_script + ':\n' +
+                               traceback.format_exc() + '\n')
+                return
 
         try:
             with open(self.startup_script, 'r') as f:
