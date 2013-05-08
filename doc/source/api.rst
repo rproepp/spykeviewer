@@ -30,6 +30,18 @@ objects to access the main window and application and convenience functions.
         Spyke Viewer automatically on startup. This parameter is
         only effective when set in the startup script. Default: ``True``
 
+    autoselect_segments (:class:`bool`)
+        Select all visible segments by default. Default: ``False``
+
+    autoselect_channel_groups (:class:`bool`)
+        Select all visible channel groups by default. Default: ``False``
+
+    autoselect_channels (:class:`bool`)
+        Select all visible channels by default. Default: ``True``
+
+    autoselect_units (:class:`bool`)
+        Select all visible units by default. Default: ``False``
+
     duplicate_channels (:class:`bool`)
         Treat :class:`neo.core.RecordingChannel` objects that are
         referenced in multiple :class:`neo.core.RecordingChannelGroup`

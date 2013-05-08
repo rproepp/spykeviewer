@@ -13,8 +13,17 @@ class __ConfigOptions:
         self.codecomplete_editor_enter = True
         # Additional parameters for remote script
         self.remote_script_parameters = []
-        # Multiple channels in view
+        # Show duplicate channels (those that belong to multiple
+        # channel groups) multiple times in navigation
         self.duplicate_channels = False
+        # Select all visible segments in navigation by default
+        self.autoselect_segments = False
+        # Select all visible channel groups in navigation by default
+        self.autoselect_channel_groups = False
+        # Select all visible channels in navigation by default
+        self.autoselect_channels = True
+        # Select all visible units in navigation by default
+        self.autoselect_units = False
 
     def __setitem__(self, key, value):
         self.__dict__[key] = value
