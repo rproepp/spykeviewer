@@ -1077,20 +1077,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     @pyqtSignature("")
     def on_actionRunPlugin_triggered(self):
+        plugin = self._save_plugin_before_run()
+        if not plugin:
+            return
+
+        self._run_plugin(plugin)
+
+    def _save_plugin_before_run(self):
         ana = self.current_plugin()
         if not ana:
-            return
+            return None
 
         if api.config.save_plugin_before_starting:
             e = self.pluginEditorDock.get_editor(ana.source_file)
             if self.pluginEditorDock.file_was_changed(e):
                 if not self.pluginEditorDock.save_file(e):
-                    return
+                    return None
                 ana = self.current_plugin()
                 if not ana:
-                    return
-
-        self._run_plugin(ana)
+                    return None
+        return ana
 
     def _run_plugin(self, plugin):
         try:
@@ -1170,11 +1176,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     @pyqtSignature("")
     def on_actionRemotePlugin_triggered(self):
+        plugin = self._save_plugin_before_run()
+        if not plugin:
+            return
+
         selections = self.serialize_selections()
-        config = pickle.dumps(self.current_plugin().get_parameters())
+        config = pickle.dumps(plugin.get_parameters())
         f = open(self.remote_script, 'r')
         code = f.read()
-        name = type(self.current_plugin()).__name__
+        name = type(plugin).__name__
         path = self.current_plugin_path()
         self.start_plugin_remote(code, name, path, selections, config)
 

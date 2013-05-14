@@ -1,3 +1,6 @@
+* A modified plugin is automatically saved before it is sent to a remote
+  script.
+
 Version 0.3.0
 -------------
 
