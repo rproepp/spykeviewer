@@ -1182,17 +1182,28 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         selections = self.serialize_selections()
         config = pickle.dumps(plugin.get_parameters())
-        f = open(self.remote_script, 'r')
-        code = f.read()
         name = type(plugin).__name__
         path = self.current_plugin_path()
-        self.start_plugin_remote(code, name, path, selections, config)
+        self.send_plugin_info(name, path, selections, config)
 
-    def start_plugin_remote(self, code, name, path, selections, config):
-        params = ['python', '-c', code,
-                  name, path, selections, '-cf',
-                  '-c', config,
-                  '-dd', AnalysisPlugin.data_dir]
+    def send_plugin_info(self, name, path, selections, config):
+        """ Send information to start a plugin to the configured remote
+        script.
+
+        :param str code: The plugin code
+        :param str name: Name of the plugin class
+        :param str path: Path of the plugin file
+        :param str selections: Serialized selections to use
+        :param str config: Pickled plugin configuration
+        """
+        # Save files to circumvent length limit for command line
+        selection_path = os.path.join(self.selection_path, '.temp.sel')
+        with open(selection_path, 'w') as f:
+            f.write(selections)
+
+        params = ['python', self.remote_script,
+                  name, path, selection_path, '-cf', '-sf',
+                  '-c', config, '-dd', AnalysisPlugin.data_dir]
         params.extend(api.config.remote_script_parameters)
         subprocess.Popen(params)
 
@@ -1293,6 +1304,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         'Multiple plugins named "%s" exist!' % name)
 
         return self._run_plugin(plugins[0])
+
+    def start_plugin_remote(self, name):
+        """ Start first plugin with given name remotely. Does not return
+        any value. Raises a SpykeException if not exactly one plugins with
+        this name exist.
+        """
+        plugins = self.plugin_model.get_plugins_for_name(name)
+        if not plugins:
+            raise SpykeException('No plugin named "%s" exists!' % name)
+        if len(plugins) > 1:
+            raise SpykeException('Multiple plugins named "%s" exist!' % name)
+
+        selections = self.serialize_selections()
+        config = pickle.dumps(plugin.get_parameters())
+        name = type(plugin).__name__
+        path = self.current_plugin_path()
+        self.send_plugin_info(name, path, selections, config)
 
     def on_file_available(self, available):
         """ Callback when availability of a file for a plugin changes.
