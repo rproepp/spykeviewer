@@ -1077,20 +1077,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     @pyqtSignature("")
     def on_actionRunPlugin_triggered(self):
+        plugin = self._save_plugin_before_run()
+        if not plugin:
+            return
+
+        self._run_plugin(plugin)
+
+    def _save_plugin_before_run(self):
         ana = self.current_plugin()
         if not ana:
-            return
+            return None
 
         if api.config.save_plugin_before_starting:
             e = self.pluginEditorDock.get_editor(ana.source_file)
             if self.pluginEditorDock.file_was_changed(e):
                 if not self.pluginEditorDock.save_file(e):
-                    return
+                    return None
                 ana = self.current_plugin()
                 if not ana:
-                    return
-
-        self._run_plugin(ana)
+                    return None
+        return ana
 
     def _run_plugin(self, plugin):
         try:
@@ -1170,19 +1176,34 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     @pyqtSignature("")
     def on_actionRemotePlugin_triggered(self):
-        selections = self.serialize_selections()
-        config = pickle.dumps(self.current_plugin().get_parameters())
-        f = open(self.remote_script, 'r')
-        code = f.read()
-        name = type(self.current_plugin()).__name__
-        path = self.current_plugin_path()
-        self.start_plugin_remote(code, name, path, selections, config)
+        plugin = self._save_plugin_before_run()
+        if not plugin:
+            return
 
-    def start_plugin_remote(self, code, name, path, selections, config):
-        params = ['python', '-c', code,
-                  name, path, selections, '-cf',
-                  '-c', config,
-                  '-dd', AnalysisPlugin.data_dir]
+        selections = self.serialize_selections()
+        config = pickle.dumps(plugin.get_parameters())
+        name = type(plugin).__name__
+        path = self.current_plugin_path()
+        self.send_plugin_info(name, path, selections, config)
+
+    def send_plugin_info(self, name, path, selections, config):
+        """ Send information to start a plugin to the configured remote
+        script.
+
+        :param str code: The plugin code
+        :param str name: Name of the plugin class
+        :param str path: Path of the plugin file
+        :param str selections: Serialized selections to use
+        :param str config: Pickled plugin configuration
+        """
+        # Save files to circumvent length limit for command line
+        selection_path = os.path.join(self.selection_path, '.temp.sel')
+        with open(selection_path, 'w') as f:
+            f.write(selections)
+
+        params = ['python', self.remote_script,
+                  name, path, selection_path, '-cf', '-sf',
+                  '-c', config, '-dd', AnalysisPlugin.data_dir]
         params.extend(api.config.remote_script_parameters)
         subprocess.Popen(params)
 
@@ -1283,6 +1304,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         'Multiple plugins named "%s" exist!' % name)
 
         return self._run_plugin(plugins[0])
+
+    def start_plugin_remote(self, name):
+        """ Start first plugin with given name remotely. Does not return
+        any value. Raises a SpykeException if not exactly one plugins with
+        this name exist.
+        """
+        plugins = self.plugin_model.get_plugins_for_name(name)
+        if not plugins:
+            raise SpykeException('No plugin named "%s" exists!' % name)
+        if len(plugins) > 1:
+            raise SpykeException('Multiple plugins named "%s" exist!' % name)
+
+        selections = self.serialize_selections()
+        config = pickle.dumps(plugin.get_parameters())
+        name = type(plugin).__name__
+        path = self.current_plugin_path()
+        self.send_plugin_info(name, path, selections, config)
 
     def on_file_available(self, available):
         """ Callback when availability of a file for a plugin changes.

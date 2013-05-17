@@ -138,6 +138,8 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
                 self.segment_model.appendRow(new_item)
 
         self.neoSegmentList.setCurrentIndex(self.segment_model.index(0, 0))
+        if api.config.autoselect_segments:
+            self.neoSegmentList.selectAll()
         self.selected_segments_changed()
 
     def populate_neo_channel_group_list(self):
@@ -174,6 +176,8 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
 
         self.neoChannelGroupList.setCurrentIndex(
             self.channelgroup_model.index(0, 0))
+        if api.config.autoselect_channel_groups:
+            self.neoChannelGroupList.selectAll()
         self.set_channel_groups_label()
 
     def populate_neo_channel_list(self):
@@ -212,7 +216,8 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
                 new_item.setData(rc.index, Qt.UserRole + 1)
                 self.channel_model.appendRow(new_item)
 
-        self.neoChannelList.selectAll()
+        if api.config.autoselect_channels:
+            self.neoChannelList.selectAll()
         self.selected_channels_changed()
 
     def populate_neo_unit_list(self):
@@ -239,6 +244,8 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
                 new_item.setData(u, Qt.UserRole)
                 self.unit_model.appendRow(new_item)
 
+        if api.config.autoselect_units:
+            self.neoUnitList.selectAll()
         self.selected_units_changed()
 
     def set_blocks_label(self):
