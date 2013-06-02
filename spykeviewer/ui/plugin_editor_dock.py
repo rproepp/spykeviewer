@@ -81,6 +81,23 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
 
         self.setWidget(self.content_widget)
 
+        self.setAcceptDrops(True)
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            for url in event.mimeData().urls():
+                p = url.toString()
+                if p.startswith('file://') and p.endswith('.py'):
+                    event.acceptProposedAction()
+                    return
+
+    def dropEvent(self, event):
+        for url in event.mimeData().urls():
+            p = url.toString()
+            if p.startswith('file://') and p.endswith('.py'):
+                self.add_file(p[7:])
+        event.acceptProposedAction()
+
     def _setup_editor(self):
         font = QFont('Some font that does not exist')
         font.setStyleHint(font.TypeWriter, font.PreferDefault)
