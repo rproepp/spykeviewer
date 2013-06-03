@@ -48,6 +48,17 @@ def start_plugin(name):
     return window.start_plugin(name)
 
 
+def start_plugin_remote(name):
+    """ Start first plugin with given name using the remote script.
+    Raises a SpykeException if not exactly one plugins with
+    this name exist.
+
+    :param str name: The name of the plugin. Should not include the
+        directory.
+    """
+    window.start_plugin_remote(name)
+
+
 def get_plugin(name):
     """ Get plugin with the given name. Raises a SpykeException if
     multiple plugins with this name exist. Returns None if no such
