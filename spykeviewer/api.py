@@ -1,5 +1,5 @@
 class __ConfigOptions:
-    def __init__(self, **kw):
+    def __init__(self):
         # Ask about plugin paths if saving a file to a path that is not
         # a plugin path
         self.ask_plugin_path = True

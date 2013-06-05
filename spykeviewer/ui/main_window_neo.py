@@ -27,8 +27,8 @@ logger = logging.getLogger('spykeviewer')
 class MainWindowNeo(MainWindow):
     """ Implements Neo functionality in the main window.
     """
-    def __init__(self):
-        super(MainWindowNeo, self).__init__()
+    def __init__(self, parent=None, splash=None):
+        super(MainWindowNeo, self).__init__(parent, splash)
 
         self.block_ids = {}
         self.block_names = OrderedDict()  # Just for the display order

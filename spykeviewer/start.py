@@ -10,6 +10,7 @@ if platform.system() == 'Darwin':
 else:
     locale.setlocale(locale.LC_ALL, '')
 
+
 # Use new style API
 import sip
 sip.setapi('QString', 2)
@@ -22,15 +23,24 @@ sip.setapi('QUrl', 2)
 sip.setapi('QVariant', 2)
 
 from PyQt4 import QtGui
+from PyQt4.QtCore import Qt
+import api
 
 
 # The entry point for Spyke Viewer
 def main():
-    from ui.main_window_neo import MainWindowNeo
-    import api
-
     api.app = QtGui.QApplication(sys.argv)
-    ui = MainWindowNeo()
+    splash_pix = QtGui.QPixmap('splash.png')
+    splash = QtGui.QSplashScreen(splash_pix)
+    #splash.setMask(splash_pix.mask())
+    splash.showMessage('Starting application...', Qt.AlignCenter | Qt.AlignBottom)
+    splash.show()
+    splash.raise_()
+    api.app.processEvents()
+
+    from ui.main_window_neo import MainWindowNeo
+    ui = MainWindowNeo(splash=splash)
+    splash.finish(ui)
     ui.show()
     ui.raise_()
     sys.exit(api.app.exec_())

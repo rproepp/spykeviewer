@@ -67,10 +67,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     """ The main window of Spyke Viewer.
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, splash=None):
         QMainWindow.__init__(self, parent)
 
         api.window = self
+        self.splash = splash
+        self.update_splash_screen('Creating user interface....')
 
         QCoreApplication.setOrganizationName('SpykeUtils')
         QCoreApplication.setApplicationName('Spyke Viewer')
@@ -190,18 +192,34 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.finish_initialization()
 
     ##### Startup ########################################################
+    def update_splash_screen(self, message):
+        if not self.splash:
+            return
+
+        self.splash.showMessage(message, Qt.AlignCenter | Qt.AlignBottom)
+        self.splash.show()
+        QCoreApplication.processEvents()
+
     def finish_initialization(self):
         """ This should to be called at the end of the initialization phase
         of the program (e.g. at the end of the ``__init__()`` method of a
         domain-specific subclass).
         """
         self.update_view_menu()
+
+        self.update_splash_screen('Restoring saved state...')
         self.restore_state()
+
+        self.update_splash_screen('Running startup script...')
         self.run_startup_script()
         self.set_config_options()
+
+        self.update_splash_screen('Loading plugins...')
         self.reload_plugins()
         self.load_plugin_configs()
+
         if api.config.load_selection_on_start:
+            self.update_splash_screen('Loading previous selection...')
             self.load_current_selection()
 
     def get_filter_types(self):
@@ -1190,7 +1208,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """ Send information to start a plugin to the configured remote
         script.
 
-        :param str code: The plugin code
         :param str name: Name of the plugin class
         :param str path: Path of the plugin file
         :param str selections: Serialized selections to use
