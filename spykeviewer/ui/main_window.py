@@ -1334,9 +1334,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             raise SpykeException('Multiple plugins named "%s" exist!' % name)
 
         selections = self.serialize_selections()
-        config = pickle.dumps(plugin.get_parameters())
-        name = type(plugin).__name__
-        path = self.current_plugin_path()
+        config = pickle.dumps(plugins[0].get_parameters())
+        name = type(plugins[0]).__name__
+        path = plugins[0].source_file
         self.send_plugin_info(name, path, selections, config)
 
     def on_file_available(self, available):
