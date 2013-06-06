@@ -25,14 +25,15 @@ sip.setapi('QVariant', 2)
 from PyQt4 import QtGui
 from PyQt4.QtCore import Qt
 import api
+import splash_rc
 
 
 # The entry point for Spyke Viewer
 def main():
     api.app = QtGui.QApplication(sys.argv)
-    splash_pix = QtGui.QPixmap('splash.png')
-    splash = QtGui.QSplashScreen(splash_pix)
-    #splash.setMask(splash_pix.mask())
+    splash_pic = QtGui.QPixmap(':/splash/splashimg')
+    splash = QtGui.QSplashScreen(splash_pic)
+    splash.setMask(splash_pic.mask())
     splash.showMessage('Starting application...', Qt.AlignCenter | Qt.AlignBottom)
     splash.show()
     splash.raise_()
