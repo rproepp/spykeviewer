@@ -1,3 +1,4 @@
+* Splash screen while loading the application.
 * A modified plugin is automatically saved before it is sent to a remote
   script.
 * Pyhton files can be dragged onto the editor to open them.
