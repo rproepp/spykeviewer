@@ -2,8 +2,8 @@ from spykeutils.plugin import analysis_plugin, gui_data
 from spykeutils import plot
 import spykeutils.conversions as convert
 
+
 class SpikePlotPlugin(analysis_plugin.AnalysisPlugin):
-    """ Spike Waveform Plot """
     anti_aliased = gui_data.BoolItem('Antialiased lines (slow for '
                                     'large amounts of spikes)',
                                      default=True)                  

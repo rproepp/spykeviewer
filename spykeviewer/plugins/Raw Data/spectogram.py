@@ -7,9 +7,8 @@ from spykeutils.plot.dialog import PlotDialog
 import spykeutils.plot.helper as helper
 from spykeutils import SpykeException
 
+
 class SpectrogramPlugin(analysis_plugin.AnalysisPlugin):
-    """ Spectrogram """
-    
     nfft_index = (32, 64, 128, 256, 512, 1024, 2048, 4096, 8192)
     nfft_names = (str(s) for s in nfft_index)
     interpolate = gui_data.BoolItem('Interpolate', default=True)

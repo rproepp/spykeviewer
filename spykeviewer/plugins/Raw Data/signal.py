@@ -7,8 +7,6 @@ spike_prop = gui_data.ValueProp(False)
 subplot_prop = gui_data.ValueProp(False)
 
 class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
-    """ Signal Plot
-    """
     subplots = gui_data.BoolItem('Use subplots', default=True).set_prop(
         'display', store=subplot_prop)
     subplot_titles = gui_data.BoolItem(

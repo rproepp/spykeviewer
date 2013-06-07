@@ -5,8 +5,6 @@ from spykeutils.plugin import analysis_plugin, gui_data
 from spykeutils import plot
 
 class CorrelogramPlugin(analysis_plugin.AnalysisPlugin):
-    """ Correlogram
-    """
     bin_size = gui_data.FloatItem('Bin size', 1.0, 0.1, 10000.0, unit='ms')
     cut_off = gui_data.FloatItem('Cut off', 50.0, 2.0, 10000.0, unit='ms')
     data_source = gui_data.ChoiceItem('Data source', ('Units', 'Selections'))
@@ -22,7 +20,7 @@ class CorrelogramPlugin(analysis_plugin.AnalysisPlugin):
             # Prepare dictionary for correlogram():
             # One entry of spike trains for each selection
             d = {}
-            for i,s in enumerate(selections):
+            for s in selections:
                 d[neo.Unit(s.name)] = s.spike_trains()
 
         plot.cross_correlogram(d, self.bin_size*pq.ms,

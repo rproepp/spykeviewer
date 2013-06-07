@@ -10,8 +10,6 @@ align_prop = gui_data.ValueProp(False)
 optimize_prop = gui_data.ValueProp(False)
 
 class SDEPlugin(analysis_plugin.AnalysisPlugin):
-    """ Spike Density Estimation
-    """
     # Configurable parameters
     kernel_size = gui_data.FloatItem('Kernel size', min=1.0, default=300.0,
         unit='ms')
