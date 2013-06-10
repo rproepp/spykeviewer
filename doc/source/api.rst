@@ -30,6 +30,18 @@ objects to access the main window and application and convenience functions.
         Spyke Viewer automatically on startup. This parameter is
         only effective when set in the startup script. Default: ``True``
 
+    load_mode (:class:`int`)
+        The initially selected loading mode. Possible values:
+
+        0
+            Regular: Load all file contents on initial load.
+        1
+            Lazy: Only load file structure. Data objects are loaded
+            automatically when requested.
+
+        This parameter is only effective when set in the startup script.
+        Default: 0
+
     autoselect_segments (:class:`bool`)
         Select all visible segments by default. Default: ``False``
 

@@ -8,7 +8,7 @@ import neo
 from neo.io.baseio import BaseIO
 
 from PyQt4.QtCore import (Qt, pyqtSignature, QThread)
-from PyQt4.QtGui import (QMessageBox, QApplication,
+from PyQt4.QtGui import (QMessageBox, QApplication, QActionGroup,
                          QProgressDialog, QFileDialog)
 
 from spykeutils.progress_indicator import ignores_cancel
@@ -36,6 +36,12 @@ class MainWindowNeo(MainWindow):
         self.block_index = 0
         self.was_empty = True
         self.channel_group_names = {}
+
+        # Load mode menu
+        self.load_actions = QActionGroup(self)
+        self.load_actions.setExclusive(True)
+        self.actionFull_Load.setActionGroup(self.load_actions)
+        self.actionLazy_Load.setActionGroup(self.load_actions)
 
         # Neo navigation
         nav = NeoNavigationDock(self)
@@ -162,7 +168,7 @@ class MainWindowNeo(MainWindow):
             self.blocks = []
 
         def run(self):
-            self.blocks = NeoDataProvider.get_blocks(self.file_name, False)
+            self.blocks = NeoDataProvider.get_blocks(self.file_name)
 
     @ignores_cancel
     def load_file_callback(self):
@@ -303,7 +309,7 @@ class MainWindowNeo(MainWindow):
 
             QApplication.setOverrideCursor(Qt.WaitCursor)
             try:
-                blocks = NeoDataProvider.get_blocks(b[1], False)
+                blocks = NeoDataProvider.get_blocks(b[1])
             finally:
                 QApplication.restoreOverrideCursor()
             if not blocks:
@@ -404,3 +410,11 @@ class MainWindowNeo(MainWindow):
         self.progress.begin('Collecting data to save...')
         blocks = self.provider.selection_blocks()
         self._save_blocks(blocks, file_name, d.selectedFilter())
+
+    @pyqtSignature("")
+    def on_actionFull_Load_triggered(self):
+        NeoDataProvider.lazy_mode = 0
+
+    @pyqtSignature("")
+    def on_actionLazy_Load_triggered(self):
+        NeoDataProvider.lazy_mode = 1

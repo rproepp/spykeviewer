@@ -214,6 +214,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.run_startup_script()
         self.set_config_options()
 
+        if api.config.load_mode == 0:
+            self.actionFull_Load.trigger()
+        else:
+            self.actionLazy_Load.trigger()
+
         self.update_splash_screen('Loading plugins...')
         self.reload_plugins()
         self.load_plugin_configs()

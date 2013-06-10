@@ -71,10 +71,18 @@ QGroupBox::title {
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <widget class="QMenu" name="menuRead_Mode">
+     <property name="title">
+      <string>Read Mode</string>
+     </property>
+     <addaction name="actionFull_Load"/>
+     <addaction name="actionLazy_Load"/>
+    </widget>
     <addaction name="actionSave_selection"/>
     <addaction name="actionLoad_selection"/>
     <addaction name="actionSwitch_Modes"/>
     <addaction name="separator"/>
+    <addaction name="menuRead_Mode"/>
     <addaction name="actionClearCache"/>
     <addaction name="actionSave_Data"/>
     <addaction name="actionSave_Selected_Data"/>
@@ -587,6 +595,25 @@ QGroupBox::title {
   <action name="actionLoad_Python_File">
    <property name="text">
     <string>Load &amp;Python File...</string>
+   </property>
+  </action>
+  <action name="actionFull_Load">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Full Load</string>
+   </property>
+  </action>
+  <action name="actionLazy_Load">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Lazy Load</string>
    </property>
   </action>
  </widget>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/rob/Spyke/viewer/spykeviewer/ui/main.ui'
 #
-# Created: Mon Apr 15 15:30:48 2013
+# Created: Mon Jun 10 12:50:41 2013
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -52,6 +52,8 @@ class Ui_MainWindow(object):
         self.mainMenu.setObjectName(_fromUtf8("mainMenu"))
         self.menuFile = QtGui.QMenu(self.mainMenu)
         self.menuFile.setObjectName(_fromUtf8("menuFile"))
+        self.menuRead_Mode = QtGui.QMenu(self.menuFile)
+        self.menuRead_Mode.setObjectName(_fromUtf8("menuRead_Mode"))
         self.menuHelp = QtGui.QMenu(self.mainMenu)
         self.menuHelp.setObjectName(_fromUtf8("menuHelp"))
         self.menuSelections = QtGui.QMenu(self.mainMenu)
@@ -246,10 +248,20 @@ class Ui_MainWindow(object):
         self.actionRestorePluginConfigurations.setObjectName(_fromUtf8("actionRestorePluginConfigurations"))
         self.actionLoad_Python_File = QtGui.QAction(MainWindow)
         self.actionLoad_Python_File.setObjectName(_fromUtf8("actionLoad_Python_File"))
+        self.actionFull_Load = QtGui.QAction(MainWindow)
+        self.actionFull_Load.setCheckable(True)
+        self.actionFull_Load.setChecked(True)
+        self.actionFull_Load.setObjectName(_fromUtf8("actionFull_Load"))
+        self.actionLazy_Load = QtGui.QAction(MainWindow)
+        self.actionLazy_Load.setCheckable(True)
+        self.actionLazy_Load.setObjectName(_fromUtf8("actionLazy_Load"))
+        self.menuRead_Mode.addAction(self.actionFull_Load)
+        self.menuRead_Mode.addAction(self.actionLazy_Load)
         self.menuFile.addAction(self.actionSave_selection)
         self.menuFile.addAction(self.actionLoad_selection)
         self.menuFile.addAction(self.actionSwitch_Modes)
         self.menuFile.addSeparator()
+        self.menuFile.addAction(self.menuRead_Mode.menuAction())
         self.menuFile.addAction(self.actionClearCache)
         self.menuFile.addAction(self.actionSave_Data)
         self.menuFile.addAction(self.actionSave_Selected_Data)
@@ -304,6 +316,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Spyke Viewer", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuRead_Mode.setTitle(QtGui.QApplication.translate("MainWindow", "Read Mode", None, QtGui.QApplication.UnicodeUTF8))
         self.menuHelp.setTitle(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
         self.menuSelections.setTitle(QtGui.QApplication.translate("MainWindow", "&Selections", None, QtGui.QApplication.UnicodeUTF8))
         self.menuPlugins.setTitle(QtGui.QApplication.translate("MainWindow", "&Plugins", None, QtGui.QApplication.UnicodeUTF8))
@@ -368,5 +381,7 @@ class Ui_MainWindow(object):
         self.actionRestorePluginConfigurations.setText(QtGui.QApplication.translate("MainWindow", "Restore Plugin configurations", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRestorePluginConfigurations.setToolTip(QtGui.QApplication.translate("MainWindow", "Restore Plugin configurations to their default values", None, QtGui.QApplication.UnicodeUTF8))
         self.actionLoad_Python_File.setText(QtGui.QApplication.translate("MainWindow", "Load &Python File...", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFull_Load.setText(QtGui.QApplication.translate("MainWindow", "Full Load", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionLazy_Load.setText(QtGui.QApplication.translate("MainWindow", "Lazy Load", None, QtGui.QApplication.UnicodeUTF8))
 
 import icons_rc
