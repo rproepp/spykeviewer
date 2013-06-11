@@ -288,24 +288,7 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
                 self.segment_model.rowCount()))
 
     def _edit_item_annotations(self, index, model):
-        self.edit_annotations(model.data(index, Qt.UserRole))
-
-    def edit_annotations(self, data):
-        """ Edit annotations of a Neo object.
-        """
-        editor = DictEditor(self.parent)
-        title = 'Edit annotations'
-        if data.name:
-            title += ' for %s' % data.name
-        editor.setup(data.annotations, title)
-        editor.accepted.connect(
-            lambda: self._editor_ok(data, editor))
-        editor.show()
-        editor.raise_()
-        editor.activateWindow()
-
-    def _editor_ok(self, data, editor):
-        data.annotations = editor.get_value()
+        api.annotation_editor(model.data(index, Qt.UserRole))
 
     def remove_selected(self, list_widget):
         """ Remove all selected objects from the given list widget.

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/rob/Spyke/viewer/spykeviewer/ui/main.ui'
 #
-# Created: Mon Jun 10 12:50:41 2013
+# Created: Mon Jun 10 15:14:02 2013
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -255,16 +255,19 @@ class Ui_MainWindow(object):
         self.actionLazy_Load = QtGui.QAction(MainWindow)
         self.actionLazy_Load.setCheckable(True)
         self.actionLazy_Load.setObjectName(_fromUtf8("actionLazy_Load"))
+        self.actionLoad_Data = QtGui.QAction(MainWindow)
+        self.actionLoad_Data.setObjectName(_fromUtf8("actionLoad_Data"))
         self.menuRead_Mode.addAction(self.actionFull_Load)
         self.menuRead_Mode.addAction(self.actionLazy_Load)
-        self.menuFile.addAction(self.actionSave_selection)
-        self.menuFile.addAction(self.actionLoad_selection)
-        self.menuFile.addAction(self.actionSwitch_Modes)
-        self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actionLoad_Data)
         self.menuFile.addAction(self.menuRead_Mode.menuAction())
         self.menuFile.addAction(self.actionClearCache)
         self.menuFile.addAction(self.actionSave_Data)
         self.menuFile.addAction(self.actionSave_Selected_Data)
+        self.menuFile.addAction(self.actionSwitch_Modes)
+        self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actionSave_selection)
+        self.menuFile.addAction(self.actionLoad_selection)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionLoad_Python_File)
         self.menuFile.addAction(self.actionEdit_Startup_Script)
@@ -383,5 +386,6 @@ class Ui_MainWindow(object):
         self.actionLoad_Python_File.setText(QtGui.QApplication.translate("MainWindow", "Load &Python File...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFull_Load.setText(QtGui.QApplication.translate("MainWindow", "Full Load", None, QtGui.QApplication.UnicodeUTF8))
         self.actionLazy_Load.setText(QtGui.QApplication.translate("MainWindow", "Lazy Load", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionLoad_Data.setText(QtGui.QApplication.translate("MainWindow", "Load Data...", None, QtGui.QApplication.UnicodeUTF8))
 
 import icons_rc

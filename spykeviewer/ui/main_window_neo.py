@@ -10,6 +10,7 @@ from neo.io.baseio import BaseIO
 from PyQt4.QtCore import (Qt, pyqtSignature, QThread)
 from PyQt4.QtGui import (QMessageBox, QApplication, QActionGroup,
                          QProgressDialog, QFileDialog)
+from spyderlib.widgets.dicteditor import DictEditor
 
 from spykeutils.progress_indicator import ignores_cancel
 from spykeutils.plugin.data_provider_neo import NeoDataProvider
@@ -169,6 +170,23 @@ class MainWindowNeo(MainWindow):
 
         def run(self):
             self.blocks = NeoDataProvider.get_blocks(self.file_name)
+
+    def edit_annotations(self, data):
+        """ Edit annotations of a Neo object.
+        """
+        editor = DictEditor(self)
+        title = 'Edit annotations'
+        if data.name:
+            title += ' for %s' % data.name
+        editor.setup(data.annotations, title)
+        editor.accepted.connect(
+            lambda: self._editor_ok(data, editor))
+        editor.show()
+        editor.raise_()
+        editor.activateWindow()
+
+    def _editor_ok(self, data, editor):
+        data.annotations = editor.get_value()
 
     @ignores_cancel
     def load_file_callback(self):
@@ -378,6 +396,35 @@ class MainWindowNeo(MainWindow):
         self.worker.finished.connect(self.progress.done)
         self.progress.canceled.connect(self.worker.terminate)
         self.worker.start()
+
+    @pyqtSignature("")
+    def on_actionLoad_Data_triggered(self):
+        d = QFileDialog(self, 'Choose files or folders to load')
+        d.setAcceptMode(QFileDialog.AcceptOpen)
+        d.setFileMode(QFileDialog.DirectoryOnly)
+        if not d.exec_():
+            return
+        return
+
+
+        if not self.block_index:
+            self.was_empty = True
+        indices = self.fileTreeView.selectedIndexes()
+        self.progress.begin('Loading data files...')
+        self.progress.set_ticks(len(indices))
+
+        filepath = self.file_system_model.filePath(indices[0])
+
+        self.load_worker = self.LoadWorker(filepath, indices)
+        self.load_progress = QProgressDialog(self.progress)
+        self.load_progress.setWindowTitle('Loading File')
+        self.load_progress.setLabelText(filepath)
+        self.load_progress.setMaximum(0)
+        self.load_progress.setCancelButton(None)
+        self.load_worker.finished.connect(self.load_file_callback)
+        self.load_worker.terminated.connect(self.load_file_callback)
+        self.load_progress.show()
+        self.load_worker.start()
 
     @pyqtSignature("")
     def on_actionSave_Data_triggered(self):

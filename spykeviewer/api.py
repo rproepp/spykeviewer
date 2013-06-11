@@ -70,3 +70,11 @@ def get_plugin(name):
         directory.
     """
     return window.get_plugin(name)
+
+
+def annotation_editor(neo_object):
+    """ Open a graphical annotation editor for a Neo object.
+
+    :param neo_object: Any Neo object.
+    """
+    window.edit_annotations(neo_object)
