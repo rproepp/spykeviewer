@@ -28,7 +28,9 @@ load the selected files into Spyke Viewer. Single files can also be loaded
 with a double click (this does not work for directories, they will just be
 expanded. If you want to load a directory, you need to use the "Load" button).
 For each selected file, the filetype is selected
-automatically from the extension. For now, find and select the file "sample.h5"
+automatically from the extension. Alternatively, you can use the "Load
+Data..." option in the "File" menu to open a dialog that allows you to
+select files to load. Now find and select the file "sample.h5"
 that you just unpacked (an HDF5 File) and load it.
 
 The data file input/output is based on :mod:`neo` and supports formats that

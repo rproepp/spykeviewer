@@ -225,14 +225,28 @@ class MainWindowNeo(MainWindow):
         return self.neoNavigationDock.get_letter_id(id_, small)
 
     class LoadWorker(QThread):
-        def __init__(self, file_name, indices):
+        def __init__(self, paths):
             QThread.__init__(self)
-            self.file_name = file_name
-            self.indices = indices
+            self.paths = paths
             self.blocks = []
 
         def run(self):
-            self.blocks = NeoDataProvider.get_blocks(self.file_name)
+            self.blocks = NeoDataProvider.get_blocks(self.paths[0])
+
+    def load_files(self, file_paths):
+        self.progress.begin('Loading data files...')
+        self.progress.set_ticks(len(file_paths))
+
+        self.load_worker = self.LoadWorker(file_paths)
+        self.load_progress = QProgressDialog(self.progress)
+        self.load_progress.setWindowTitle('Loading File')
+        self.load_progress.setLabelText(file_paths[0])
+        self.load_progress.setMaximum(0)
+        self.load_progress.setCancelButton(None)
+        self.load_worker.finished.connect(self.load_file_callback)
+        self.load_worker.terminated.connect(self.load_file_callback)
+        self.load_progress.show()
+        self.load_worker.start()
 
     def edit_annotations(self, data):
         """ Edit annotations of a Neo object.
@@ -261,7 +275,7 @@ class MainWindowNeo(MainWindow):
         blocks = self.load_worker.blocks
         if blocks is None:
             logger.error('Could not read file "%s"' %
-                         self.load_worker.file_name)
+                         self.load_worker.paths[0])
             self.progress.done()
             self.load_progress.reset()
             return
@@ -269,21 +283,21 @@ class MainWindowNeo(MainWindow):
         for block in blocks:
             name = block.name
             if not name or name == 'One segment only':
-                name = self.file_system_model.fileName(
-                    self.load_worker.indices[0])
+                name = os.path.splitext(os.path.basename(
+                    self.load_worker.paths[0]))[0]
             name += ' (%s)' % self.get_letter_id(self.block_index)
 
             self.block_names[block] = name
             self.block_ids[block] = self.get_letter_id(self.block_index)
-            self.block_files[block] = self.load_worker.file_name
+            self.block_files[block] = self.load_worker.paths[0]
             self.block_index += 1
 
         self.load_progress.reset()
         self.progress.step()
 
         # Create new load worker thread
-        indices = self.load_worker.indices[1:]
-        if not indices:
+        paths = self.load_worker.paths[1:]
+        if not paths:
             self.progress.done()
             if not self.was_empty:
                 self.refresh_neo_view()
@@ -293,11 +307,8 @@ class MainWindowNeo(MainWindow):
             self.load_worker = None
             return
 
-        f = indices[0]
-        filepath = self.file_system_model.filePath(f)
-
-        self.load_worker = self.LoadWorker(filepath, indices)
-        self.load_progress.setLabelText(filepath)
+        self.load_worker = self.LoadWorker(paths)
+        self.load_progress.setLabelText(paths[0])
         self.load_progress.show()
         self.load_worker.finished.connect(self.load_file_callback)
         self.load_worker.terminated.connect(self.load_file_callback)
@@ -308,21 +319,8 @@ class MainWindowNeo(MainWindow):
         if not self.block_index:
             self.was_empty = True
         indices = self.fileTreeView.selectedIndexes()
-        self.progress.begin('Loading data files...')
-        self.progress.set_ticks(len(indices))
-
-        filepath = self.file_system_model.filePath(indices[0])
-
-        self.load_worker = self.LoadWorker(filepath, indices)
-        self.load_progress = QProgressDialog(self.progress)
-        self.load_progress.setWindowTitle('Loading File')
-        self.load_progress.setLabelText(filepath)
-        self.load_progress.setMaximum(0)
-        self.load_progress.setCancelButton(None)
-        self.load_worker.finished.connect(self.load_file_callback)
-        self.load_worker.terminated.connect(self.load_file_callback)
-        self.load_progress.show()
-        self.load_worker.start()
+        fs_model = self.file_system_model
+        self.load_files([fs_model.filePath(idx) for idx in indices])
 
     def on_fileTreeView_doubleClicked(self, index):
         if not self.fileTreeView.model().isDir(index):
@@ -466,34 +464,14 @@ class MainWindowNeo(MainWindow):
 
         if not d.exec_():
             return
-        print d.selectedFiles()
-        return
 
-        if not self.block_index:
-            self.was_empty = True
-        indices = self.fileTreeView.selectedIndexes()
-        self.progress.begin('Loading data files...')
-        self.progress.set_ticks(len(indices))
-
-        filepath = self.file_system_model.filePath(indices[0])
-
-        self.load_worker = self.LoadWorker(filepath, indices)
-        self.load_progress = QProgressDialog(self.progress)
-        self.load_progress.setWindowTitle('Loading File')
-        self.load_progress.setLabelText(filepath)
-        self.load_progress.setMaximum(0)
-        self.load_progress.setCancelButton(None)
-        self.load_worker.finished.connect(self.load_file_callback)
-        self.load_worker.terminated.connect(self.load_file_callback)
-        self.load_progress.show()
-        self.load_worker.start()
+        self.load_files(d.selectedFiles())
 
     @pyqtSignature("")
     def on_actionSave_Data_triggered(self):
         d = QFileDialog(self, 'Choose where to save data')
         d.setAcceptMode(QFileDialog.AcceptSave)
         d.setNameFilters(['HDF5 files (*.h5)', 'Matlab files (*.mat)'])
-        #d.setDefaultSuffix('h5')
         d.setConfirmOverwrite(True)
         if d.exec_():
             file_name = unicode(d.selectedFiles()[0])

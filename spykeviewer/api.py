@@ -78,3 +78,12 @@ def annotation_editor(neo_object):
     :param neo_object: Any Neo object.
     """
     window.edit_annotations(neo_object)
+
+
+def load_files(file_paths):
+    """ Open a list files.
+
+    :param list file_paths: The files to open as strings with the full
+        file path.
+    """
+    window.load_files(file_paths)
