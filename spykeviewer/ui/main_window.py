@@ -95,7 +95,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # IPython menu option
         self.ipy_kernel = None
         if ipy.ipython_available:
-            a = QAction('New IPython console', self.menuFile)
+            a = QAction('New IPython Console', self.menuFile)
             self.menuFile.insertAction(self.actionSettings, a)
             self.connect(a, SIGNAL('triggered()'),
                          self.on_actionIPython_triggered)
