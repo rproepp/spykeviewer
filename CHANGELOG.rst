@@ -1,4 +1,4 @@
-* Support for transparent lazy loading for supported IOs.
+* Optional transparent lazy loading for supported IOs.
 * Splash screen while loading the application.
 * Open files dialog as an alternative to the "Files" dock.
 * Filters are automatically deactivated on loading a selection if they

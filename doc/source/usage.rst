@@ -39,6 +39,21 @@ have a
 to use a file format that is not supported by Neo, you can write a plugin:
 :ref:`ioplugins`.
 
+Lazy Loading
+############
+
+With lazy loading, only the structure of a file is loaded when you first
+open it, while big data chunks (e.g. signals, spike trains) are not.
+This can result in faster loading times and much reduced memory usage and
+enables you to use data files that are larger than your main memory. Spyke
+Viewer will load the required data automatically once it is needed. This
+means that while initial loading is faster, data access will be slower.
+You can switch between regular and lazy loading from the "File" menu under
+"Read Mode". The read mode affects newly loaded files and you can have
+both regularly and lazily loaded files opened at the same time. Not all
+Neo IOs support this feature (up to Neo 0.3.0, only the IO for HDF5 files
+does).
+
 .. _selections:
 
 Selections
