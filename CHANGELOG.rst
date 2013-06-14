@@ -1,6 +1,8 @@
 * Support for transparent lazy loading for supported IOs.
 * Splash screen while loading the application.
 * Open files dialog as an alternative to the "Files" dock.
+* Filters are automatically deactivated on loading a selection if they
+  prevent parts of it to be shown.
 * A modified plugin is automatically saved before it is sent to a remote
   script.
 * Pyhton files can be dragged onto the editor to open them.

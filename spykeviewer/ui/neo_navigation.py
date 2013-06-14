@@ -90,6 +90,38 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
 
         return name[::-1]
 
+    def ensure_not_filtered(self, objects, all_objects, filters):
+        """ Deactivates all filters that prevent the the given sequence
+        of objects to be displayed. The passed filter tuple list is
+        modified to only include valid filters.
+
+        :param sequence objects: The objects that need to be visible.
+        :param sequence all_objects: The whole object list to be filtered,
+            including objects that are allowed to be hidden.
+        :param sequence filters: A sequence of (Filter, name) tuples.
+        """
+        objset = set(objects)
+        if not objset.issubset(
+                set(self.parent.filter_list(all_objects, filters))):
+            i = 1
+            while i <= len(filters):
+                test_filters = filters[:i]
+                if objset.issubset(set(self.parent.filter_list(
+                        all_objects, test_filters))):
+                    i += 1
+                else:
+                    test_filters[-1][0].active = False
+                    filters.pop(i - 1)
+
+        for o in objects:
+            i = 0
+            while i < len(filters):
+                if self.parent.is_filtered(o, [filters[i]]):
+                    filters[i][0].active = False
+                    filters.pop(i)
+                else:
+                    i += 1
+
     def populate_neo_block_list(self):
         """ Fill the block list with appropriate entries.
         Qt.UserRole: The :class:`neo.Block` object
@@ -100,9 +132,11 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
 
         blocks = self.parent.filter_list(
             self.parent.block_names.keys(), filters)
+        no_blocks = True
         for b in blocks:
             if self.parent.is_filtered(b, filters):
                 continue
+            no_blocks = False
 
             item = QStandardItem(self.parent.block_names[b])
             item.setData(b, Qt.UserRole)
@@ -110,6 +144,8 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
 
         self.neoBlockList.setCurrentIndex(self.block_model.index(0, 0))
         self.set_blocks_label()
+        if no_blocks:
+            self.selected_blocks_changed()
 
     def populate_neo_segment_list(self):
         """ Fill the segment list with appropriate entries.
@@ -153,6 +189,7 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
         filters = self.parent.get_active_filters(
             'Recording Channel Group')
 
+        no_rcgs = True
         for index in self.neoBlockList.selectedIndexes():
             block = self.block_model.data(index, Qt.UserRole)
 
@@ -161,6 +198,7 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
             for i, rcg in enumerate(rcgs):
                 if self.parent.is_filtered(rcg, filters):
                     continue
+                no_rcgs = False
 
                 self.parent.channel_group_names[rcg] = '%s-%s' % (
                     self.parent.block_ids[rcg.block],
@@ -178,7 +216,8 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
             self.channelgroup_model.index(0, 0))
         if api.config.autoselect_channel_groups:
             self.neoChannelGroupList.selectAll()
-        self.set_channel_groups_label()
+        elif no_rcgs:
+            self.selected_channel_groups_changed()
 
     def populate_neo_channel_list(self):
         """ Fill the channel list with appropriate entries. Data slots:
@@ -419,10 +458,11 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
                 raise IOError('One of the files contained in the '
                               'selection could not be loaded!')
             block_list.append(loaded)
-        rcg_list = [block_list[rcg[1]].recordingchannelgroups[rcg[0]]
-                    for rcg in data['channel_groups']]
 
         # Select blocks
+        self.ensure_not_filtered(block_list, self.parent.block_names.keys(),
+                                 self.parent.get_active_filters('Block'))
+        self.populate_neo_block_list()
         selection = QItemSelection()
         for i in self.block_model.findItems(
                 '*', Qt.MatchWrap | Qt.MatchWildcard):
@@ -437,6 +477,15 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
             selection, QItemSelectionModel.ClearAndSelect)
 
         # Select segments
+        seg_list = [block_list[idx[1]].segments[idx[0]]
+                    for idx in data['segments']]
+        all_segs = []
+        for b in self.blocks():
+            all_segs.extend(b.segments)
+        self.ensure_not_filtered(seg_list, all_segs,
+                                 self.parent.get_active_filters('Segment'))
+        self.populate_neo_segment_list()
+
         selection = QItemSelection()
         for i in self.segment_model.findItems(
                 '*', Qt.MatchWrap | Qt.MatchWildcard):
@@ -453,6 +502,16 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
             selection, QItemSelectionModel.ClearAndSelect)
 
         # Select recording channel groups
+        rcg_list = [block_list[rcg[1]].recordingchannelgroups[rcg[0]]
+                    for rcg in data['channel_groups']]
+        all_rcgs = []
+        for b in self.blocks():
+            all_rcgs.extend(b.recordingchannelgroups)
+        self.ensure_not_filtered(
+            rcg_list, all_rcgs,
+            self.parent.get_active_filters('Recording Channel Group'))
+        self.populate_neo_channel_group_list()
+
         selection = QItemSelection()
         for i in self.channelgroup_model.findItems(
                 '*', Qt.MatchWrap | Qt.MatchWildcard):
@@ -469,6 +528,19 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
             selection, QItemSelectionModel.ClearAndSelect)
 
         # Select channels
+        rc_list = [rcg_list[rc[1]].recordingchannels[rc[0]]
+                   for rc in data['channels']]
+        all_rcs = []
+        for rcg in self.recording_channel_groups():
+            for rc in rcg.recordingchannels:
+                if not api.config.duplicate_channels and rc in all_rcs:
+                    continue
+                all_rcs.append(rc)
+        self.ensure_not_filtered(
+            rc_list, all_rcs,
+            self.parent.get_active_filters('Recording Channel'))
+        self.populate_neo_channel_list()
+
         selection = QItemSelection()
         rcg_set = set(rcg_list)
         for i in self.channel_model.findItems(
@@ -487,6 +559,16 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
             selection, QItemSelectionModel.ClearAndSelect)
 
         # Select units
+        unit_list = [rcg_list[u[1]].units[u[0]]
+                     for u in data['units']]
+        all_units = []
+        for rcg in self.recording_channel_groups():
+            all_units.extend(rcg.units)
+        self.ensure_not_filtered(
+            unit_list, all_units,
+            self.parent.get_active_filters('Unit'))
+        self.populate_neo_unit_list()
+
         selection = QItemSelection()
         for i in self.unit_model.findItems(
                 '*', Qt.MatchWrap | Qt.MatchWildcard):
@@ -501,3 +583,5 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
                     self.unit_model.indexFromItem(i)))
         self.neoUnitList.selectionModel().select(
             selection, QItemSelectionModel.ClearAndSelect)
+
+        self.parent.refresh_filters()

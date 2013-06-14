@@ -893,10 +893,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def is_filtered(self, item, filters):
         """ Return if one of the filter functions in the given list
-            applies to the given item. Combined filters are ignored.
+        applies to the given item. Combined filters are ignored.
         """
         for f, n in filters:
-            if f.combined:
+            if f.combined or not f.active:
                 continue
             try:
                 if not f.function()(item):
@@ -911,13 +911,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def filter_list(self, items, filters):
         """ Return a filtered list of the given list with the given filter
-            functions. Only combined filters are used.
+        functions. Only combined filters are used.
         """
         if not items:
             return items
         item_type = type(items[0])
         for f, n in filters:
-            if not f.combined:
+            if not f.combined or not f.active:
                 continue
             try:
                 items = [i for i in f.function()(items)
@@ -929,6 +929,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if not f.on_exception:
                     return []
         return items
+
+    def refresh_filters(self):
+        """ Refresh the list of possible filters. Call if filters are changed
+        programmatically.
+        """
+        self.filterDock.populate_filter_tree()
 
     @pyqtSignature("")
     def on_actionNewFilterGroup_triggered(self):

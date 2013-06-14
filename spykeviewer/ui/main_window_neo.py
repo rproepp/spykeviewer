@@ -410,7 +410,6 @@ class MainWindowNeo(MainWindow):
 
         self.progress.done()
 
-        self.neoNavigationDock.populate_neo_block_list()
         self.neoNavigationDock.set_selection(data)
 
     class SaveWorker(QThread):
