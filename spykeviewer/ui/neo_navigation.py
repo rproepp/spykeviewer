@@ -122,6 +122,19 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
                 else:
                     i += 1
 
+    def filter_ordered(self, objects, filters):
+        """ Filter a sequence of objects with a sequence of filters. Apply
+        the filters in the order given by the sequence. Return the filtered
+        list.
+        """
+        for f in filters:
+            if f[0].combined:
+                objects = self.parent.filter_list(objects, [f])
+            else:
+                objects = [o for o in objects
+                           if not self.parent.is_filtered(o, [f])]
+        return objects
+
     def populate_neo_block_list(self):
         """ Fill the block list with appropriate entries.
         Qt.UserRole: The :class:`neo.Block` object
@@ -130,21 +143,16 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
 
         filters = self.parent.get_active_filters('Block')
 
-        blocks = self.parent.filter_list(
+        blocks = self.filter_ordered(
             self.parent.block_names.keys(), filters)
-        no_blocks = True
         for b in blocks:
-            if self.parent.is_filtered(b, filters):
-                continue
-            no_blocks = False
-
             item = QStandardItem(self.parent.block_names[b])
             item.setData(b, Qt.UserRole)
             self.block_model.appendRow(item)
 
         self.neoBlockList.setCurrentIndex(self.block_model.index(0, 0))
         self.set_blocks_label()
-        if no_blocks:
+        if not blocks:
             self.selected_blocks_changed()
 
     def populate_neo_segment_list(self):
@@ -153,25 +161,22 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
         """
         self.segment_model.clear()
 
+        segments = []
+        for b in self.blocks():
+            segments.extend(b.segments)
+
         filters = self.parent.get_active_filters('Segment')
+        segments = self.filter_ordered(segments, filters)
+        for i, s in enumerate(segments):
+            if s.name:
+                name = s.name + ' (%s-%i)' % \
+                    (self.parent.block_ids[s.block], i)
+            else:
+                name = '%s-%i' % (self.parent.block_ids[s.block], i)
 
-        for index in self.neoBlockList.selectedIndexes():
-            block = self.block_model.data(index, Qt.UserRole)
-
-            segments = self.parent.filter_list(block.segments, filters)
-            for i, s in enumerate(segments):
-                if self.parent.is_filtered(s, filters):
-                    continue
-
-                if s.name:
-                    name = s.name + ' (%s-%i)' % \
-                        (self.parent.block_ids[s.block], i)
-                else:
-                    name = '%s-%i' % (self.parent.block_ids[s.block], i)
-
-                new_item = QStandardItem(name)
-                new_item.setData(s, Qt.UserRole)
-                self.segment_model.appendRow(new_item)
+            new_item = QStandardItem(name)
+            new_item.setData(s, Qt.UserRole)
+            self.segment_model.appendRow(new_item)
 
         self.neoSegmentList.setCurrentIndex(self.segment_model.index(0, 0))
         if api.config.autoselect_segments:
@@ -186,37 +191,32 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
         self.channelgroup_model.clear()
         self.parent.channel_group_names.clear()
 
+        rcgs = []
+        for b in self.blocks():
+            rcgs.extend(b.recordingchannelgroups)
+
         filters = self.parent.get_active_filters(
             'Recording Channel Group')
+        rcgs = self.filter_ordered(rcgs, filters)
 
-        no_rcgs = True
-        for index in self.neoBlockList.selectedIndexes():
-            block = self.block_model.data(index, Qt.UserRole)
-
-            rcgs = self.parent.filter_list(
-                block.recordingchannelgroups, filters)
-            for i, rcg in enumerate(rcgs):
-                if self.parent.is_filtered(rcg, filters):
-                    continue
-                no_rcgs = False
-
-                self.parent.channel_group_names[rcg] = '%s-%s' % (
-                    self.parent.block_ids[rcg.block],
-                    self.get_letter_id(i, True))
-                if rcg.name:
-                    name = rcg.name + ' (%s)' % \
-                                      self.parent.channel_group_names[rcg]
-                else:
-                    name = self.parent.channel_group_names[rcg]
-                new_item = QStandardItem(name)
-                new_item.setData(rcg, Qt.UserRole)
-                self.channelgroup_model.appendRow(new_item)
+        for i, rcg in enumerate(rcgs):
+            self.parent.channel_group_names[rcg] = '%s-%s' % (
+                self.parent.block_ids[rcg.block],
+                self.get_letter_id(i, True))
+            if rcg.name:
+                name = rcg.name + ' (%s)' % \
+                                  self.parent.channel_group_names[rcg]
+            else:
+                name = self.parent.channel_group_names[rcg]
+            new_item = QStandardItem(name)
+            new_item.setData(rcg, Qt.UserRole)
+            self.channelgroup_model.appendRow(new_item)
 
         self.neoChannelGroupList.setCurrentIndex(
             self.channelgroup_model.index(0, 0))
         if api.config.autoselect_channel_groups:
             self.neoChannelGroupList.selectAll()
-        elif no_rcgs:
+        elif not rcgs:
             self.selected_channel_groups_changed()
 
     def populate_neo_channel_list(self):
@@ -227,33 +227,33 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
         self.channel_model.clear()
         channels = set()
 
-        filters = self.parent.get_active_filters(
-            'Recording Channel')
-
-        for index in self.neoChannelGroupList.selectedIndexes():
-            channel_group = self.channelgroup_model.data(index, Qt.UserRole)
-
-            rcs = self.parent.filter_list(
-                channel_group.recordingchannels, filters)
-            for rc in rcs:
+        rcs = []
+        rc_group_name = {}
+        for rcg in self.recording_channel_groups():
+            for rc in rcg.recordingchannels:
                 if not api.config.duplicate_channels and rc in channels:
                     continue
-                if self.parent.is_filtered(rc, filters):
-                    continue
-
                 channels.add(rc)
-                identifier = '%s.%d' % \
-                             (self.parent.channel_group_names[channel_group],
-                              rc.index)
-                if rc.name:
-                    name = rc.name + ' (%s)' % identifier
-                else:
-                    name = identifier
+                rcs.append(rc)
+                rc_group_name[rc] = self.parent.channel_group_names[rcg]
 
-                new_item = QStandardItem(name)
-                new_item.setData(rc, Qt.UserRole)
-                new_item.setData(rc.index, Qt.UserRole + 1)
-                self.channel_model.appendRow(new_item)
+        filters = self.parent.get_active_filters(
+            'Recording Channel')
+        rcs = self.filter_ordered(rcs, filters)
+
+        for rc in rcs:
+            identifier = '%s.%d' % \
+                         (rc_group_name[rc],
+                          rc.index)
+            if rc.name:
+                name = rc.name + ' (%s)' % identifier
+            else:
+                name = identifier
+
+            new_item = QStandardItem(name)
+            new_item.setData(rc, Qt.UserRole)
+            new_item.setData(rc.index, Qt.UserRole + 1)
+            self.channel_model.appendRow(new_item)
 
         if api.config.autoselect_channels:
             self.neoChannelList.selectAll()
@@ -265,23 +265,24 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
         """
         self.unit_model.clear()
 
+        units = []
+        for rcg in self.recording_channel_groups():
+            units.extend(rcg.units)
+
         filters = self.parent.get_active_filters('Unit')
+        units = self.filter_ordered(units, filters)
 
-        for index in self.neoChannelGroupList.selectedIndexes():
-            rcg = self.channelgroup_model.data(index, Qt.UserRole)
-
-            units = self.parent.filter_list(rcg.units, filters)
-            for i, u in enumerate(units):
-                if self.parent.is_filtered(u, filters):
-                    continue
-                if u.name:
-                    name = u.name + ' (%s-%d)' % \
-                           (self.parent.channel_group_names[rcg], i)
-                else:
-                    name = '%s-%d' % (self.parent.channel_group_names[rcg], i)
-                new_item = QStandardItem(name)
-                new_item.setData(u, Qt.UserRole)
-                self.unit_model.appendRow(new_item)
+        for i, u in enumerate(units):
+            if self.parent.is_filtered(u, filters):
+                continue
+            if u.name:
+                name = u.name + ' (%s-%d)' % \
+                       (self.parent.channel_group_names[rcg], i)
+            else:
+                name = '%s-%d' % (self.parent.channel_group_names[rcg], i)
+            new_item = QStandardItem(name)
+            new_item.setData(u, Qt.UserRole)
+            self.unit_model.appendRow(new_item)
 
         if api.config.autoselect_units:
             self.neoUnitList.selectAll()
