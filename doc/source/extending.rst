@@ -138,8 +138,13 @@ modify ``sys.path`` to include the path to your files::
 
 You can also use the startup script to configure anything that is accessible
 by Python code. In particular, you can use the Spyke Viewer :ref:`api` to
-access configuration options and the main window itself. For example, to
-change the font size of the Python console (effective for new input) and
+access configuration options and the main window itself. For example, if you
+want the Enter key to always finish a line in the console and only
+use the Tab key for autocompletion::
+
+    spyke.config['codecomplete_console_enter'] = False
+
+To change the font size of the Python console (effective for new input) and
 title of the window::
 
     import spykeviewer.api as spyke  # This line is included in the default startup script
@@ -148,10 +153,6 @@ title of the window::
     spyke.window.console.set_pythonshell_font(f)
     spyke.window.setWindowTitle('Big is beatiful')
 
-If you want the Enter key to always finish a line in the console and only
-use the Tab key for autocompletion::
-
-    spyke.config['codecomplete_console_enter'] = False
 
 As a final example, you can customize the colors that are used
 in spykeutils plots (for colored items like spikes in a rasterplot)::
