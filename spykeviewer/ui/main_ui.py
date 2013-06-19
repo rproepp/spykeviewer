@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/rob/Spyke/viewer/spykeviewer/ui/main.ui'
 #
-# Created: Fri Jun 14 14:40:55 2013
+# Created: Wed Jun 19 11:08:03 2013
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -257,6 +257,11 @@ class Ui_MainWindow(object):
         self.actionLazy_Load.setObjectName(_fromUtf8("actionLazy_Load"))
         self.actionLoad_Data = QtGui.QAction(MainWindow)
         self.actionLoad_Data.setObjectName(_fromUtf8("actionLoad_Data"))
+        self.actionSpyke_Repository = QtGui.QAction(MainWindow)
+        icon18 = QtGui.QIcon()
+        icon18.addPixmap(QtGui.QPixmap(_fromUtf8(":/Application/Repository")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionSpyke_Repository.setIcon(icon18)
+        self.actionSpyke_Repository.setObjectName(_fromUtf8("actionSpyke_Repository"))
         self.menuRead_Mode.addAction(self.actionFull_Load)
         self.menuRead_Mode.addAction(self.actionLazy_Load)
         self.menuFile.addAction(self.actionLoad_Data)
@@ -274,6 +279,7 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionSettings)
         self.menuFile.addAction(self.actionExit)
         self.menuHelp.addAction(self.actionDocumentation)
+        self.menuHelp.addAction(self.actionSpyke_Repository)
         self.menuHelp.addAction(self.actionAbout)
         self.menuSelections.addAction(self.actionNewSelection)
         self.menuSelections.addAction(self.actionClearSelections)
@@ -387,5 +393,6 @@ class Ui_MainWindow(object):
         self.actionFull_Load.setText(QtGui.QApplication.translate("MainWindow", "Full Load", None, QtGui.QApplication.UnicodeUTF8))
         self.actionLazy_Load.setText(QtGui.QApplication.translate("MainWindow", "Lazy Load", None, QtGui.QApplication.UnicodeUTF8))
         self.actionLoad_Data.setText(QtGui.QApplication.translate("MainWindow", "Load Data...", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSpyke_Repository.setText(QtGui.QApplication.translate("MainWindow", "Spyke Repository", None, QtGui.QApplication.UnicodeUTF8))
 
 import icons_rc

@@ -1402,6 +1402,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_actionDocumentation_triggered(self):
         webbrowser.open('http://spyke-viewer.readthedocs.org')
 
+    @pyqtSignature("")
+    def on_actionSpyke_Repository_triggered(self):
+        webbrowser.open('http://spyke-viewer.g-node.org')
+
     def _get_closed_folders(self):
         if not hasattr(self, 'plugin_model'):
             return []

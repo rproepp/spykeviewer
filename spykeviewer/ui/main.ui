@@ -98,6 +98,7 @@ QGroupBox::title {
      <string>&amp;Help</string>
     </property>
     <addaction name="actionDocumentation"/>
+    <addaction name="actionSpyke_Repository"/>
     <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuSelections">
@@ -620,6 +621,15 @@ QGroupBox::title {
   <action name="actionLoad_Data">
    <property name="text">
     <string>Load Data...</string>
+   </property>
+  </action>
+  <action name="actionSpyke_Repository">
+   <property name="icon">
+    <iconset resource="../../resources/icons.qrc">
+     <normaloff>:/Application/Repository</normaloff>:/Application/Repository</iconset>
+   </property>
+   <property name="text">
+    <string>Spyke Repository</string>
    </property>
   </action>
  </widget>
