@@ -14,6 +14,7 @@ class CorrelogramPlugin(analysis_plugin.AnalysisPlugin):
         return 'Correlogram'
 
     def start(self, current, selections):
+        current.progress.begin('Creating correlogram...')
         if self.data_source == 0:
             d = current.spike_trains_by_unit()
         else:
