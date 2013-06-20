@@ -80,7 +80,7 @@ In Spyke Viewer, you use the *Navigation* dock to select container objects.
 There is a list for each type of container where you can select an arbitrary
 set of entries. You can select multiple entries by clicking and dragging or
 using the control key when clicking. Each list will only show those
-objects of the respective type that are contained in select objects further
+objects of the respective type that are contained in selected objects further
 up in the hierarchy. For example, try selecting a different recording channel
 group and observe how the channels and units list change. To help you
 navigate, all objects in the *Navigation* dock are automatically assigned a
