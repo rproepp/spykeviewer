@@ -219,6 +219,24 @@ class MainWindowNeo(MainWindow):
                     cl._is_spyke_plugin = True
                     neo.io.iolist.insert(0, cl)
 
+        # Populate IO list
+        self.neoIOComboBox.clear()
+        iolabels = []
+
+        for io in neo.io.iolist:
+            if io.name:
+                iolabels.append((io.name, io))
+            else:
+                iolabels.append((io.__name__, io))
+
+        iolabels.sort(key=lambda x: x[0].lower())
+        self.neoIOComboBox.addItem('By extension')
+        self.neoIOComboBox.setItemData(0, None)
+        self.neoIOComboBox.addItems([l[0] for l in iolabels])
+
+        for i, l in enumerate(iolabels):
+            self.neoIOComboBox.setItemData(i + 1, l[1])
+
     def get_letter_id(self, id_, small=False):
         """ Return a name consisting of letters given an integer
         """
@@ -504,3 +522,8 @@ class MainWindowNeo(MainWindow):
     @pyqtSignature("")
     def on_actionLazy_Load_triggered(self):
         NeoDataProvider.lazy_mode = 1
+
+    @pyqtSignature("int")
+    def on_neoIOComboBox_currentIndexChanged(self, index):
+        if index > 0:
+            NeoDataProvider.forced_io = self.neoIOComboBox.itemData(index)

@@ -42,9 +42,6 @@ from plugin_model import PluginModel
 
 
 logger = logging.getLogger('spykeviewer')
-ch = logging.StreamHandler()
-ch.setLevel(logging.WARNING)
-logger.addHandler(ch)
 
 
 # Monkeypatch variable editor
@@ -511,11 +508,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.console.connect(self.console, SIGNAL("refresh()"),
                              self._append_python_history)
 
-        # Duplicate stdout, stderr and logging for console
-        ch = logging.StreamHandler(sys.stderr)
-        ch.setLevel(logging.WARNING)
-        logger.addHandler(ch)
-
+        # Duplicate stdout and stderr for console
         # Not using previous stdout, only stderr. Using StreamDuplicator
         # because spyder stream does not have flush() method...
         sys.stdout = StreamDuplicator([sys.stdout])
