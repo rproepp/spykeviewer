@@ -511,6 +511,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Duplicate stdout and stderr for console
         # Not using previous stdout, only stderr. Using StreamDuplicator
         # because spyder stream does not have flush() method...
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.WARNING)
+        logger.addHandler(ch)
+
         sys.stdout = StreamDuplicator([sys.stdout])
         sys.stderr = StreamDuplicator([sys.stderr, sys.__stderr__])
 

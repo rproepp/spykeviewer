@@ -292,10 +292,11 @@ class MainWindowNeo(MainWindow):
         # Load worker thread finished
         blocks = self.load_worker.blocks
         if blocks is None:
-            logger.error('Could not read file "%s"' %
+            logger.error('Could not read "%s"' %
                          self.load_worker.paths[0])
             self.progress.done()
             self.load_progress.reset()
+            self.raise_()
             return
 
         for block in blocks:
