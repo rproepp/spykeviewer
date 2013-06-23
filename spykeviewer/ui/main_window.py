@@ -14,7 +14,8 @@ from PyQt4.QtGui import (QMainWindow, QMessageBox,
                          QApplication, QFileDialog, QInputDialog,
                          QLineEdit, QMenu, QDrag, QPainter, QPen,
                          QPalette, QDesktopServices, QFont, QAction,
-                         QPixmap, QFileSystemModel, QHeaderView)
+                         QPixmap, QFileSystemModel, QHeaderView,
+                         QActionGroup)
 from PyQt4.QtCore import (Qt, pyqtSignature, SIGNAL, QMimeData,
                           QSettings, QCoreApplication, QUrl)
 
@@ -79,6 +80,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.setupUi(self)
         self.dir = os.getcwd()
+
+        # Load mode menu
+        self.load_actions = QActionGroup(self)
+        self.load_actions.setExclusive(True)
+        self.actionFull_Load.setActionGroup(self.load_actions)
+        self.actionLazy_Load.setActionGroup(self.load_actions)
+        self.actionCached_Lazy_Load.setActionGroup(self.load_actions)
 
         # Python console
         self.console = None
@@ -211,10 +219,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.run_startup_script()
         self.set_config_options()
 
-        if api.config.load_mode == 0:
-            self.actionFull_Load.trigger()
-        else:
+        if api.config.load_mode == 1:
             self.actionLazy_Load.trigger()
+        elif api.config.load_mode == 2:
+            self.actionCached_Lazy_Load.trigger()
+        else:
+            self.actionFull_Load.trigger()
 
         self.update_splash_screen('Loading plugins...')
         self.reload_plugins()

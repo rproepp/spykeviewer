@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/rob/Spyke/viewer/spykeviewer/ui/main.ui'
+# Form implementation generated from reading ui file '.\main.ui'
 #
-# Created: Thu Jun 20 17:09:43 2013
-#      by: PyQt4 UI code generator 4.9.3
+# Created: Sun Jun 23 15:30:05 2013
+#      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -48,7 +48,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
         MainWindow.setCentralWidget(self.centralWidget)
         self.mainMenu = QtGui.QMenuBar(MainWindow)
-        self.mainMenu.setGeometry(QtCore.QRect(0, 0, 819, 25))
+        self.mainMenu.setGeometry(QtCore.QRect(0, 0, 819, 21))
         self.mainMenu.setObjectName(_fromUtf8("mainMenu"))
         self.menuFile = QtGui.QMenu(self.mainMenu)
         self.menuFile.setObjectName(_fromUtf8("menuFile"))
@@ -275,8 +275,12 @@ class Ui_MainWindow(object):
         icon18.addPixmap(QtGui.QPixmap(_fromUtf8(":/Application/Repository")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionSpyke_Repository.setIcon(icon18)
         self.actionSpyke_Repository.setObjectName(_fromUtf8("actionSpyke_Repository"))
+        self.actionCached_Lazy_Load = QtGui.QAction(MainWindow)
+        self.actionCached_Lazy_Load.setCheckable(True)
+        self.actionCached_Lazy_Load.setObjectName(_fromUtf8("actionCached_Lazy_Load"))
         self.menuRead_Mode.addAction(self.actionFull_Load)
         self.menuRead_Mode.addAction(self.actionLazy_Load)
+        self.menuRead_Mode.addAction(self.actionCached_Lazy_Load)
         self.menuFile.addAction(self.actionLoad_Data)
         self.menuFile.addAction(self.menuRead_Mode.menuAction())
         self.menuFile.addAction(self.actionClearCache)
@@ -409,5 +413,6 @@ class Ui_MainWindow(object):
         self.actionLazy_Load.setText(QtGui.QApplication.translate("MainWindow", "Lazy Load", None, QtGui.QApplication.UnicodeUTF8))
         self.actionLoad_Data.setText(QtGui.QApplication.translate("MainWindow", "Load Data...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSpyke_Repository.setText(QtGui.QApplication.translate("MainWindow", "Spyke Repository", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionCached_Lazy_Load.setText(QtGui.QApplication.translate("MainWindow", "Cached Lazy Load", None, QtGui.QApplication.UnicodeUTF8))
 
 import icons_rc

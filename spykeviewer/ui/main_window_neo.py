@@ -8,7 +8,7 @@ import neo
 from neo.io.baseio import BaseIO
 
 from PyQt4.QtCore import (Qt, pyqtSignature, QThread, QEvent)
-from PyQt4.QtGui import (QMessageBox, QApplication, QActionGroup,
+from PyQt4.QtGui import (QMessageBox, QApplication,
                          QProgressDialog, QFileDialog, QListView,
                          QPushButton, QDialog, QTreeView)
 from spyderlib.widgets.dicteditor import DictEditor
@@ -100,12 +100,6 @@ class MainWindowNeo(MainWindow):
         self.block_index = 0
         self.was_empty = True
         self.channel_group_names = {}
-
-        # Load mode menu
-        self.load_actions = QActionGroup(self)
-        self.load_actions.setExclusive(True)
-        self.actionFull_Load.setActionGroup(self.load_actions)
-        self.actionLazy_Load.setActionGroup(self.load_actions)
 
         # Neo navigation
         nav = NeoNavigationDock(self)
@@ -523,6 +517,10 @@ class MainWindowNeo(MainWindow):
     @pyqtSignature("")
     def on_actionLazy_Load_triggered(self):
         NeoDataProvider.lazy_mode = 1
+
+    @pyqtSignature("")
+    def on_actionCached_Lazy_Load_triggered(self):
+        NeoDataProvider.lazy_mode = 2
 
     @pyqtSignature("int")
     def on_neoIOComboBox_currentIndexChanged(self, index):
