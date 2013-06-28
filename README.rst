@@ -1,6 +1,8 @@
 Overview
 ========
 
+.. image:: https://secure.travis-ci.org/rproepp/spykeviewer.png?branch=develop
+
 Spyke Viewer is a multi-platform GUI application for navigating,
 analyzing and visualizing electrophysiological datasets. Based on the
 `Neo <http://packages.python.org/neo/>`_ framework, it works with a
