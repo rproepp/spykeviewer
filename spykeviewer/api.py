@@ -7,7 +7,7 @@ class __ConfigOptions:
         self.save_plugin_before_starting = True
         # Load selection on start
         self.load_selection_on_start = True
-        # Default load mode (0 - Regular, 1 - Lazy)
+        # Default load mode (0 - Regular, 1 - Lazy, 2 - Cached lazy)
         self.load_mode = 0
         # Use Enter key for code completion in console
         self.codecomplete_console_enter = True

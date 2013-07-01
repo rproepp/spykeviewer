@@ -37,7 +37,11 @@ objects to access the main window and application and convenience functions.
             Regular: Load all file contents on initial load.
         1
             Lazy: Only load file structure. Data objects are loaded
-            automatically when requested.
+            automatically when requested and then discarded.
+        2
+            Cached lazy: Only load file structure. Data objects are
+            loaded automatically when requested and then kept in
+            the object hierarchy so they only need to be loaded once.
 
         This parameter is only effective when set in the startup script.
         Default: 0

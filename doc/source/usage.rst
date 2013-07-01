@@ -52,7 +52,15 @@ You can switch between regular and lazy loading from the "File" menu under
 "Read Mode". The read mode affects newly loaded files and you can have
 both regularly and lazily loaded files opened at the same time. Not all
 Neo IOs support this feature (up to Neo 0.3.0, only the IO for HDF5 files
-does).
+does) - when using lazy mode with an unsopported IO, the file is loaded
+as in regular mode.
+
+There are two options for lazy loading in the menu: "Lazy Load" and
+"Cached Lazy Load". In "Lazy Load", data objects are loaded on request
+and discarded afterwards, so the memory usage stays low. In "Cached Lazy
+Load", data objects are inserted into the object hierarchy when they are
+requested, so they only have to be loaded once, but memory usage will grow
+when more data objects are used while the file is open.
 
 .. _selections:
 
