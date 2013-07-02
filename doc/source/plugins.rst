@@ -132,6 +132,9 @@ Data source
   treated as a dataset. Note that the plot can only be created if all
   selections contain the same number of spike trains.
 
+Counts per
+  Determines if the counts are displayed per second or per segment.
+
 Border correction
   Determines if an automatic correction for less data at higher timelags is
   applied.
