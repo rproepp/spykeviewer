@@ -440,7 +440,7 @@ class MainWindowNeo(MainWindow):
 
     @pyqtSignature("")
     def on_actionSave_Data_triggered(self):
-        path, io = self.save_data_dialog('Choose where to save data')
+        path, io = self._save_data_dialog('Choose where to save data')
         if path is None:
             return
 
