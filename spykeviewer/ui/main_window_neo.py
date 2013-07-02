@@ -373,22 +373,35 @@ class MainWindowNeo(MainWindow):
         self.neoNavigationDock.set_selection(data)
 
     class SaveWorker(QThread):
-        def __init__(self, file_name, blocks):
+        def __init__(self, file_name, blocks, io, params):
             QThread.__init__(self)
             self.file_name = file_name
             self.blocks = blocks
-            self.io = None
+            self.io = io(filename=file_name)
+            self.params = params
             self.terminated.connect(self.cleanup)
             self.finished.connect(self.cleanup)
 
         def run(self):
-            if self.file_name.endswith('.mat'):
-                self.io = neo.io.NeoMatlabIO(filename=self.file_name)
-                self.io.write_block(self.blocks[0])
+            if hasattr(self.io, 'write_all_blocks'):
+                self.io.write(self.blocks, **self.params)
             else:
-                self.io = neo.io.NeoHdf5IO(filename=self.file_name)
-                for block in self.blocks:
-                    self.io.save(block)
+                if neo.Block not in self.io.writeable_objects:
+                    logger.warning('%s does not support writing blocks.' %
+                                   (self.io.name or type(self.io).__name__))
+                    if not len(self.blocks[0].segments) == 1:
+                        logger.warning('Please select a single block with a'
+                                       'single Segment.\nAborting...')
+                    else:
+                        logger.warning(
+                            'Writing only first segment of first file...')
+                        self.io.write(self.blocks[0], **self.params)
+                else:
+                    if len(self.blocks) > 1:
+                        logger.warning(
+                            '%s does not support writing multiple blocks.\n'
+                            'Writing only first block...')
+                    self.io.write(self.blocks[0], **self.params)
 
         def cleanup(self):
             if self.io:
@@ -396,7 +409,7 @@ class MainWindowNeo(MainWindow):
                     self.io.close()
                 self.io = None
 
-    def _save_blocks(self, blocks, file_name, selected_filter):
+    def _save_blocks(self, blocks, file_name, io):
         if not blocks:
             QMessageBox.warning(self, 'Cannot save data',
                                 'No data to save found!')
@@ -406,13 +419,12 @@ class MainWindowNeo(MainWindow):
         self.progress.setWindowTitle('Writing data...')
         self.progress.set_status('')
 
-        if not file_name.endswith('.h5') and not file_name.endswith('.mat'):
-            if selected_filter.endswith('.mat)'):
-                file_name += '.mat'
-            else:
-                file_name += '.h5'
+        if not os.path.splitext(file_name)[1]:  # No previous file extension
+            if len(io.extensions) == 1:  # Unambiguous extension for this io
+                file_name += '.' + io.extensions[0]
 
-        self.worker = self.SaveWorker(file_name, blocks)
+        self.worker = self.SaveWorker(file_name, blocks, io,
+                                      self.io_write_params.get(io, {}))
         self.worker.finished.connect(self.progress.done)
         self.progress.canceled.connect(self.worker.terminate)
         self.worker.start()
@@ -428,34 +440,55 @@ class MainWindowNeo(MainWindow):
 
     @pyqtSignature("")
     def on_actionSave_Data_triggered(self):
-        d = QFileDialog(self, 'Choose where to save data')
-        d.setAcceptMode(QFileDialog.AcceptSave)
-        d.setNameFilters(['HDF5 files (*.h5)', 'Matlab files (*.mat)'])
-        d.setConfirmOverwrite(True)
-        if d.exec_():
-            file_name = unicode(d.selectedFiles()[0])
-        else:
+        path, io = self.save_data_dialog('Choose where to save data')
+        if path is None:
             return
 
         self.progress.begin('Collecting data to save...')
         blocks = self.all_neo_blocks()
-        self._save_blocks(blocks, file_name, d.selectedFilter())
+        self._save_blocks(blocks, path, io)
 
     @pyqtSignature("")
     def on_actionSave_Selected_Data_triggered(self):
-        d = QFileDialog(self, 'Choose where to save selected data')
-        d.setAcceptMode(QFileDialog.AcceptSave)
-        d.setNameFilters(['HDF5 files (*.h5)', 'Matlab files (*.mat)'])
-        #d.setDefaultSuffix('h5')
-        d.setConfirmOverwrite(True)
-        if d.exec_():
-            file_name = unicode(d.selectedFiles()[0])
-        else:
+        path, io = self._save_data_dialog(
+            'Choose where to save selected data')
+        if path is None:
             return
 
         self.progress.begin('Collecting data to save...')
         blocks = self.provider.selection_blocks()
-        self._save_blocks(blocks, file_name, d.selectedFilter())
+        self._save_blocks(blocks, path, io)
+
+    def _get_writeable_formats(self):
+        """ Return a list of name filters for save dialog and a dictionary
+        that maps name filters to IO classes.
+        """
+        filters = []
+        d = {}
+        for io in neo.io.iolist:
+            if not io.is_writable:
+                continue
+            filters.append('%s (%s)' % (
+                io.name or io.__name__,
+                ' '.join(['*.' + ext for ext in io.extensions])))
+            d[filters[-1]] = io
+        return filters, d
+
+    def _save_data_dialog(self, title):
+        """ Create a save dialog for data. Return the filename and selected IO
+        if the user wants to save, (None, None) if the dialog was canceled.
+
+        :param str title: Dialog title
+        """
+        dialog = QFileDialog(self, title)
+        dialog.setAcceptMode(QFileDialog.AcceptSave)
+        name_filters, io_mapping = self._get_writeable_formats()
+        dialog.setNameFilters(name_filters)
+        dialog.setConfirmOverwrite(True)
+        if not dialog.exec_():
+            return None, None
+
+        return unicode(dialog.selectedFiles()[0]), io_mapping[dialog.selectedNameFilter()]
 
     @pyqtSignature("")
     def on_actionFull_Load_triggered(self):
