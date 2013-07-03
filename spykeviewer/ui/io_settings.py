@@ -73,11 +73,8 @@ class ParamDialog(QDialog):
     def __init__(self, io, params_read, params_write, parent):
         super(ParamDialog, self).__init__(parent)
 
-        #if io.name:
-        #    self.setWindowTitle('Options for %s' % io.name)
-        #else:
-        #    self.setWindowTitle('Options for %s' % io.__name__)
         self.setWindowTitle('Options for %s' % (io.name or io.__name__))
+        self.io = io
 
         self.setModal(True)
         self.mainLayout = QVBoxLayout()
@@ -168,10 +165,10 @@ class ParamDialog(QDialog):
                         possible[i] = 'Tab'
 
                 def_choice = 0
-                if name in param_dict:
-                    def_choice = param_dict[name]
-                elif default in possible:
-                    def_choice = possible.index(default)
+                if name in param_dict and name in params['possible']:
+                    def_choice = params['possible'].index(param_dict[name])
+                elif default in params['possible']:
+                    def_choice = params['possible'].index(default)
                 items[name] = ChoiceItem(label, possible,
                                          default=def_choice)
             else:
@@ -204,13 +201,29 @@ class ParamDialog(QDialog):
         else:
             QDialog.accept(self)
 
+    def _get_choice_value(self, name, value, params):
+        """ Make sure that a parameter value is the actual value, not an index
+        into the choises for parameters with a list of possible values.
+        """
+        for n, d in params.values()[0]:
+            if name != n:
+                continue
+            if not 'possible' in d:
+                return value
+            return d['possible'][value]
+
+        # Should not happen, just return original value
+        return value
+
     def get_read_params(self):
         """ Return a dictionary of read parameter values suitable for passing
         to Neo IO read function.
         """
         d = {}
         for name in self.read_params.iterkeys():
-            d[name] = getattr(self.read_params_edit.dataset, name)
+            d[name] = self._get_choice_value(
+                name, getattr(self.read_params_edit.dataset, name),
+                self.io.read_params)
         return d
 
     def get_write_params(self):
@@ -219,5 +232,7 @@ class ParamDialog(QDialog):
         """
         d = {}
         for name in self.write_params.iterkeys():
-            d[name] = getattr(self.write_params_edit.dataset, name)
+            d[name] = self._get_choice_value(
+                name, getattr(self.write_params_edit.dataset, name,),
+                self.io.write_params)
         return d
