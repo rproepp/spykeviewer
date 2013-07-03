@@ -348,7 +348,14 @@ class MainWindowNeo(MainWindow):
 
             QApplication.setOverrideCursor(Qt.WaitCursor)
             try:
-                blocks = NeoDataProvider.get_blocks(b[1])
+                cl = None
+                rp = None
+                if len(b) > 2:
+                    cl = NeoDataProvider.find_io_class(b[2])
+                if len(b) > 3:
+                    rp = b[3]
+                blocks = NeoDataProvider.get_blocks(
+                    b[1], force_io=cl, read_params=rp)
             finally:
                 QApplication.restoreOverrideCursor()
             if not blocks:
