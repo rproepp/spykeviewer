@@ -64,7 +64,7 @@ QGroupBox::title {
      <x>0</x>
      <y>0</y>
      <width>819</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -77,6 +77,7 @@ QGroupBox::title {
      </property>
      <addaction name="actionFull_Load"/>
      <addaction name="actionLazy_Load"/>
+     <addaction name="actionCached_Lazy_Load"/>
     </widget>
     <addaction name="actionLoad_Data"/>
     <addaction name="menuRead_Mode"/>
@@ -211,6 +212,23 @@ QGroupBox::title {
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_8">
     <layout class="QGridLayout" name="gridLayout_6">
+     <item row="1" column="0">
+      <layout class="QFormLayout" name="formLayout">
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+       </property>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Format:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="neoIOComboBox"/>
+       </item>
+      </layout>
+     </item>
      <item row="0" column="0">
       <widget class="QTreeView" name="fileTreeView">
        <property name="selectionMode">
@@ -233,10 +251,17 @@ QGroupBox::title {
        </attribute>
       </widget>
      </item>
-     <item row="1" column="0">
+     <item row="5" column="0">
       <widget class="QPushButton" name="loadFilesButton">
        <property name="text">
         <string>Load</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QPushButton" name="configureIOButton">
+       <property name="text">
+        <string>Configure Selected IO</string>
        </property>
       </widget>
      </item>
@@ -630,6 +655,14 @@ QGroupBox::title {
    </property>
    <property name="text">
     <string>Spyke Repository</string>
+   </property>
+  </action>
+  <action name="actionCached_Lazy_Load">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Cached Lazy Load</string>
    </property>
   </action>
  </widget>

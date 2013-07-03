@@ -7,10 +7,9 @@ import inspect
 import neo
 from neo.io.baseio import BaseIO
 
-from PyQt4.QtCore import (Qt, pyqtSignature, QThread, QEvent)
-from PyQt4.QtGui import (QMessageBox, QApplication, QActionGroup,
-                         QProgressDialog, QFileDialog, QListView,
-                         QPushButton, QDialog, QTreeView)
+from PyQt4.QtCore import (Qt, pyqtSignature, QThread)
+from PyQt4.QtGui import (QMessageBox, QApplication,
+                         QProgressDialog, QFileDialog)
 from spyderlib.widgets.dicteditor import DictEditor
 
 from spykeutils.progress_indicator import ignores_cancel
@@ -20,71 +19,10 @@ from spykeutils.plugin.data_provider_stored import NeoStoredProvider
 from main_window import MainWindow
 from ..plugin_framework.data_provider_viewer import NeoViewerProvider
 from neo_navigation import NeoNavigationDock
-
+from dir_files_dialog import DirFilesDialog
+import io_settings
 
 logger = logging.getLogger('spykeviewer')
-
-
-class DirFilesDialog(QFileDialog):
-    """ A file dialog that allows to choose multiple files and folders.
-    """
-    def __init__(self, parent=None, caption='', directory='', filter=''):
-        super(DirFilesDialog, self).__init__(parent, caption,
-                                             directory, filter)
-
-        self.setOption(QFileDialog.DontUseNativeDialog, True)
-        self.setAcceptMode(QFileDialog.AcceptOpen)
-        self.setFileMode(QFileDialog.Directory)
-        self.setNameFilter('All files or folders (*)')
-        self.setNameFilterDetailsVisible(False)
-
-        self.list_view = self.findChild(QListView, 'listView')
-        if self.list_view:
-            self.list_view.setSelectionMode(QListView.ExtendedSelection)
-            sel_model = self.list_view.selectionModel()
-            sel_model.selectionChanged.connect(self.enable_update)
-
-        self.tree_view = self.findChild(QTreeView, 'listView')
-        if self.tree_view:
-            self.tree_view.setSelectionMode(QTreeView.ExtendedSelection)
-            sel_model = self.tree_view.selectionModel()
-            sel_model.selectionChanged.connect(self.enable_update)
-
-        for b in self.findChildren(QPushButton):
-            if 'choose' in b.text().lower():
-                self.button = b
-                b.installEventFilter(self)
-                b.clicked.disconnect()
-                b.clicked.connect(self.choose_clicked)
-                b.setEnabled(False)
-                break
-
-    def eventFilter(self, watched, event):
-        if event.type() == QEvent.EnabledChange:
-            if not watched.isEnabled():
-                if self.list_view:
-                    if self.list_view.selectionModel().selectedIndexes():
-                        watched.setEnabled(True)
-                elif self.tree_view:
-                    if self.tree_view.selectionModel().selectedIndexes():
-                        watched.setEnabled(True)
-
-        return super(QFileDialog, self).eventFilter(watched, event)
-
-    def enable_update(self):
-        if self.list_view:
-            if self.list_view.selectionModel().selectedIndexes():
-                self.button.setEnabled(True)
-            else:
-                self.button.setEnabled(False)
-        elif self.tree_view:
-            if self.tree_view.selectionModel().selectedIndexes():
-                self.button.setEnabled(True)
-            else:
-                self.button.setEnabled(False)
-
-    def choose_clicked(self):
-        self.done(QDialog.Accepted)
 
 
 #noinspection PyCallByClass,PyTypeChecker,PyArgumentList
@@ -100,12 +38,7 @@ class MainWindowNeo(MainWindow):
         self.block_index = 0
         self.was_empty = True
         self.channel_group_names = {}
-
-        # Load mode menu
-        self.load_actions = QActionGroup(self)
-        self.load_actions.setExclusive(True)
-        self.actionFull_Load.setActionGroup(self.load_actions)
-        self.actionLazy_Load.setActionGroup(self.load_actions)
+        self.io_write_params = {}
 
         # Neo navigation
         nav = NeoNavigationDock(self)
@@ -219,6 +152,32 @@ class MainWindowNeo(MainWindow):
                     cl._is_spyke_plugin = True
                     neo.io.iolist.insert(0, cl)
 
+        # Populate IO list
+        self.neoIOComboBox.clear()
+        iolabels = []
+
+        for io in neo.io.iolist:
+            if io.name:
+                iolabels.append((io.name, io))
+            else:
+                iolabels.append((io.__name__, io))
+
+        iolabels.sort(key=lambda x: x[0].lower())
+        self.neoIOComboBox.addItem('By extension')
+        self.neoIOComboBox.setItemData(0, None)
+        self.neoIOComboBox.addItems([l[0] for l in iolabels])
+
+        for i, l in enumerate(iolabels):
+            self.neoIOComboBox.setItemData(i + 1, l[1])
+
+        # Delete stale IO configs
+        for p in self.io_write_params.keys():
+            if p not in neo.io.iolist:
+                del self.io_write_params[p]
+        for p in NeoDataProvider.io_params.keys():
+            if p not in neo.io.iolist:
+                del NeoDataProvider.io_params[p]
+
     def get_letter_id(self, id_, small=False):
         """ Return a name consisting of letters given an integer
         """
@@ -274,10 +233,11 @@ class MainWindowNeo(MainWindow):
         # Load worker thread finished
         blocks = self.load_worker.blocks
         if blocks is None:
-            logger.error('Could not read file "%s"' %
+            logger.error('Could not read "%s"' %
                          self.load_worker.paths[0])
             self.progress.done()
             self.load_progress.reset()
+            self.raise_()
             return
 
         for block in blocks:
@@ -413,22 +373,35 @@ class MainWindowNeo(MainWindow):
         self.neoNavigationDock.set_selection(data)
 
     class SaveWorker(QThread):
-        def __init__(self, file_name, blocks):
+        def __init__(self, file_name, blocks, io, params):
             QThread.__init__(self)
             self.file_name = file_name
             self.blocks = blocks
-            self.io = None
+            self.io = io(filename=file_name)
+            self.params = params
             self.terminated.connect(self.cleanup)
             self.finished.connect(self.cleanup)
 
         def run(self):
-            if self.file_name.endswith('.mat'):
-                self.io = neo.io.NeoMatlabIO(filename=self.file_name)
-                self.io.write_block(self.blocks[0])
+            if hasattr(self.io, 'write_all_blocks'):
+                self.io.write(self.blocks, **self.params)
             else:
-                self.io = neo.io.NeoHdf5IO(filename=self.file_name)
-                for block in self.blocks:
-                    self.io.save(block)
+                if neo.Block not in self.io.writeable_objects:
+                    logger.warning('%s does not support writing blocks.' %
+                                   (self.io.name or type(self.io).__name__))
+                    if not len(self.blocks[0].segments) == 1:
+                        logger.warning('Please select a single block with a'
+                                       'single Segment.\nAborting...')
+                    else:
+                        logger.warning(
+                            'Writing only first segment of first file...')
+                        self.io.write(self.blocks[0], **self.params)
+                else:
+                    if len(self.blocks) > 1:
+                        logger.warning(
+                            '%s does not support writing multiple blocks.\n'
+                            'Writing only first block...')
+                    self.io.write(self.blocks[0], **self.params)
 
         def cleanup(self):
             if self.io:
@@ -436,7 +409,7 @@ class MainWindowNeo(MainWindow):
                     self.io.close()
                 self.io = None
 
-    def _save_blocks(self, blocks, file_name, selected_filter):
+    def _save_blocks(self, blocks, file_name, io):
         if not blocks:
             QMessageBox.warning(self, 'Cannot save data',
                                 'No data to save found!')
@@ -446,13 +419,12 @@ class MainWindowNeo(MainWindow):
         self.progress.setWindowTitle('Writing data...')
         self.progress.set_status('')
 
-        if not file_name.endswith('.h5') and not file_name.endswith('.mat'):
-            if selected_filter.endswith('.mat)'):
-                file_name += '.mat'
-            else:
-                file_name += '.h5'
+        if not os.path.splitext(file_name)[1]:  # No previous file extension
+            if len(io.extensions) == 1:  # Unambiguous extension for this io
+                file_name += '.' + io.extensions[0]
 
-        self.worker = self.SaveWorker(file_name, blocks)
+        self.worker = self.SaveWorker(file_name, blocks, io,
+                                      self.io_write_params.get(io, {}))
         self.worker.finished.connect(self.progress.done)
         self.progress.canceled.connect(self.worker.terminate)
         self.worker.start()
@@ -468,34 +440,55 @@ class MainWindowNeo(MainWindow):
 
     @pyqtSignature("")
     def on_actionSave_Data_triggered(self):
-        d = QFileDialog(self, 'Choose where to save data')
-        d.setAcceptMode(QFileDialog.AcceptSave)
-        d.setNameFilters(['HDF5 files (*.h5)', 'Matlab files (*.mat)'])
-        d.setConfirmOverwrite(True)
-        if d.exec_():
-            file_name = unicode(d.selectedFiles()[0])
-        else:
+        path, io = self._save_data_dialog('Choose where to save data')
+        if path is None:
             return
 
         self.progress.begin('Collecting data to save...')
         blocks = self.all_neo_blocks()
-        self._save_blocks(blocks, file_name, d.selectedFilter())
+        self._save_blocks(blocks, path, io)
 
     @pyqtSignature("")
     def on_actionSave_Selected_Data_triggered(self):
-        d = QFileDialog(self, 'Choose where to save selected data')
-        d.setAcceptMode(QFileDialog.AcceptSave)
-        d.setNameFilters(['HDF5 files (*.h5)', 'Matlab files (*.mat)'])
-        #d.setDefaultSuffix('h5')
-        d.setConfirmOverwrite(True)
-        if d.exec_():
-            file_name = unicode(d.selectedFiles()[0])
-        else:
+        path, io = self._save_data_dialog(
+            'Choose where to save selected data')
+        if path is None:
             return
 
         self.progress.begin('Collecting data to save...')
         blocks = self.provider.selection_blocks()
-        self._save_blocks(blocks, file_name, d.selectedFilter())
+        self._save_blocks(blocks, path, io)
+
+    def _get_writeable_formats(self):
+        """ Return a list of name filters for save dialog and a dictionary
+        that maps name filters to IO classes.
+        """
+        filters = []
+        d = {}
+        for io in neo.io.iolist:
+            if not io.is_writable:
+                continue
+            filters.append('%s (%s)' % (
+                io.name or io.__name__,
+                ' '.join(['*.' + ext for ext in io.extensions])))
+            d[filters[-1]] = io
+        return filters, d
+
+    def _save_data_dialog(self, title):
+        """ Create a save dialog for data. Return the filename and selected IO
+        if the user wants to save, (None, None) if the dialog was canceled.
+
+        :param str title: Dialog title
+        """
+        dialog = QFileDialog(self, title)
+        dialog.setAcceptMode(QFileDialog.AcceptSave)
+        name_filters, io_mapping = self._get_writeable_formats()
+        dialog.setNameFilters(name_filters)
+        dialog.setConfirmOverwrite(True)
+        if not dialog.exec_():
+            return None, None
+
+        return unicode(dialog.selectedFiles()[0]), io_mapping[dialog.selectedNameFilter()]
 
     @pyqtSignature("")
     def on_actionFull_Load_triggered(self):
@@ -504,3 +497,27 @@ class MainWindowNeo(MainWindow):
     @pyqtSignature("")
     def on_actionLazy_Load_triggered(self):
         NeoDataProvider.lazy_mode = 1
+
+    @pyqtSignature("")
+    def on_actionCached_Lazy_Load_triggered(self):
+        NeoDataProvider.lazy_mode = 2
+
+    @pyqtSignature("int")
+    def on_neoIOComboBox_currentIndexChanged(self, index):
+        if index > 0:
+            NeoDataProvider.forced_io = self.neoIOComboBox.itemData(index)
+            self.configureIOButton.setEnabled(io_settings.has_ui_params(NeoDataProvider.forced_io))
+        else:
+            NeoDataProvider.forced_io = None
+            self.configureIOButton.setEnabled(False)
+
+    @pyqtSignature("")
+    def on_configureIOButton_pressed(self):
+        io = NeoDataProvider.forced_io
+        d = io_settings.ParamDialog(
+            io, NeoDataProvider.io_params.get(io, {}),
+            self.io_write_params.get(io, {}), self)
+
+        if d.exec_():
+            NeoDataProvider.io_params[io] = d.get_read_params()
+            self.io_write_params[io] = d.get_write_params()

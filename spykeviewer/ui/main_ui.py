@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/rob/Spyke/viewer/spykeviewer/ui/main.ui'
+# Form implementation generated from reading ui file '.\main.ui'
 #
-# Created: Wed Jun 19 11:08:03 2013
-#      by: PyQt4 UI code generator 4.9.3
+# Created: Sun Jun 23 15:30:05 2013
+#      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -48,7 +48,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
         MainWindow.setCentralWidget(self.centralWidget)
         self.mainMenu = QtGui.QMenuBar(MainWindow)
-        self.mainMenu.setGeometry(QtCore.QRect(0, 0, 819, 25))
+        self.mainMenu.setGeometry(QtCore.QRect(0, 0, 819, 21))
         self.mainMenu.setObjectName(_fromUtf8("mainMenu"))
         self.menuFile = QtGui.QMenu(self.mainMenu)
         self.menuFile.setObjectName(_fromUtf8("menuFile"))
@@ -105,6 +105,16 @@ class Ui_MainWindow(object):
         self.dockWidgetContents_8.setObjectName(_fromUtf8("dockWidgetContents_8"))
         self.gridLayout_6 = QtGui.QGridLayout(self.dockWidgetContents_8)
         self.gridLayout_6.setObjectName(_fromUtf8("gridLayout_6"))
+        self.formLayout = QtGui.QFormLayout()
+        self.formLayout.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
+        self.formLayout.setObjectName(_fromUtf8("formLayout"))
+        self.label = QtGui.QLabel(self.dockWidgetContents_8)
+        self.label.setObjectName(_fromUtf8("label"))
+        self.formLayout.setWidget(0, QtGui.QFormLayout.LabelRole, self.label)
+        self.neoIOComboBox = QtGui.QComboBox(self.dockWidgetContents_8)
+        self.neoIOComboBox.setObjectName(_fromUtf8("neoIOComboBox"))
+        self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.neoIOComboBox)
+        self.gridLayout_6.addLayout(self.formLayout, 1, 0, 1, 1)
         self.fileTreeView = QtGui.QTreeView(self.dockWidgetContents_8)
         self.fileTreeView.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.fileTreeView.setUniformRowHeights(True)
@@ -116,7 +126,10 @@ class Ui_MainWindow(object):
         self.gridLayout_6.addWidget(self.fileTreeView, 0, 0, 1, 1)
         self.loadFilesButton = QtGui.QPushButton(self.dockWidgetContents_8)
         self.loadFilesButton.setObjectName(_fromUtf8("loadFilesButton"))
-        self.gridLayout_6.addWidget(self.loadFilesButton, 1, 0, 1, 1)
+        self.gridLayout_6.addWidget(self.loadFilesButton, 5, 0, 1, 1)
+        self.configureIOButton = QtGui.QPushButton(self.dockWidgetContents_8)
+        self.configureIOButton.setObjectName(_fromUtf8("configureIOButton"))
+        self.gridLayout_6.addWidget(self.configureIOButton, 2, 0, 1, 1)
         self.filesDock.setWidget(self.dockWidgetContents_8)
         MainWindow.addDockWidget(QtCore.Qt.DockWidgetArea(2), self.filesDock)
         self.filterToolbar = QtGui.QToolBar(MainWindow)
@@ -262,8 +275,12 @@ class Ui_MainWindow(object):
         icon18.addPixmap(QtGui.QPixmap(_fromUtf8(":/Application/Repository")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionSpyke_Repository.setIcon(icon18)
         self.actionSpyke_Repository.setObjectName(_fromUtf8("actionSpyke_Repository"))
+        self.actionCached_Lazy_Load = QtGui.QAction(MainWindow)
+        self.actionCached_Lazy_Load.setCheckable(True)
+        self.actionCached_Lazy_Load.setObjectName(_fromUtf8("actionCached_Lazy_Load"))
         self.menuRead_Mode.addAction(self.actionFull_Load)
         self.menuRead_Mode.addAction(self.actionLazy_Load)
+        self.menuRead_Mode.addAction(self.actionCached_Lazy_Load)
         self.menuFile.addAction(self.actionLoad_Data)
         self.menuFile.addAction(self.menuRead_Mode.menuAction())
         self.menuFile.addAction(self.actionClearCache)
@@ -335,7 +352,9 @@ class Ui_MainWindow(object):
         self.historyDock.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Command History", None, QtGui.QApplication.UnicodeUTF8))
         self.pluginDock.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Plugins", None, QtGui.QApplication.UnicodeUTF8))
         self.filesDock.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Files", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("MainWindow", "Format:", None, QtGui.QApplication.UnicodeUTF8))
         self.loadFilesButton.setText(QtGui.QApplication.translate("MainWindow", "Load", None, QtGui.QApplication.UnicodeUTF8))
+        self.configureIOButton.setText(QtGui.QApplication.translate("MainWindow", "Configure Selected IO", None, QtGui.QApplication.UnicodeUTF8))
         self.filterToolbar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Filter Toolbar", None, QtGui.QApplication.UnicodeUTF8))
         self.pluginToolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Plugin Toolbar", None, QtGui.QApplication.UnicodeUTF8))
         self.actionExit.setText(QtGui.QApplication.translate("MainWindow", "&Exit", None, QtGui.QApplication.UnicodeUTF8))
@@ -394,5 +413,6 @@ class Ui_MainWindow(object):
         self.actionLazy_Load.setText(QtGui.QApplication.translate("MainWindow", "Lazy Load", None, QtGui.QApplication.UnicodeUTF8))
         self.actionLoad_Data.setText(QtGui.QApplication.translate("MainWindow", "Load Data...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSpyke_Repository.setText(QtGui.QApplication.translate("MainWindow", "Spyke Repository", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionCached_Lazy_Load.setText(QtGui.QApplication.translate("MainWindow", "Cached Lazy Load", None, QtGui.QApplication.UnicodeUTF8))
 
 import icons_rc
