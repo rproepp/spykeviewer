@@ -139,6 +139,12 @@ Border correction
   Determines if an automatic correction for less data at higher timelags is
   applied.
 
+Include mirrored plots
+  Determines if all cross-correlograms are included, even if they are just
+   mirrored versions of each other. The autocorrelograms are then displayed
+   as the diagonal of a square plot matrix. Otherwise, mirrored
+   cross-correlograms are omitted.
+
 Interspike Interval Histogram
 -----------------------------
 Creates an interspike interval histogram for one or more units.

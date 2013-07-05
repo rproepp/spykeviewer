@@ -10,6 +10,7 @@ class CorrelogramPlugin(analysis_plugin.AnalysisPlugin):
     data_source = gui_data.ChoiceItem('Data source', ('Units', 'Selections'))
     count_per = gui_data.ChoiceItem('Counts per', ('Second', 'Segment'))
     border_correction = gui_data.BoolItem('Border correction', default=True)
+    square = gui_data.BoolItem('Include mirrored plots')
 
     def get_name(self):
         return 'Correlogram'
@@ -26,11 +27,9 @@ class CorrelogramPlugin(analysis_plugin.AnalysisPlugin):
                 d[neo.Unit(s.name)] = s.spike_trains()
 
         plot.cross_correlogram(d, self.bin_size*pq.ms,
-            self.cut_off*pq.ms, self.border_correction,
-            self.count_per == 0,
+            self.cut_off*pq.ms, 
+            border_correction=self.border_correction,
+            per_second=self.count_per == 0,
+            square=self.square,
             progress=current.progress)
-
-
-
-
 
