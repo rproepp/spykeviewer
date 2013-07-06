@@ -1216,13 +1216,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not plugin:
             return
 
-        selections = self.serialize_selections()
-        config = pickle.dumps(plugin.get_parameters())
-        name = type(plugin).__name__
-        path = self.current_plugin_path()
-        self.send_plugin_info(name, path, selections, config)
+        self._execute_remote_plugin(plugin)
 
-    def send_plugin_info(self, name, path, selections, config):
+    def send_plugin_info(self, name, path, selections, config, io_files):
         """ Send information to start a plugin to the configured remote
         script.
 
@@ -1230,6 +1226,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         :param str path: Path of the plugin file
         :param str selections: Serialized selections to use
         :param str config: Pickled plugin configuration
+        :param list io_files: List of paths to required IO plugins.
         """
         # Save files to circumvent length limit for command line
         selection_path = os.path.join(self.selection_path, '.temp.sel')
@@ -1239,6 +1236,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         params = ['python', self.remote_script,
                   name, path, selection_path, '-cf', '-sf',
                   '-c', config, '-dd', AnalysisPlugin.data_dir]
+        if io_files:
+            params.append('-io')
+            params.extend(io_files)
         params.extend(api.config.remote_script_parameters)
         subprocess.Popen(params)
 
@@ -1351,11 +1351,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if len(plugins) > 1:
             raise SpykeException('Multiple plugins named "%s" exist!' % name)
 
-        selections = self.serialize_selections()
-        config = pickle.dumps(plugins[0].get_parameters())
-        name = type(plugins[0]).__name__
-        path = plugins[0].source_file
-        self.send_plugin_info(name, path, selections, config)
+        self._execute_remote_plugin(plugins[0])
 
     def on_file_available(self, available):
         """ Callback when availability of a file for a plugin changes.
