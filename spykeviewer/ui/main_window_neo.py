@@ -524,6 +524,8 @@ class MainWindowNeo(MainWindow):
 
         io_plugin_files = []
         for s in sl:
+            if s['type'] != 'Neo':
+                continue
             for b in s['blocks']:
                 if len(b) > 2:
                     io = NeoDataProvider.find_io_class(b[2])
