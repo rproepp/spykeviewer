@@ -9,6 +9,7 @@ import copy
 import pickle
 import platform
 import subprocess
+import time
 
 from PyQt4.QtGui import (QMainWindow, QMessageBox,
                          QApplication, QFileDialog, QInputDialog,
@@ -1134,9 +1135,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     return None
         return ana
 
-    def _run_plugin(self, plugin):
+    def _run_plugin(self, plugin, current=None, selections=None):
+        if current is None:
+            current = self.provider
+        if selections is None:
+            selections = self.selections
         try:
-            return plugin.start(self.provider, self.selections)
+            return plugin.start(current, selections)
         except SpykeException, err:
             QMessageBox.critical(self, 'Error executing plugin', str(err))
         except CancelException:
@@ -1229,7 +1234,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         :param list io_files: List of paths to required IO plugins.
         """
         # Save files to circumvent length limit for command line
-        selection_path = os.path.join(self.selection_path, '.temp.sel')
+        selection_path = os.path.join(
+            self.selection_path, '.temp_%f_.sel' % time.time())
         with open(selection_path, 'w') as f:
             f.write(selections)
 
@@ -1240,7 +1246,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             params.append('-io')
             params.extend(io_files)
         params.extend(api.config.remote_script_parameters)
-        subprocess.Popen(params)
+        subprocess.Popen(params, stdout=sys.__stdout__, stderr=sys.__stderr__)
 
     @pyqtSignature("")
     def on_actionEdit_Startup_Script_triggered(self):
@@ -1314,7 +1320,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         return plugins[0]
 
-    def start_plugin(self, name):
+    def start_plugin(self, name, current=None, selections=None):
         """ Start first plugin with given name and return result of start()
         method. Raises a SpykeException if not exactly one plugins with
         this name exist.
@@ -1338,9 +1344,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     raise SpykeException(
                         'Multiple plugins named "%s" exist!' % name)
 
-        return self._run_plugin(plugins[0])
+        return self._run_plugin(plugins[0], current, selections)
 
-    def start_plugin_remote(self, name):
+    def start_plugin_remote(self, name, current=None, selections=None):
         """ Start first plugin with given name remotely. Does not return
         any value. Raises a SpykeException if not exactly one plugins with
         this name exist.
@@ -1351,7 +1357,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if len(plugins) > 1:
             raise SpykeException('Multiple plugins named "%s" exist!' % name)
 
-        self._execute_remote_plugin(plugins[0])
+        self._execute_remote_plugin(plugins[0], current, selections)
 
     def on_file_available(self, available):
         """ Callback when availability of a file for a plugin changes.
@@ -1367,6 +1373,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                   self.plugin_paths, self)
 
         if settings.exec_() == settings.Accepted:
+            try:
+                self.clean_temporary_selection_files(self.selection_path)
+            except:
+                pass  # Does not matter if e.g. old directory does not exist
             self.selection_path = settings.selection_path()
             self.filter_path = settings.filter_path()
             self.remote_script = settings.remote_script()
@@ -1427,6 +1437,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             paths.append('/'.join(reversed(path)))
         return paths
 
+    def clean_temporary_selection_files(self, path):
+        """ Remove temporary .temp_..._.sel files from a directory.
+        These files are written when executing plugins remotely.
+        """
+        for f in os.listdir(path):
+            if f.startswith('.temp_') and f.endswith('_.sel'):
+                os.remove(os.path.join(path, f))
+
     def closeEvent(self, event):
         """ Saves filters, plugin configs and GUI state.
         """
@@ -1444,6 +1462,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.save_selections_to_file(
             os.path.join(self.selection_path, '.current.sel'))
+        self.clean_temporary_selection_files(self.selection_path)
 
         # Ensure that filters folder exists
         if not os.path.exists(self.filter_path):

@@ -4,6 +4,8 @@ import logging
 import traceback
 import inspect
 import pickle
+import copy
+import json
 
 import neo
 from neo.io.baseio import BaseIO
@@ -516,10 +518,19 @@ class MainWindowNeo(MainWindow):
             NeoDataProvider.io_params[io] = d.get_read_params()
             self.io_write_params[io] = d.get_write_params()
 
-    def _execute_remote_plugin(self, plugin):
+    def _execute_remote_plugin(self, plugin, current=None, selections=None):
         sl = list()
-        sl.append(self.provider_factory('__current__', self).data_dict())
-        for s in self.selections:
+
+        if current is None:
+            sl.append(self.provider_factory('__current__', self).data_dict())
+        else:
+            d = copy.copy(current.data_dict())
+            d['name'] = '__current__'
+            sl.append(d)
+        if selections is None:
+            selections = self.selections
+
+        for s in selections:
             sl.append(s.data_dict())
 
         io_plugin_files = []
@@ -535,7 +546,7 @@ class MainWindowNeo(MainWindow):
                     if getattr(io, '_is_spyke_plugin', False):
                         io_plugin_files.append(io._python_file)
 
-        selections = self.serialize_selections()
+        selections = json.dumps(sl, sort_keys=True, indent=2)
         config = pickle.dumps(plugin.get_parameters())
         name = type(plugin).__name__
         path = plugin.source_file
