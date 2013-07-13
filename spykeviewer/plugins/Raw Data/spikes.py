@@ -14,7 +14,9 @@ class SpikePlotPlugin(analysis_plugin.AnalysisPlugin):
                                      default=True)        
     
     _g = gui_data.BeginGroup('Include spikes from')
-    spike_mode = gui_data.ChoiceItem('Spikes', ('Not', 'Regular', 'Strong'),
+    spike_mode = gui_data.ChoiceItem('Spikes', ('Do not include', 
+                                                'Regular', 
+                                                'Emphasized'),
                                      default=1)
     inc_spikes = gui_data.BoolItem('Spike Trains')
     inc_extracted = gui_data.BoolItem(
@@ -64,17 +66,27 @@ class SpikePlotPlugin(analysis_plugin.AnalysisPlugin):
                 
         if self.inc_extracted:
             current.progress.set_status('Extracting spikes from signals')
-            signals = current.analog_signals_by_segment(conversion_mode=3)
+            signals = current.analog_signals_by_segment_and_channel(
+                conversion_mode=3)
             if spike_trains is None:
                 spike_trains = current.spike_trains_by_unit_and_segment()
                 
             for u, trains in spike_trains.iteritems():
                 s = []
+                rcg = u.recordingchannelgroup
                 for seg, train in trains.iteritems():
                     if seg not in signals:
                         continue
+                    
+                    train_sigs = []
+                    for rc in signals[seg]:
+                        if rcg in rc.recordingchannelgroups:
+                            train_sigs.append(signals[seg][rc])
+                    if not train_sigs:
+                        continue
+                    print train_sigs
                     s.extend(extract_spikes(
-                        train, signals[seg],
+                        train, train_sigs,
                         self.length * pq.ms, self.align * pq.ms))
                 if not s:
                     continue
