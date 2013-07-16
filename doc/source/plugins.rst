@@ -96,9 +96,24 @@ Antialiased lines
   display thousands of spikes or more, unchecking this option will improve the
   plotting performance considerably.
 
-Included spikes
-  Determines whether to include spikes from SpikeTrain objects, Spike
-  objects, or both.
+Include spikes from
+  Determines which data sources are used for the displayed spike waveforms.
+
+  Spikes
+    Waveforms from Spike objects can be ignored (Do not include), used as
+    other spike data sources are (Regular) or drawn thicker on top of other
+    spikes (Emphasized). The last option is useful if spike objects contain
+    templates from spike sorting which you want to compare to corresponding
+    spikes from the data.
+
+  Spike Trains
+    Spike waveforms embedded in SpikeTrain objects.
+
+  Extracted from signal
+    Spike waveforms can be automatically extracted from corresponding signals
+    using spike times in SpikeTrain objects. In this case you have to choose
+    the spike length and the alignment offset (the length of the signal to
+    extract before each spike event).
 
 Plot type
   Three different plot types can be selected: "One plot per channel" creates a
@@ -107,6 +122,16 @@ Plot type
 
 Split channels
   Multichannel waveforms can be split either horizontally or vertically.
+
+Subplot layout
+  You can choose one of two ways to arrange the resulting subplot: "Linear"
+  will arrange the plots as one row or one column, depending on the other
+  options. "Square" uses an equal number of row and columns.
+
+Fade earlier spikes
+  If this is enabled, earlier selected spikes for each unit are drawn more
+  transparent than later spikes. This can be useful if you want to compare
+  changes in a unit's waveform over time (i.e. multiple segments).
 
 Correlogram
 -----------
