@@ -30,6 +30,7 @@ from spykeutils.plugin.data_provider import DataProvider
 from spykeutils.plugin.analysis_plugin import AnalysisPlugin
 from spykeutils.progress_indicator import CancelException
 from spykeutils import SpykeException
+from spykeutils.plot.helper import ProgressIndicatorDialog
 
 from .. import api
 from main_ui import Ui_MainWindow
@@ -37,7 +38,6 @@ from settings import SettingsWindow
 from filter_dock import FilterDock
 from filter_dialog import FilterDialog
 from filter_group_dialog import FilterGroupDialog
-from progress_indicator_dialog import ProgressIndicatorDialog
 from plugin_editor_dock import PluginEditorDock
 import ipython_connection as ipy
 from plugin_model import PluginModel
