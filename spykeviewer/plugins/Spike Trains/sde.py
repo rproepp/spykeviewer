@@ -9,6 +9,7 @@ stop_prop = gui_data.ValueProp(False)
 align_prop = gui_data.ValueProp(False)
 optimize_prop = gui_data.ValueProp(False)
 
+
 class SDEPlugin(analysis_plugin.AnalysisPlugin):
     # Configurable parameters
     kernel_size = gui_data.FloatItem('Kernel size', min=1.0, default=300.0,
@@ -44,7 +45,7 @@ class SDEPlugin(analysis_plugin.AnalysisPlugin):
         return 'Spike Density Estimation'
 
     def start(self, current, selections):
-        current.progress.begin()
+        current.progress.begin('Creating spike density estimation')
         current.progress.set_status('Reading spike trains')
 
         # Prepare quantities
@@ -63,19 +64,21 @@ class SDEPlugin(analysis_plugin.AnalysisPlugin):
         trains = current.spike_trains_by_unit()
         if self.align_enabled:
             events = current.labeled_events(self.align)
-            for s in events: # Align on first event in each segment
+            for s in events:  # Align on first event in each segment
                 events[s] = events[s][0]
         else:
             events = None
 
-        plot.sde(trains, events, start, stop, kernel_size, optimize_steps,
+        plot.sde(
+            trains, events, start, stop, kernel_size, optimize_steps,
             minimum_kernel, maximum_kernel, None, self.unit, current.progress)
 
     def configure(self):
         super(SDEPlugin, self).configure()
         while self.optimize_enabled and \
-              self.maximum_kernel <= self.minimum_kernel:
-            QMessageBox.warning(None, 'Unable to set parameters',
-                'Maximum kernel size needs to be larger than ' +
+                self.maximum_kernel <= self.minimum_kernel:
+            QMessageBox.warning(
+                None, 'Unable to set parameters',
+                'Maximum kernel size needs to be larger than '
                 'minimum kernel size!')
             super(SDEPlugin, self).configure()

@@ -40,7 +40,7 @@ class SpikePlotPlugin(analysis_plugin.AnalysisPlugin):
         return 'Spike Waveform Plot'
 
     def start(self, current, selections):
-        current.progress.begin('Creating spike waveform plot...')
+        current.progress.begin('Creating spike waveform plot')
         current.progress.set_status('Loading spikes')
         
         spikes = {}
