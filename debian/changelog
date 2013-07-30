@@ -1,3 +1,10 @@
+spykeviewer (0.3.0-2) unstable; urgency=low
+
+  * Fixed error during testing caused by matplotlib
+
+ -- Robert Pröpper <robert.proepper@gmail.com>  Tue, 30 Jul 2013 12:06:45 +0100
+
+
 spykeviewer (0.3.0-1) unstable; urgency=low
 
   * Package upstream 0.3.0.
