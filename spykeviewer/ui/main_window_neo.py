@@ -484,15 +484,15 @@ class MainWindowNeo(MainWindow):
 
     @pyqtSignature("")
     def on_actionFull_Load_triggered(self):
-        NeoDataProvider.lazy_mode = 0
+        NeoDataProvider.data_lazy_mode = 0
 
     @pyqtSignature("")
     def on_actionLazy_Load_triggered(self):
-        NeoDataProvider.lazy_mode = 1
+        NeoDataProvider.data_lazy_mode = 1
 
     @pyqtSignature("")
     def on_actionCached_Lazy_Load_triggered(self):
-        NeoDataProvider.lazy_mode = 2
+        NeoDataProvider.data_lazy_mode = 2
 
     @pyqtSignature("")
     def on_actionFull_triggered(self):
@@ -556,3 +556,8 @@ class MainWindowNeo(MainWindow):
         name = type(plugin).__name__
         path = plugin.source_file
         self.send_plugin_info(name, path, selections, config, io_plugin_files)
+
+    def closeEvent(self, event):
+        super(MainWindowNeo, self).closeEvent(event)
+
+        NeoDataProvider.clear()
