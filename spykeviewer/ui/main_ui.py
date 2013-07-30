@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '.\main.ui'
 #
-# Created: Sun Jun 23 15:30:05 2013
+# Created: Sun Jul 14 15:36:06 2013
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -54,6 +54,8 @@ class Ui_MainWindow(object):
         self.menuFile.setObjectName(_fromUtf8("menuFile"))
         self.menuRead_Mode = QtGui.QMenu(self.menuFile)
         self.menuRead_Mode.setObjectName(_fromUtf8("menuRead_Mode"))
+        self.menuCascade_Mode = QtGui.QMenu(self.menuFile)
+        self.menuCascade_Mode.setObjectName(_fromUtf8("menuCascade_Mode"))
         self.menuHelp = QtGui.QMenu(self.mainMenu)
         self.menuHelp.setObjectName(_fromUtf8("menuHelp"))
         self.menuSelections = QtGui.QMenu(self.mainMenu)
@@ -278,11 +280,21 @@ class Ui_MainWindow(object):
         self.actionCached_Lazy_Load = QtGui.QAction(MainWindow)
         self.actionCached_Lazy_Load.setCheckable(True)
         self.actionCached_Lazy_Load.setObjectName(_fromUtf8("actionCached_Lazy_Load"))
+        self.actionFull = QtGui.QAction(MainWindow)
+        self.actionFull.setCheckable(True)
+        self.actionFull.setChecked(True)
+        self.actionFull.setObjectName(_fromUtf8("actionFull"))
+        self.actionLazy = QtGui.QAction(MainWindow)
+        self.actionLazy.setCheckable(True)
+        self.actionLazy.setObjectName(_fromUtf8("actionLazy"))
         self.menuRead_Mode.addAction(self.actionFull_Load)
         self.menuRead_Mode.addAction(self.actionLazy_Load)
         self.menuRead_Mode.addAction(self.actionCached_Lazy_Load)
+        self.menuCascade_Mode.addAction(self.actionFull)
+        self.menuCascade_Mode.addAction(self.actionLazy)
         self.menuFile.addAction(self.actionLoad_Data)
         self.menuFile.addAction(self.menuRead_Mode.menuAction())
+        self.menuFile.addAction(self.menuCascade_Mode.menuAction())
         self.menuFile.addAction(self.actionClearCache)
         self.menuFile.addAction(self.actionSave_Data)
         self.menuFile.addAction(self.actionSave_Selected_Data)
@@ -342,7 +354,8 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Spyke Viewer", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuRead_Mode.setTitle(QtGui.QApplication.translate("MainWindow", "Read Mode", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuRead_Mode.setTitle(QtGui.QApplication.translate("MainWindow", "Data Read Mode", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuCascade_Mode.setTitle(QtGui.QApplication.translate("MainWindow", "Cascade Mode", None, QtGui.QApplication.UnicodeUTF8))
         self.menuHelp.setTitle(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
         self.menuSelections.setTitle(QtGui.QApplication.translate("MainWindow", "&Selections", None, QtGui.QApplication.UnicodeUTF8))
         self.menuPlugins.setTitle(QtGui.QApplication.translate("MainWindow", "&Plugins", None, QtGui.QApplication.UnicodeUTF8))
@@ -414,5 +427,7 @@ class Ui_MainWindow(object):
         self.actionLoad_Data.setText(QtGui.QApplication.translate("MainWindow", "Load Data...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSpyke_Repository.setText(QtGui.QApplication.translate("MainWindow", "Spyke Repository", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCached_Lazy_Load.setText(QtGui.QApplication.translate("MainWindow", "Cached Lazy Load", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFull.setText(QtGui.QApplication.translate("MainWindow", "Regular", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionLazy.setText(QtGui.QApplication.translate("MainWindow", "Lazy", None, QtGui.QApplication.UnicodeUTF8))
 
 import icons_rc

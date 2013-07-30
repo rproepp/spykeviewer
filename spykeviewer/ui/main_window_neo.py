@@ -1,14 +1,11 @@
 import os
 from collections import OrderedDict
 import logging
-import traceback
-import inspect
 import pickle
 import copy
 import json
 
 import neo
-from neo.io.baseio import BaseIO
 
 from PyQt4.QtCore import (Qt, pyqtSignature, QThread)
 from PyQt4.QtGui import (QMessageBox, QApplication,
@@ -496,6 +493,14 @@ class MainWindowNeo(MainWindow):
     @pyqtSignature("")
     def on_actionCached_Lazy_Load_triggered(self):
         NeoDataProvider.lazy_mode = 2
+
+    @pyqtSignature("")
+    def on_actionFull_triggered(self):
+        NeoDataProvider.cascade_lazy = False
+
+    @pyqtSignature("")
+    def on_actionLazy_triggered(self):
+        NeoDataProvider.cascade_lazy = True
 
     @pyqtSignature("int")
     def on_neoIOComboBox_currentIndexChanged(self, index):

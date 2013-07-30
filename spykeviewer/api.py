@@ -9,6 +9,8 @@ class __ConfigOptions:
         self.load_selection_on_start = True
         # Default load mode (0 - Regular, 1 - Lazy, 2 - Cached lazy)
         self.load_mode = 0
+        # Default cascading mode (False - Regular, True - Lazy)
+        self.lazy_cascading = False
         # Use Enter key for code completion in console
         self.codecomplete_console_enter = True
         # Use Enter key for code completion in editor

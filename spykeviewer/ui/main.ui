@@ -73,14 +73,22 @@ QGroupBox::title {
     </property>
     <widget class="QMenu" name="menuRead_Mode">
      <property name="title">
-      <string>Read Mode</string>
+      <string>Data Read Mode</string>
      </property>
      <addaction name="actionFull_Load"/>
      <addaction name="actionLazy_Load"/>
      <addaction name="actionCached_Lazy_Load"/>
     </widget>
+    <widget class="QMenu" name="menuCascade_Mode">
+     <property name="title">
+      <string>Cascade Mode</string>
+     </property>
+     <addaction name="actionFull"/>
+     <addaction name="actionLazy"/>
+    </widget>
     <addaction name="actionLoad_Data"/>
     <addaction name="menuRead_Mode"/>
+    <addaction name="menuCascade_Mode"/>
     <addaction name="actionClearCache"/>
     <addaction name="actionSave_Data"/>
     <addaction name="actionSave_Selected_Data"/>
@@ -663,6 +671,25 @@ QGroupBox::title {
    </property>
    <property name="text">
     <string>Cached Lazy Load</string>
+   </property>
+  </action>
+  <action name="actionFull">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Regular</string>
+   </property>
+  </action>
+  <action name="actionLazy">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Lazy</string>
    </property>
   </action>
  </widget>

@@ -82,12 +82,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.dir = os.getcwd()
 
-        # Load mode menu
+        # Lazy load mode menu
         self.load_actions = QActionGroup(self)
         self.load_actions.setExclusive(True)
         self.actionFull_Load.setActionGroup(self.load_actions)
         self.actionLazy_Load.setActionGroup(self.load_actions)
         self.actionCached_Lazy_Load.setActionGroup(self.load_actions)
+
+        # Cascading mode menu
+        self.cascade_actions = QActionGroup(self)
+        self.cascade_actions.setExclusive(True)
+        self.actionFull.setActionGroup(self.cascade_actions)
+        self.actionLazy.setActionGroup(self.cascade_actions)
 
         # Python console
         self.console = None
@@ -226,6 +232,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.actionCached_Lazy_Load.trigger()
         else:
             self.actionFull_Load.trigger()
+
+        if api.config.lazy_cascading:
+            self.actionLazy.trigger()
+        else:
+            self.actionFull.trigger()
 
         self.update_splash_screen('Loading plugins...')
         self.reload_plugins()
