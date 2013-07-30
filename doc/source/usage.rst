@@ -27,40 +27,25 @@ use it to select one or more files, then click on the "Load" button below to
 load the selected files into Spyke Viewer. Single files can also be loaded
 with a double click (this does not work for directories, they will just be
 expanded. If you want to load a directory, you need to use the "Load" button).
-For each selected file, the filetype is selected
-automatically from the extension. Alternatively, you can use the "Load
-Data..." option in the "File" menu to open a dialog that allows you to
-select files to load. Now find and select the file "sample.h5"
-that you just unpacked (an HDF5 File) and load it.
+Alternatively, you can use the "Load Data..." option in the "File" menu to
+open a dialog that allows you to select files to load. Now find and select
+the file "sample.h5" that you just unpacked (an HDF5 File) and load it.
 
 The data file input/output is based on :mod:`neo` and supports formats that
 have a
-`Neo IO class <http://neo.readthedocs.org/en/latest/io.html>`_. If you want
-to use a file format that is not supported by Neo, you can write a plugin:
-:ref:`ioplugins`.
+`Neo IO class <http://neo.readthedocs.org/en/latest/io.html>`_. For each
+selected file, the filetype and corresponding IO class is selected
+automatically from the file extension. If you want to specify which IO class
+to use, you can do so in the "Format" list in the *Files* dock. When you
+select a format with read or write parameters, you can click "Configure
+selected IO" to change the parameters. The IO and parameters you choose in
+the *Files* dock are also used when loading files using the "File" menu. If
+you want to use a file format that is not supported by Neo, you can write a
+plugin: :ref:`ioplugins`.
 
-Lazy Loading
-############
-
-With lazy loading, only the structure of a file is loaded when you first
-open it, while big data chunks (e.g. signals, spike trains) are not.
-This can result in faster loading times and much reduced memory usage and
-enables you to use data files that are larger than your main memory. Spyke
-Viewer will load the required data automatically once it is needed. This
-means that while initial loading is faster, data access will be slower.
-You can switch between regular and lazy loading from the "File" menu under
-"Read Mode". The read mode affects newly loaded files and you can have
-both regularly and lazily loaded files opened at the same time. Not all
-Neo IOs support this feature (up to Neo 0.3.0, only the IO for HDF5 files
-does) - when using lazy mode with an unsopported IO, the file is loaded
-as in regular mode.
-
-There are two options for lazy loading in the menu: "Lazy Load" and
-"Cached Lazy Load". In "Lazy Load", data objects are loaded on request
-and discarded afterwards, so the memory usage stays low. In "Cached Lazy
-Load", data objects are inserted into the object hierarchy when they are
-requested, so they only have to be loaded once, but memory usage will grow
-when more data objects are used while the file is open.
+Spyke Viewer and Neo include some features to handle very large data sources
+that are larger than the main memory or take very long to load. If you want
+to learn about these features, go to :doc:`lazy`.
 
 .. _selections:
 
