@@ -4,6 +4,9 @@ Version 0.4.0
 * Optional transparent lazy loading and lazy cascading for supported IOs.
 * Splash screen while loading the application.
 * Open files dialog as an alternative to the "Files" dock.
+* Remotely started plugins can have a graphical progress bar.
+* Remotely started plugins now show text output and errors on internal
+  console.
 * Filters are automatically deactivated on loading a selection if they
   prevent parts of it to be shown.
 * A modified plugin is automatically saved before it is sent to a remote

@@ -17,8 +17,8 @@ from PyQt4.QtGui import (QMainWindow, QMessageBox,
                          QPalette, QDesktopServices, QFont, QAction,
                          QPixmap, QFileSystemModel, QHeaderView,
                          QActionGroup)
-from PyQt4.QtCore import (Qt, pyqtSignature, SIGNAL, QMimeData,
-                          QSettings, QCoreApplication, QUrl)
+from PyQt4.QtCore import (Qt, pyqtSignature, SIGNAL, QMimeData, QTimer,
+                          QSettings, QCoreApplication, QUrl, QThread)
 
 from spyderlib.widgets.internalshell import InternalShell
 from spyderlib.widgets.externalshell.namespacebrowser import NamespaceBrowser
@@ -30,6 +30,7 @@ from spykeutils.plugin.data_provider import DataProvider
 from spykeutils.plugin.analysis_plugin import AnalysisPlugin
 from spykeutils.progress_indicator import CancelException
 from spykeutils import SpykeException
+from spykeutils.plot.helper import ProgressIndicatorDialog
 
 from .. import api
 from main_ui import Ui_MainWindow
@@ -37,10 +38,10 @@ from settings import SettingsWindow
 from filter_dock import FilterDock
 from filter_dialog import FilterDialog
 from filter_group_dialog import FilterGroupDialog
-from progress_indicator_dialog import ProgressIndicatorDialog
 from plugin_editor_dock import PluginEditorDock
 import ipython_connection as ipy
 from plugin_model import PluginModel
+from remote_thread import RemoteThread
 
 
 logger = logging.getLogger('spykeviewer')
@@ -81,6 +82,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.setupUi(self)
         self.dir = os.getcwd()
+
+        # Threads providing output from remotely started plugins
+        self.process_threads = {}
+        self.remote_process_counter = 0
+        QTimer.singleShot(1000, self.clean_finished_process_threads)
 
         # Lazy load mode menu
         self.load_actions = QActionGroup(self)
@@ -1257,7 +1263,38 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             params.append('-io')
             params.extend(io_files)
         params.extend(api.config.remote_script_parameters)
-        subprocess.Popen(params, stdout=sys.__stdout__, stderr=sys.__stderr__)
+        p = subprocess.Popen(
+            params, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        std = RemoteThread(p, self.remote_process_counter, False, self)
+        err = RemoteThread(p, self.remote_process_counter, True, self)
+        self.connect(std, SIGNAL("output(int, QString)"), self.output_std)
+        self.connect(err, SIGNAL("output(int, QString)"), self.output_err)
+        self.connect(err, SIGNAL("execution_complete(int)"),
+                     self.remote_plugin_done)
+        std.start()
+        err.start()
+        self.process_threads[self.remote_process_counter] = (std, err)
+        print '[#%d started]' % self.remote_process_counter
+        self.remote_process_counter += 1
+
+    def output_std(self, id_, line):
+        print '[#%d]' % id_, line
+
+    def output_err(self, id_, line):
+        sys.stderr.write(line + '\n')
+
+    def remote_plugin_done(self, id_):
+        print '[#%d done]' % id_
+
+    def clean_finished_process_threads(self):
+        """ Periodically checks if threads for remote plugin output are
+        still running, removes them otherwise.
+        """
+        for k in self.process_threads.keys():
+            t = self.process_threads[k]
+            if not t[0].isRunning() and not t[1].isRunning():
+                del self.process_threads[k]
+        QTimer.singleShot(1000, self.clean_finished_process_threads)
 
     @pyqtSignature("")
     def on_actionEdit_Startup_Script_triggered(self):

@@ -34,7 +34,7 @@ class SpikePlotPlugin(analysis_plugin.AnalysisPlugin):
     split_type = gui_data.ChoiceItem('Split channels', ('Vertically', 
                                                         'Horizontally'))
     layout = gui_data.ChoiceItem('Subplot layout', ('Linear', 'Square'))
-    fade = gui_data.BoolItem('Fade earlier segments')
+    fade = gui_data.BoolItem('Fade earlier spikes')
     
     def get_name(self):
         return 'Spike Waveform Plot'
@@ -84,7 +84,6 @@ class SpikePlotPlugin(analysis_plugin.AnalysisPlugin):
                             train_sigs.append(signals[seg][rc])
                     if not train_sigs:
                         continue
-                    print train_sigs
                     s.extend(extract_spikes(
                         train, train_sigs,
                         self.length * pq.ms, self.align * pq.ms))
