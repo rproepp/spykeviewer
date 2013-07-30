@@ -18,7 +18,7 @@ from PyQt4.QtGui import (QMainWindow, QMessageBox,
                          QPixmap, QFileSystemModel, QHeaderView,
                          QActionGroup)
 from PyQt4.QtCore import (Qt, pyqtSignature, SIGNAL, QMimeData, QTimer,
-                          QSettings, QCoreApplication, QUrl, QThread)
+                          QSettings, QCoreApplication, QUrl)
 
 from spyderlib.widgets.internalshell import InternalShell
 from spyderlib.widgets.externalshell.namespacebrowser import NamespaceBrowser

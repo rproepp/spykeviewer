@@ -1,5 +1,5 @@
 from PyQt4.QtCore import SIGNAL, QThread
-import sys
+
 
 class RemoteThread(QThread):
     """ A thread to catch either stdout or stderr of a remote process.
