@@ -12,7 +12,7 @@ Version 0.4.0
 * A modified plugin is automatically saved before it is sent to a remote
   script.
 * New features for correlogram and spike waveform plugins.
-* Pyhton files can be dragged onto the editor to open them.
+* Python files can be dragged onto the editor to open them.
 * Annotation editor accessible through API.
 * Files can be loaded through API.
 
