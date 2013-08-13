@@ -1,20 +1,22 @@
 import os
 from collections import OrderedDict
 import logging
-import traceback
-import inspect
+import pickle
+import copy
+import json
 
 import neo
-from neo.io.baseio import BaseIO
 
 from PyQt4.QtCore import (Qt, pyqtSignature, QThread)
 from PyQt4.QtGui import (QMessageBox, QApplication,
                          QProgressDialog, QFileDialog)
 from spyderlib.widgets.dicteditor import DictEditor
 
+from spykeutils import SpykeException
 from spykeutils.progress_indicator import ignores_cancel
 from spykeutils.plugin.data_provider_neo import NeoDataProvider
 from spykeutils.plugin.data_provider_stored import NeoStoredProvider
+from spykeutils.plugin import io_plugin
 
 from main_window import MainWindow
 from ..plugin_framework.data_provider_viewer import NeoViewerProvider
@@ -129,28 +131,10 @@ class MainWindowNeo(MainWindow):
                 if not p.lower().endswith('io.py'):
                     continue
 
-                exc_globals = {}
                 try:
-                    execfile(p, exc_globals)
-                except Exception:
-                    logger.warning('Error during execution of ' +
-                                   'potential Neo IO file ' + p + ':\n' +
-                                   traceback.format_exc() + '\n')
-
-                for cl in exc_globals.values():
-                    if not inspect.isclass(cl):
-                        continue
-
-                    # Should be a subclass of AnalysisPlugin...
-                    if not issubclass(cl, BaseIO):
-                        continue
-                    # ...but should not be AnalysisPlugin (can happen
-                    # when directly imported)
-                    if cl == BaseIO:
-                        continue
-
-                    cl._is_spyke_plugin = True
-                    neo.io.iolist.insert(0, cl)
+                    io_plugin.load_from_file(p)
+                except SpykeException, e:
+                    logger.warning(str(e))
 
         # Populate IO list
         self.neoIOComboBox.clear()
@@ -348,7 +332,14 @@ class MainWindowNeo(MainWindow):
 
             QApplication.setOverrideCursor(Qt.WaitCursor)
             try:
-                blocks = NeoDataProvider.get_blocks(b[1])
+                cl = None
+                rp = None
+                if len(b) > 2:
+                    cl = NeoDataProvider.find_io_class(b[2])
+                if len(b) > 3:
+                    rp = b[3]
+                blocks = NeoDataProvider.get_blocks(
+                    b[1], force_io=cl, read_params=rp)
             finally:
                 QApplication.restoreOverrideCursor()
             if not blocks:
@@ -488,25 +479,35 @@ class MainWindowNeo(MainWindow):
         if not dialog.exec_():
             return None, None
 
-        return unicode(dialog.selectedFiles()[0]), io_mapping[dialog.selectedNameFilter()]
+        return unicode(dialog.selectedFiles()[0]), \
+               io_mapping[dialog.selectedNameFilter()]
 
     @pyqtSignature("")
     def on_actionFull_Load_triggered(self):
-        NeoDataProvider.lazy_mode = 0
+        NeoDataProvider.data_lazy_mode = 0
 
     @pyqtSignature("")
     def on_actionLazy_Load_triggered(self):
-        NeoDataProvider.lazy_mode = 1
+        NeoDataProvider.data_lazy_mode = 1
 
     @pyqtSignature("")
     def on_actionCached_Lazy_Load_triggered(self):
-        NeoDataProvider.lazy_mode = 2
+        NeoDataProvider.data_lazy_mode = 2
+
+    @pyqtSignature("")
+    def on_actionFull_triggered(self):
+        NeoDataProvider.cascade_lazy = False
+
+    @pyqtSignature("")
+    def on_actionLazy_triggered(self):
+        NeoDataProvider.cascade_lazy = True
 
     @pyqtSignature("int")
     def on_neoIOComboBox_currentIndexChanged(self, index):
         if index > 0:
             NeoDataProvider.forced_io = self.neoIOComboBox.itemData(index)
-            self.configureIOButton.setEnabled(io_settings.has_ui_params(NeoDataProvider.forced_io))
+            self.configureIOButton.setEnabled(
+                io_settings.has_ui_params(NeoDataProvider.forced_io))
         else:
             NeoDataProvider.forced_io = None
             self.configureIOButton.setEnabled(False)
@@ -521,3 +522,42 @@ class MainWindowNeo(MainWindow):
         if d.exec_():
             NeoDataProvider.io_params[io] = d.get_read_params()
             self.io_write_params[io] = d.get_write_params()
+
+    def _execute_remote_plugin(self, plugin, current=None, selections=None):
+        sl = list()
+
+        if current is None:
+            sl.append(self.provider_factory('__current__', self).data_dict())
+        else:
+            d = copy.copy(current.data_dict())
+            d['name'] = '__current__'
+            sl.append(d)
+        if selections is None:
+            selections = self.selections
+
+        for s in selections:
+            sl.append(s.data_dict())
+
+        io_plugin_files = []
+        for s in sl:
+            if s['type'] != 'Neo':
+                continue
+            for b in s['blocks']:
+                if len(b) > 2:
+                    io = NeoDataProvider.find_io_class(b[2])
+                    if io is None:
+                        raise NameError('Error executing remote plugin: '
+                                        '%s is not a known IO class!' % b[2])
+                    if getattr(io, '_is_spyke_plugin', False):
+                        io_plugin_files.append(io._python_file)
+
+        selections = json.dumps(sl, sort_keys=True, indent=2)
+        config = pickle.dumps(plugin.get_parameters())
+        name = type(plugin).__name__
+        path = plugin.source_file
+        self.send_plugin_info(name, path, selections, config, io_plugin_files)
+
+    def closeEvent(self, event):
+        super(MainWindowNeo, self).closeEvent(event)
+
+        NeoDataProvider.clear()

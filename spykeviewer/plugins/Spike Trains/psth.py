@@ -27,31 +27,30 @@ class PSTHPlugin(analysis_plugin.AnalysisPlugin):
 
     def __init__(self):
         super(PSTHPlugin, self).__init__()
-        self.unit = pq.ms
 
     def get_name(self):
         return 'Peristimulus Time Histogram'
 
     def start(self, current, selections):
         # Prepare quantities
-        start = float(self.start_time)*self.unit
+        start = float(self.start_time) * pq.ms
         stop = None
         if self.stop_enabled:
-            stop = float(self.stop)*self.unit
-        bin_size = float(self.bin_size)*self.unit
+            stop = float(self.stop) * pq.ms
+        bin_size = float(self.bin_size) * pq.ms
 
         # Load data
-        current.progress.begin()
+        current.progress.begin('Creating PSTH')
         trains = current.spike_trains_by_unit()
         if self.align_enabled:
             events = current.labeled_events(self.align)
-            for s in events: # Align on first event in each segment
+            for s in events:  # Align on first event in each segment
                 events[s] = events[s][0]
         else:
             events = None
 
         plot.psth(
             trains, events, start, stop, bin_size, 
-            rate_correction=True, time_unit=self.unit,
+            rate_correction=True, time_unit=pq.ms,
             bar_plot=self.diagram_type == 0, 
             progress=current.progress)

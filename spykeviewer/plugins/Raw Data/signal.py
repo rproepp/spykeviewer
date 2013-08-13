@@ -35,7 +35,7 @@ class SignalPlotPlugin(analysis_plugin.AnalysisPlugin):
         return 'Signal Plot'
 
     def start(self, current, selections):
-        current.progress.begin('Creating signal plot...')
+        current.progress.begin('Creating signal plot')
 
         signals = current.analog_signals_by_segment(self.which_signals + 1)
 

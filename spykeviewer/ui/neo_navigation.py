@@ -2,8 +2,7 @@ from PyQt4.QtGui import (QDockWidget, QMenu, QAction, QMessageBox,
                          QItemSelectionRange, QItemSelection,
                          QStandardItemModel, QStandardItem,
                          QItemSelectionModel)
-from PyQt4.QtCore import Qt, pyqtSignal, QModelIndex
-from spyderlib.widgets.dicteditor import DictEditor
+from PyQt4.QtCore import Qt, pyqtSignal
 from spyderlib.utils.qthelpers import get_icon
 import neo
 
@@ -449,17 +448,24 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
                 self.neoUnitList.selectedIndexes()]
 
     def set_selection(self, data):
-        """ Set the selected data. All data in the selection has to be loaded
-        before!
+        """ Set the selected data.
         """
         block_list = []
         for b in data['blocks']:
-            loaded = NeoDataProvider.get_block(b[1], b[0], False)
+            cl = None
+            rp = None
+            if len(b) > 2:
+                cl = NeoDataProvider.find_io_class(b[2])
+            if len(b) > 3:
+                rp = b[3]
+            loaded = NeoDataProvider.get_block(
+                b[1], b[0], force_io=cl, read_params=rp)
             if loaded is None:
                 raise IOError('One of the files contained in the '
                               'selection could not be loaded!')
             block_list.append(loaded)
 
+        block_set = set([(b[0], b[1]) for b in data['blocks']])
         # Select blocks
         self.ensure_not_filtered(block_list, self.parent.block_names.keys(),
                                  self.parent.get_active_filters('Block'))
@@ -468,10 +474,10 @@ class NeoNavigationDock(QDockWidget, Ui_neoNavigationDock):
         for i in self.block_model.findItems(
                 '*', Qt.MatchWrap | Qt.MatchWildcard):
             block = i.data(Qt.UserRole)
-            t = [NeoDataProvider.block_indices[block],
-                 self.parent.block_files[block]]
+            t = (NeoDataProvider.block_indices[block],
+                 self.parent.block_files[block])
 
-            if t in data['blocks']:
+            if t in block_set:
                 selection.append(QItemSelectionRange(
                     self.block_model.indexFromItem(i)))
         self.neoBlockList.selectionModel().select(
