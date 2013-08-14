@@ -10,9 +10,6 @@ class RasterPlotPlugin(analysis_plugin.AnalysisPlugin):
     show_events = gui_data.BoolItem('Show events', default=True)
     show_epochs = gui_data.BoolItem('Show epochs', default=True)
 
-    def __init__(self):
-        super(RasterPlotPlugin, self).__init__()
-
     def get_name(self):
         return 'Raster Plot'
 
