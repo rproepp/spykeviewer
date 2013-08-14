@@ -11,10 +11,16 @@ Version 0.4.0
   prevent parts of it to be shown.
 * A modified plugin is automatically saved before it is sent to a remote
   script.
-* New features for correlogram and spike waveform plugins.
+* New features for many plugins: correlogram, interspike interval histogram,
+  peri stimulus time histogram, and spike density estimation support
+  selections in addition to units for plot elements. Spike waveform plot can
+  plot single spikes extracted from analog signals using spike trains,
+  optionally together with Spike object waveforms.
 * Python files can be dragged onto the editor to open them.
 * Annotation editor accessible through API.
 * Files can be loaded through API.
+* The Spyke Repository is available and linked in the documentation and
+  the help menu.
 
 Version 0.3.0
 -------------
@@ -39,7 +45,7 @@ Version 0.3.0
 * Code completion in console can be selected using Enter (in addition to
   Tab as before).
 * Plugins can import modules from the same directory, even if it is not
-  explicitly on the Python path
+  explicitly on the Python path.
 
 Version 0.2.1
 -------------
