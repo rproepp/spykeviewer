@@ -6,6 +6,9 @@ Plugins
 This section describes the configuration options of the plugins that are
 included with Spyke Viewer. All included plugins create plots. For
 information on how to create your own plugins, see :ref:`analysisplugins`.
+You can find additional plugins at the
+`Spyke Repository <http://spyke-viewer.g-node.org/>`_.
+
 
 Signal Plot
 -----------
