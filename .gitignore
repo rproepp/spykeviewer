@@ -5,3 +5,4 @@ dist
 spykeviewer.egg-info
 bin/freeze/build
 bin/freeze/dist
+.idea

@@ -30,6 +30,34 @@ objects to access the main window and application and convenience functions.
         Spyke Viewer automatically on startup. This parameter is
         only effective when set in the startup script. Default: ``True``
 
+    load_mode (:class:`int`)
+        The initially selected loading mode. Possible values:
+
+        0
+            Regular: Load all file contents on initial load.
+        1
+            Lazy: Only load file structure. Data objects are loaded
+            automatically when requested and then discarded.
+        2
+            Cached lazy: Only load file structure. Data objects are
+            loaded automatically when requested and then kept in
+            the object hierarchy so they only need to be loaded once.
+
+        This parameter is only effective when set in the startup script.
+        Default: 0
+
+    autoselect_segments (:class:`bool`)
+        Select all visible segments by default. Default: ``False``
+
+    autoselect_channel_groups (:class:`bool`)
+        Select all visible channel groups by default. Default: ``False``
+
+    autoselect_channels (:class:`bool`)
+        Select all visible channels by default. Default: ``True``
+
+    autoselect_units (:class:`bool`)
+        Select all visible units by default. Default: ``False``
+
     duplicate_channels (:class:`bool`)
         Treat :class:`neo.core.RecordingChannel` objects that are
         referenced in multiple :class:`neo.core.RecordingChannelGroup`

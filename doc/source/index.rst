@@ -3,7 +3,7 @@ Welcome to the Spyke Viewer documentation!
 
 Spyke Viewer is a multi-platform GUI application for navigating, analyzing and
 visualizing electrophysiological datasets. It is based on the
-`Neo <http://neo.readthedocs.org>`_ framework, which enables it to load a wide
+`Neo <http://neo.readthedocs.org>`_ library, which enables it to load a wide
 variety of data formats used in electrophysiology. At its core, Spyke Viewer
 includes functionality for navigating Neo object hierarchies and performing
 operations on them.
@@ -18,6 +18,9 @@ or external editors.
 A mailinglist for discussion and support is available at
 https://groups.google.com/d/forum/spyke-viewer
 
+Users can download and share plugins and other extensions at
+http://spyke-viewer.g-node.org
+
 Contents:
 
 .. toctree::
@@ -28,6 +31,7 @@ Contents:
    plugins
    extending
    api
+   lazy
    changelog
    acknowledgements
 

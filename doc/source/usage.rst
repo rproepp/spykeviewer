@@ -27,15 +27,25 @@ use it to select one or more files, then click on the "Load" button below to
 load the selected files into Spyke Viewer. Single files can also be loaded
 with a double click (this does not work for directories, they will just be
 expanded. If you want to load a directory, you need to use the "Load" button).
-For each selected file, the filetype is selected
-automatically from the extension. For now, find and select the file "sample.h5"
-that you just unpacked (an HDF5 File) and load it.
+Alternatively, you can use the "Load Data..." option in the "File" menu to
+open a dialog that allows you to select files to load. Now find and select
+the file "sample.h5" that you just unpacked (an HDF5 File) and load it.
 
 The data file input/output is based on :mod:`neo` and supports formats that
 have a
-`Neo IO class <http://neo.readthedocs.org/en/latest/io.html>`_. If you want
-to use a file format that is not supported by Neo, you can write a plugin:
-:ref:`ioplugins`.
+`Neo IO class <http://neo.readthedocs.org/en/latest/io.html>`_. For each
+selected file, the filetype and corresponding IO class is selected
+automatically from the file extension. If you want to specify which IO class
+to use, you can do so in the "Format" list in the *Files* dock. When you
+select a format with read or write parameters, you can click "Configure
+selected IO" to change the parameters. The IO and parameters you choose in
+the *Files* dock are also used when loading files using the "File" menu. If
+you want to use a file format that is not supported by Neo, you can write a
+plugin: :ref:`ioplugins`.
+
+Spyke Viewer and Neo include some features to handle very large data sources
+that are larger than the main memory or take very long to load. If you want
+to learn about these features, go to :doc:`lazy`.
 
 .. _selections:
 
@@ -63,7 +73,7 @@ In Spyke Viewer, you use the *Navigation* dock to select container objects.
 There is a list for each type of container where you can select an arbitrary
 set of entries. You can select multiple entries by clicking and dragging or
 using the control key when clicking. Each list will only show those
-objects of the respective type that are contained in select objects further
+objects of the respective type that are contained in selected objects further
 up in the hierarchy. For example, try selecting a different recording channel
 group and observe how the channels and units list change. To help you
 navigate, all objects in the *Navigation* dock are automatically assigned a

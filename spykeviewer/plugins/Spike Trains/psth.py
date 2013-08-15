@@ -1,4 +1,5 @@
 import quantities as pq
+import neo
 
 from spykeutils.plugin import analysis_plugin, gui_data
 from spykeutils import plot
@@ -10,8 +11,6 @@ optimize_prop = gui_data.ValueProp(False)
 
 
 class PSTHPlugin(analysis_plugin.AnalysisPlugin):
-    """ Peristimulus Time Histogram
-    """
     # Configurable parameters
     bin_size = gui_data.FloatItem('Bin size', min=1.0, default=500.0, unit='ms')
     start_time = gui_data.FloatItem('Start time', default=0.0, unit='ms')
@@ -26,34 +25,45 @@ class PSTHPlugin(analysis_plugin.AnalysisPlugin):
     align = gui_data.StringItem(
         'Event label').set_prop('display', active=align_prop)
     diagram_type = gui_data.ChoiceItem('Type', ('Bar', 'Line'))
+    data_source = gui_data.ChoiceItem('Data source', ('Units', 'Selections'))
 
-    def __init__(self):
-        super(PSTHPlugin, self).__init__()
-        self.unit = pq.ms
 
     def get_name(self):
         return 'Peristimulus Time Histogram'
 
     def start(self, current, selections):
         # Prepare quantities
-        start = float(self.start_time)*self.unit
+        start = float(self.start_time) * pq.ms
         stop = None
         if self.stop_enabled:
-            stop = float(self.stop)*self.unit
-        bin_size = float(self.bin_size)*self.unit
+            stop = float(self.stop) * pq.ms
+        bin_size = float(self.bin_size) * pq.ms
 
         # Load data
-        current.progress.begin()
-        trains = current.spike_trains_by_unit()
-        if self.align_enabled:
-            events = current.labeled_events(self.align)
-            for s in events: # Align on first event in each segment
-                events[s] = events[s][0]
+        current.progress.begin('Creating PSTH')
+        events = None
+        if self.data_source == 0:
+            trains = current.spike_trains_by_unit()
+            if self.align_enabled:
+                events = current.labeled_events(self.align) 
         else:
-            events = None
+            # Prepare dictionaries for psth():
+            # One entry of spike trains for each selection,
+            # an event for each segment occuring in any selection
+            trains = {}
+            if self.align_enabled:
+                events = {}
+            for s in selections:
+                trains[neo.Unit(s.name)] = s.spike_trains()
+                if self.align_enabled:
+                    events.update(s.labeled_events(self.align))
+        
+        if events:
+            for s in events:  # Align on first event in each segment
+                events[s] = events[s][0]
 
         plot.psth(
             trains, events, start, stop, bin_size, 
-            rate_correction=True, time_unit=self.unit,
+            rate_correction=True, time_unit=pq.ms,
             bar_plot=self.diagram_type == 0, 
             progress=current.progress)

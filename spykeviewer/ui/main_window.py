@@ -9,13 +9,15 @@ import copy
 import pickle
 import platform
 import subprocess
+import time
 
 from PyQt4.QtGui import (QMainWindow, QMessageBox,
                          QApplication, QFileDialog, QInputDialog,
                          QLineEdit, QMenu, QDrag, QPainter, QPen,
                          QPalette, QDesktopServices, QFont, QAction,
-                         QPixmap, QFileSystemModel, QHeaderView)
-from PyQt4.QtCore import (Qt, pyqtSignature, SIGNAL, QMimeData,
+                         QPixmap, QFileSystemModel, QHeaderView,
+                         QActionGroup)
+from PyQt4.QtCore import (Qt, pyqtSignature, SIGNAL, QMimeData, QTimer,
                           QSettings, QCoreApplication, QUrl)
 
 from spyderlib.widgets.internalshell import InternalShell
@@ -28,6 +30,7 @@ from spykeutils.plugin.data_provider import DataProvider
 from spykeutils.plugin.analysis_plugin import AnalysisPlugin
 from spykeutils.progress_indicator import CancelException
 from spykeutils import SpykeException
+from spykeutils.plot.helper import ProgressIndicatorDialog
 
 from .. import api
 from main_ui import Ui_MainWindow
@@ -35,16 +38,13 @@ from settings import SettingsWindow
 from filter_dock import FilterDock
 from filter_dialog import FilterDialog
 from filter_group_dialog import FilterGroupDialog
-from progress_indicator_dialog import ProgressIndicatorDialog
 from plugin_editor_dock import PluginEditorDock
 import ipython_connection as ipy
 from plugin_model import PluginModel
+from remote_thread import RemoteThread
 
 
 logger = logging.getLogger('spykeviewer')
-ch = logging.StreamHandler()
-ch.setLevel(logging.WARNING)
-logger.addHandler(ch)
 
 
 # Monkeypatch variable editor
@@ -67,10 +67,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     """ The main window of Spyke Viewer.
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, splash=None):
         QMainWindow.__init__(self, parent)
 
         api.window = self
+        self.splash = splash
+        self.update_splash_screen('Creating user interface....')
 
         QCoreApplication.setOrganizationName('SpykeUtils')
         QCoreApplication.setApplicationName('Spyke Viewer')
@@ -80,6 +82,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.setupUi(self)
         self.dir = os.getcwd()
+
+        # Threads providing output from remotely started plugins
+        self.process_threads = {}
+        self.remote_process_counter = 0
+        QTimer.singleShot(1000, self.clean_finished_process_threads)
+
+        # Lazy load mode menu
+        self.load_actions = QActionGroup(self)
+        self.load_actions.setExclusive(True)
+        self.actionFull_Load.setActionGroup(self.load_actions)
+        self.actionLazy_Load.setActionGroup(self.load_actions)
+        self.actionCached_Lazy_Load.setActionGroup(self.load_actions)
+
+        # Cascading mode menu
+        self.cascade_actions = QActionGroup(self)
+        self.cascade_actions.setExclusive(True)
+        self.actionFull.setActionGroup(self.cascade_actions)
+        self.actionLazy.setActionGroup(self.cascade_actions)
 
         # Python console
         self.console = None
@@ -93,7 +113,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # IPython menu option
         self.ipy_kernel = None
         if ipy.ipython_available:
-            a = QAction('New IPython console', self.menuFile)
+            a = QAction('New IPython Console', self.menuFile)
             self.menuFile.insertAction(self.actionSettings, a)
             self.connect(a, SIGNAL('triggered()'),
                          self.on_actionIPython_triggered)
@@ -190,18 +210,46 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.finish_initialization()
 
     ##### Startup ########################################################
+    def update_splash_screen(self, message):
+        if not self.splash:
+            return
+
+        self.splash.showMessage(message, Qt.AlignCenter | Qt.AlignBottom)
+        self.splash.show()
+        QCoreApplication.processEvents()
+
     def finish_initialization(self):
         """ This should to be called at the end of the initialization phase
         of the program (e.g. at the end of the ``__init__()`` method of a
         domain-specific subclass).
         """
         self.update_view_menu()
+
+        self.update_splash_screen('Restoring saved state...')
         self.restore_state()
+
+        self.update_splash_screen('Running startup script...')
         self.run_startup_script()
         self.set_config_options()
+
+        if api.config.load_mode == 1:
+            self.actionLazy_Load.trigger()
+        elif api.config.load_mode == 2:
+            self.actionCached_Lazy_Load.trigger()
+        else:
+            self.actionFull_Load.trigger()
+
+        if api.config.lazy_cascading:
+            self.actionLazy.trigger()
+        else:
+            self.actionFull.trigger()
+
+        self.update_splash_screen('Loading plugins...')
         self.reload_plugins()
         self.load_plugin_configs()
+
         if api.config.load_selection_on_start:
+            self.update_splash_screen('Loading previous selection...')
             self.load_current_selection()
 
     def get_filter_types(self):
@@ -488,13 +536,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.console.connect(self.console, SIGNAL("refresh()"),
                              self._append_python_history)
 
-        # Duplicate stdout, stderr and logging for console
-        ch = logging.StreamHandler(sys.stderr)
+        # Duplicate stdout and stderr for console
+        # Not using previous stdout, only stderr. Using StreamDuplicator
+        # because spyder stream does not have flush() method...
+        ch = logging.StreamHandler()
         ch.setLevel(logging.WARNING)
         logger.addHandler(ch)
 
-        # Not using previous stdout, only stderr. Using StreamDuplicator
-        # because spyder stream does not have flush() method...
         sys.stdout = StreamDuplicator([sys.stdout])
         sys.stderr = StreamDuplicator([sys.stderr, sys.__stderr__])
 
@@ -870,10 +918,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def is_filtered(self, item, filters):
         """ Return if one of the filter functions in the given list
-            applies to the given item. Combined filters are ignored.
+        applies to the given item. Combined filters are ignored.
         """
         for f, n in filters:
-            if f.combined:
+            if f.combined or not f.active:
                 continue
             try:
                 if not f.function()(item):
@@ -888,13 +936,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def filter_list(self, items, filters):
         """ Return a filtered list of the given list with the given filter
-            functions. Only combined filters are used.
+        functions. Only combined filters are used.
         """
         if not items:
             return items
         item_type = type(items[0])
         for f, n in filters:
-            if not f.combined:
+            if not f.combined or not f.active:
                 continue
             try:
                 items = [i for i in f.function()(items)
@@ -906,6 +954,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if not f.on_exception:
                     return []
         return items
+
+    def refresh_filters(self):
+        """ Refresh the list of possible filters. Call if filters are changed
+        programmatically.
+        """
+        self.filterDock.populate_filter_tree()
 
     @pyqtSignature("")
     def on_actionNewFilterGroup_triggered(self):
@@ -1077,24 +1131,34 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     @pyqtSignature("")
     def on_actionRunPlugin_triggered(self):
+        plugin = self._save_plugin_before_run()
+        if not plugin:
+            return
+
+        self._run_plugin(plugin)
+
+    def _save_plugin_before_run(self):
         ana = self.current_plugin()
         if not ana:
-            return
+            return None
 
         if api.config.save_plugin_before_starting:
             e = self.pluginEditorDock.get_editor(ana.source_file)
             if self.pluginEditorDock.file_was_changed(e):
                 if not self.pluginEditorDock.save_file(e):
-                    return
+                    return None
                 ana = self.current_plugin()
                 if not ana:
-                    return
+                    return None
+        return ana
 
-        self._run_plugin(ana)
-
-    def _run_plugin(self, plugin):
+    def _run_plugin(self, plugin, current=None, selections=None):
+        if current is None:
+            current = self.provider
+        if selections is None:
+            selections = self.selections
         try:
-            return plugin.start(self.provider, self.selections)
+            return plugin.start(current, selections)
         except SpykeException, err:
             QMessageBox.critical(self, 'Error executing plugin', str(err))
         except CancelException:
@@ -1170,21 +1234,67 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     @pyqtSignature("")
     def on_actionRemotePlugin_triggered(self):
-        selections = self.serialize_selections()
-        config = pickle.dumps(self.current_plugin().get_parameters())
-        f = open(self.remote_script, 'r')
-        code = f.read()
-        name = type(self.current_plugin()).__name__
-        path = self.current_plugin_path()
-        self.start_plugin_remote(code, name, path, selections, config)
+        plugin = self._save_plugin_before_run()
+        if not plugin:
+            return
 
-    def start_plugin_remote(self, code, name, path, selections, config):
-        params = ['python', '-c', code,
-                  name, path, selections, '-cf',
-                  '-c', config,
-                  '-dd', AnalysisPlugin.data_dir]
+        self._execute_remote_plugin(plugin)
+
+    def send_plugin_info(self, name, path, selections, config, io_files):
+        """ Send information to start a plugin to the configured remote
+        script.
+
+        :param str name: Name of the plugin class
+        :param str path: Path of the plugin file
+        :param str selections: Serialized selections to use
+        :param str config: Pickled plugin configuration
+        :param list io_files: List of paths to required IO plugins.
+        """
+        # Save files to circumvent length limit for command line
+        selection_path = os.path.join(
+            self.selection_path, '.temp_%f_.sel' % time.time())
+        with open(selection_path, 'w') as f:
+            f.write(selections)
+
+        params = ['python', self.remote_script,
+                  name, path, selection_path, '-cf', '-sf',
+                  '-c', config, '-dd', AnalysisPlugin.data_dir]
+        if io_files:
+            params.append('-io')
+            params.extend(io_files)
         params.extend(api.config.remote_script_parameters)
-        subprocess.Popen(params)
+        p = subprocess.Popen(
+            params, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        std = RemoteThread(p, self.remote_process_counter, False, self)
+        err = RemoteThread(p, self.remote_process_counter, True, self)
+        self.connect(std, SIGNAL("output(int, QString)"), self.output_std)
+        self.connect(err, SIGNAL("output(int, QString)"), self.output_err)
+        self.connect(err, SIGNAL("execution_complete(int)"),
+                     self.remote_plugin_done)
+        std.start()
+        err.start()
+        self.process_threads[self.remote_process_counter] = (std, err)
+        print '[#%d started]' % self.remote_process_counter
+        self.remote_process_counter += 1
+
+    def output_std(self, id_, line):
+        print '[#%d]' % id_, line
+
+    def output_err(self, id_, line):
+        sys.stderr.write(line + '\n')
+
+    def remote_plugin_done(self, id_):
+        print '[#%d done]' % id_
+
+    def clean_finished_process_threads(self):
+        """ Periodically checks if threads for remote plugin output are
+        still running, removes them otherwise.
+        """
+        for k in self.process_threads.keys():
+            t = self.process_threads[k]
+            if not t[0].isRunning() and not t[1].isRunning():
+                del self.process_threads[k]
+        QTimer.singleShot(1000, self.clean_finished_process_threads)
 
     @pyqtSignature("")
     def on_actionEdit_Startup_Script_triggered(self):
@@ -1258,7 +1368,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         return plugins[0]
 
-    def start_plugin(self, name):
+    def start_plugin(self, name, current=None, selections=None):
         """ Start first plugin with given name and return result of start()
         method. Raises a SpykeException if not exactly one plugins with
         this name exist.
@@ -1282,7 +1392,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     raise SpykeException(
                         'Multiple plugins named "%s" exist!' % name)
 
-        return self._run_plugin(plugins[0])
+        return self._run_plugin(plugins[0], current, selections)
+
+    def start_plugin_remote(self, name, current=None, selections=None):
+        """ Start first plugin with given name remotely. Does not return
+        any value. Raises a SpykeException if not exactly one plugins with
+        this name exist.
+        """
+        plugins = self.plugin_model.get_plugins_for_name(name)
+        if not plugins:
+            raise SpykeException('No plugin named "%s" exists!' % name)
+        if len(plugins) > 1:
+            raise SpykeException('Multiple plugins named "%s" exist!' % name)
+
+        self._execute_remote_plugin(plugins[0], current, selections)
 
     def on_file_available(self, available):
         """ Callback when availability of a file for a plugin changes.
@@ -1298,6 +1421,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                   self.plugin_paths, self)
 
         if settings.exec_() == settings.Accepted:
+            try:
+                self.clean_temporary_selection_files(self.selection_path)
+            except:
+                pass  # Does not matter if e.g. old directory does not exist
             self.selection_path = settings.selection_path()
             self.filter_path = settings.filter_path()
             self.remote_script = settings.remote_script()
@@ -1336,6 +1463,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_actionDocumentation_triggered(self):
         webbrowser.open('http://spyke-viewer.readthedocs.org')
 
+    @pyqtSignature("")
+    def on_actionSpyke_Repository_triggered(self):
+        webbrowser.open('http://spyke-viewer.g-node.org')
+
     def _get_closed_folders(self):
         if not hasattr(self, 'plugin_model'):
             return []
@@ -1354,6 +1485,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             paths.append('/'.join(reversed(path)))
         return paths
 
+    def clean_temporary_selection_files(self, path):
+        """ Remove temporary .temp_..._.sel files from a directory.
+        These files are written when executing plugins remotely.
+        """
+        for f in os.listdir(path):
+            if f.startswith('.temp_') and f.endswith('_.sel'):
+                os.remove(os.path.join(path, f))
+
     def closeEvent(self, event):
         """ Saves filters, plugin configs and GUI state.
         """
@@ -1371,6 +1510,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.save_selections_to_file(
             os.path.join(self.selection_path, '.current.sel'))
+        self.clean_temporary_selection_files(self.selection_path)
 
         # Ensure that filters folder exists
         if not os.path.exists(self.filter_path):

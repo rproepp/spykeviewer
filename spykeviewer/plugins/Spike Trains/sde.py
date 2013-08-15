@@ -1,4 +1,5 @@
 import quantities as pq
+import neo
 from PyQt4.Qt import QMessageBox
 
 from spykeutils.plugin import analysis_plugin, gui_data
@@ -9,9 +10,8 @@ stop_prop = gui_data.ValueProp(False)
 align_prop = gui_data.ValueProp(False)
 optimize_prop = gui_data.ValueProp(False)
 
+
 class SDEPlugin(analysis_plugin.AnalysisPlugin):
-    """ Spike Density Estimation
-    """
     # Configurable parameters
     kernel_size = gui_data.FloatItem('Kernel size', min=1.0, default=300.0,
         unit='ms')
@@ -26,6 +26,7 @@ class SDEPlugin(analysis_plugin.AnalysisPlugin):
         default=False).set_prop('display', store=align_prop)
     align = gui_data.StringItem(
         'Event label').set_prop('display', active=align_prop)
+    data_source = gui_data.ChoiceItem('Data source', ('Units', 'Selections'))
 
     _g = gui_data.BeginGroup('Kernel width optimization')
     optimize_enabled = gui_data.BoolItem('Enabled',
@@ -37,7 +38,7 @@ class SDEPlugin(analysis_plugin.AnalysisPlugin):
     optimize_steps = gui_data.IntItem('Kernel size steps', default=30,
         min=2).set_prop('display', active=optimize_prop)
     _g_ = gui_data.EndGroup('Kernel size optimization')
-
+    
     def __init__(self):
         super(SDEPlugin, self).__init__()
         self.unit = pq.ms
@@ -46,8 +47,7 @@ class SDEPlugin(analysis_plugin.AnalysisPlugin):
         return 'Spike Density Estimation'
 
     def start(self, current, selections):
-        current.progress.begin()
-        current.progress.set_status('Reading spike trains')
+        current.progress.begin('Creating spike density estimation')
 
         # Prepare quantities
         start = float(self.start_time) * self.unit
@@ -62,22 +62,37 @@ class SDEPlugin(analysis_plugin.AnalysisPlugin):
         maximum_kernel = self.maximum_kernel * self.unit
 
         # Load data
-        trains = current.spike_trains_by_unit()
-        if self.align_enabled:
-            events = current.labeled_events(self.align)
-            for s in events: # Align on first event in each segment
-                events[s] = events[s][0]
+        events = None
+        if self.data_source == 0:
+            trains = current.spike_trains_by_unit()
+            if self.align_enabled:
+                events = current.labeled_events(self.align) 
         else:
-            events = None
+            # Prepare dictionaries for psth():
+            # One entry of spike trains for each selection,
+            # an event for each segment occuring in any selection
+            trains = {}
+            if self.align_enabled:
+                events = {}
+            for s in selections:
+                trains[neo.Unit(s.name)] = s.spike_trains()
+                if self.align_enabled:
+                    events.update(s.labeled_events(self.align))
+                    
+        if events:
+            for s in events:  # Align on first event in each segment
+                events[s] = events[s][0]
 
-        plot.sde(trains, events, start, stop, kernel_size, optimize_steps,
+        plot.sde(
+            trains, events, start, stop, kernel_size, optimize_steps,
             minimum_kernel, maximum_kernel, None, self.unit, current.progress)
 
     def configure(self):
         super(SDEPlugin, self).configure()
         while self.optimize_enabled and \
-              self.maximum_kernel <= self.minimum_kernel:
-            QMessageBox.warning(None, 'Unable to set parameters',
-                'Maximum kernel size needs to be larger than ' +
+                self.maximum_kernel <= self.minimum_kernel:
+            QMessageBox.warning(
+                None, 'Unable to set parameters',
+                'Maximum kernel size needs to be larger than '
                 'minimum kernel size!')
             super(SDEPlugin, self).configure()

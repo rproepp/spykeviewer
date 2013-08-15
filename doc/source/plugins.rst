@@ -6,6 +6,9 @@ Plugins
 This section describes the configuration options of the plugins that are
 included with Spyke Viewer. All included plugins create plots. For
 information on how to create your own plugins, see :ref:`analysisplugins`.
+You can find additional plugins at the
+`Spyke Repository <http://spyke-viewer.g-node.org/>`_.
+
 
 Signal Plot
 -----------
@@ -19,8 +22,8 @@ Use Subplots
   one large plot.
 
 Show subplot names
-    Only valid when subplots are used. Determines if each subplot has a title
-    with the signal name (if available) or the recording channel name.
+  Only valid when subplots are used. Determines if each subplot has a title
+  with the signal name (if available) or the recording channel name.
 
 Included signals
   This option can be used to tune which type of signals are shown:
@@ -38,9 +41,9 @@ Show epochs
   plot.
 
 One plot per segment
-    When this is not checked, only one plot with signals from the first
-    selected segment is created. Otherwise, one plot for each selected
-    segment is created.
+  When this is not checked, only one plot with signals from the first
+  selected segment is created. Otherwise, one plot for each selected
+  segment is created.
 
 Show spikes
   Determines whether spikes are included in the plot. The following options
@@ -96,9 +99,24 @@ Antialiased lines
   display thousands of spikes or more, unchecking this option will improve the
   plotting performance considerably.
 
-Included spikes
-  Determines whether to include spikes from SpikeTrain objects, Spike
-  objects, or both.
+Include spikes from
+  Determines which data sources are used for the displayed spike waveforms.
+
+  Spikes
+    Waveforms from Spike objects can be ignored (Do not include), used as
+    other spike data sources are (Regular) or drawn thicker on top of other
+    spikes (Emphasized). The last option is useful if spike objects contain
+    templates from spike sorting which you want to compare to corresponding
+    spikes from the data.
+
+  Spike Trains
+    Spike waveforms embedded in SpikeTrain objects.
+
+  Extracted from signal
+    Spike waveforms can be automatically extracted from corresponding signals
+    using spike times in SpikeTrain objects. In this case you have to choose
+    the spike length and the alignment offset (the length of the signal to
+    extract before each spike event).
 
 Plot type
   Three different plot types can be selected: "One plot per channel" creates a
@@ -107,6 +125,16 @@ Plot type
 
 Split channels
   Multichannel waveforms can be split either horizontally or vertically.
+
+Subplot layout
+  You can choose one of two ways to arrange the resulting subplot: "Linear"
+  will arrange the plots as one row or one column, depending on the other
+  options. "Square" uses an equal number of row and columns.
+
+Fade earlier spikes
+  If this is enabled, earlier selected spikes for each unit are drawn more
+  transparent than later spikes. This can be useful if you want to compare
+  changes in a unit's waveform over time (i.e. multiple segments).
 
 Correlogram
 -----------
@@ -128,13 +156,22 @@ Data source
   are selected, the plugin creates three subplots: one autocorrelogram for
   each unit and a cross-correlogram between them.
 
-  If "Selections" are chosen, spike trains from each saved selection are
+  If "Selections" is chosen, spike trains from each saved selection are
   treated as a dataset. Note that the plot can only be created if all
   selections contain the same number of spike trains.
+
+Counts per
+  Determines if the counts are displayed per second or per segment.
 
 Border correction
   Determines if an automatic correction for less data at higher timelags is
   applied.
+
+Include mirrored plots
+  Determines if all cross-correlograms are included, even if they are just
+  mirrored versions of each other. The autocorrelograms are then displayed
+  as the diagonal of a square plot matrix. Otherwise, mirrored
+  cross-correlograms are omitted.
 
 Interspike Interval Histogram
 -----------------------------
@@ -152,6 +189,12 @@ Type
   Determines the type of histogram. If "Bar" is selected, only the histogram
   for the first selected unit is displayed. If "Line" is selected, all
   selected units are included in the plot.
+
+Data source
+  The plugin supports two ways of organizing the data from which the
+  histograms are created: If "Units" is selected, the spike trains for each
+  currently selected unit are treated as a dataset. If "Selections" is chosen,
+  spike trains from each saved selection are treated as a dataset.
 
 Peristimulus Time Histogram
 ---------------------------
@@ -182,6 +225,12 @@ Type
   Determines the type of histogram. If "Bar" is selected, only the histogram
   for the first selected unit is displayed. If "Line" is selected, all
   selected units are included in the plot.
+
+Data source
+  The plugin supports two ways of organizing the data from which the
+  histograms are created: If "Units" is selected, the spike trains for each
+  currently selected unit are treated as a dataset. If "Selections" is chosen,
+  spike trains from each saved selection are treated as a dataset.
 
 Raster Plot
 -----------
@@ -233,6 +282,12 @@ Alignment event
   the SDE is calculated. After alignment, the event is a time 0 in the plot.
   The event has to be present in all selected segments that include spike
   trains for the SDE.
+
+Data source
+  The plugin supports two ways of organizing the data from which the
+  density estimations are created: If "Units" is selected, the spike trains
+  for each currently selected unit are treated as a dataset. If "Selections"
+  is chosen, spike trains from each saved selection are treated as a dataset.
 
 Kernel width optimization
   When this option is enabled, the best kernel width for each unit is

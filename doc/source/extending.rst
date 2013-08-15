@@ -4,12 +4,12 @@ Extending Spyke Viewer
 ======================
 There are two ways of extending Spyke Viewer: Analysis plugins and IO plugins.
 Both are created by placing a Python file with an appropriate class into one
-of the plugin directories defined in the :ref:`settings`. This section
-describes how to create them.
-
-In addition, Spyke Viewer include a customizable script that is run each time
-the program is started. :ref:`startup` describes possible applications and how
-to edit this script.
+of the plugin directories defined in the :ref:`settings`. In addition, Spyke
+Viewer include a customizable script that is run each time the program is
+started. :ref:`startup` describes possible applications and how to edit this
+script. This section describes how to create plugins and how to use the
+startup script. If you create a useful extension, please share it at the
+`Spyke Repository <http://spyke-viewer.g-node.org/>`_!
 
 
 .. _analysisplugins:
@@ -138,8 +138,13 @@ modify ``sys.path`` to include the path to your files::
 
 You can also use the startup script to configure anything that is accessible
 by Python code. In particular, you can use the Spyke Viewer :ref:`api` to
-access configuration options and the main window itself. For example, to
-change the font size of the Python console (effective for new input) and
+access configuration options and the main window itself. For example, if you
+want the Enter key to always finish a line in the console and only
+use the Tab key for autocompletion::
+
+    spyke.config['codecomplete_console_enter'] = False
+
+To change the font size of the Python console (effective for new input) and
 title of the window::
 
     import spykeviewer.api as spyke  # This line is included in the default startup script
@@ -148,10 +153,6 @@ title of the window::
     spyke.window.console.set_pythonshell_font(f)
     spyke.window.setWindowTitle('Big is beatiful')
 
-If you want the Enter key to always finish a line in the console and only
-use the Tab key for autocompletion::
-
-    spyke.config['codecomplete_console_enter'] = False
 
 As a final example, you can customize the colors that are used
 in spykeutils plots (for colored items like spikes in a rasterplot)::
@@ -173,3 +174,4 @@ Footnotes
                as in the Neo example IO, you would write::
 
                    from neo.io.tools import create_many_to_one_relationship
+
