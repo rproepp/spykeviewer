@@ -6,7 +6,7 @@ spykeviewer (0.4.0-1) unstable; urgency=low
 
 spykeviewer (0.3.0-2) unstable; urgency=low
 
-  * Fixed error during testing caused by matplotlib
+  * Fixed error during testing caused by matplotlib (Closes: #713099)
 
  -- Robert Pröpper <robert.proepper@gmail.com>  Tue, 30 Jul 2013 12:06:45 +0100
 
