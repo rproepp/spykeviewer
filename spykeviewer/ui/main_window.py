@@ -265,6 +265,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if hasattr(self, 'menuView'):
             a = self.menuView.menuAction()
             self.mainMenu.removeAction(a)
+            self.menuView.clear()
         self.menuView = self.createPopupMenu()
         self.menuView.setTitle('&View')
         self.mainMenu.insertMenu(self.menuHelp.menuAction(), self.menuView)
