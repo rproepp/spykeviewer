@@ -203,7 +203,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Docks
         self.setCentralWidget(None)
-        self.update_view_menu()
 
         # Finish initialization if we are not a subclass
         if type(self) is MainWindow:
