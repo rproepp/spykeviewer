@@ -4,12 +4,12 @@ Extending Spyke Viewer
 ======================
 There are two ways of extending Spyke Viewer: Analysis plugins and IO plugins.
 Both are created by placing a Python file with an appropriate class into one
-of the plugin directories defined in the :ref:`settings`. This section
-describes how to create them.
-
-In addition, Spyke Viewer include a customizable script that is run each time
-the program is started. :ref:`startup` describes possible applications and how
-to edit this script.
+of the plugin directories defined in the :ref:`settings`. In addition, Spyke
+Viewer include a customizable script that is run each time the program is
+started. :ref:`startup` describes possible applications and how to edit this
+script. This section describes how to create plugins and how to use the
+startup script. If you create a useful extension, please share it at the
+`Spyke Repository <http://spyke-viewer.g-node.org/>`_!
 
 
 .. _analysisplugins:
@@ -174,3 +174,4 @@ Footnotes
                as in the Neo example IO, you would write::
 
                    from neo.io.tools import create_many_to_one_relationship
+

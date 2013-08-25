@@ -6,6 +6,9 @@ Plugins
 This section describes the configuration options of the plugins that are
 included with Spyke Viewer. All included plugins create plots. For
 information on how to create your own plugins, see :ref:`analysisplugins`.
+You can find additional plugins at the
+`Spyke Repository <http://spyke-viewer.g-node.org/>`_.
+
 
 Signal Plot
 -----------
@@ -19,8 +22,8 @@ Use Subplots
   one large plot.
 
 Show subplot names
-    Only valid when subplots are used. Determines if each subplot has a title
-    with the signal name (if available) or the recording channel name.
+  Only valid when subplots are used. Determines if each subplot has a title
+  with the signal name (if available) or the recording channel name.
 
 Included signals
   This option can be used to tune which type of signals are shown:
@@ -38,9 +41,9 @@ Show epochs
   plot.
 
 One plot per segment
-    When this is not checked, only one plot with signals from the first
-    selected segment is created. Otherwise, one plot for each selected
-    segment is created.
+  When this is not checked, only one plot with signals from the first
+  selected segment is created. Otherwise, one plot for each selected
+  segment is created.
 
 Show spikes
   Determines whether spikes are included in the plot. The following options
@@ -153,7 +156,7 @@ Data source
   are selected, the plugin creates three subplots: one autocorrelogram for
   each unit and a cross-correlogram between them.
 
-  If "Selections" are chosen, spike trains from each saved selection are
+  If "Selections" is chosen, spike trains from each saved selection are
   treated as a dataset. Note that the plot can only be created if all
   selections contain the same number of spike trains.
 
@@ -166,9 +169,9 @@ Border correction
 
 Include mirrored plots
   Determines if all cross-correlograms are included, even if they are just
-   mirrored versions of each other. The autocorrelograms are then displayed
-   as the diagonal of a square plot matrix. Otherwise, mirrored
-   cross-correlograms are omitted.
+  mirrored versions of each other. The autocorrelograms are then displayed
+  as the diagonal of a square plot matrix. Otherwise, mirrored
+  cross-correlograms are omitted.
 
 Interspike Interval Histogram
 -----------------------------
@@ -186,6 +189,12 @@ Type
   Determines the type of histogram. If "Bar" is selected, only the histogram
   for the first selected unit is displayed. If "Line" is selected, all
   selected units are included in the plot.
+
+Data source
+  The plugin supports two ways of organizing the data from which the
+  histograms are created: If "Units" is selected, the spike trains for each
+  currently selected unit are treated as a dataset. If "Selections" is chosen,
+  spike trains from each saved selection are treated as a dataset.
 
 Peristimulus Time Histogram
 ---------------------------
@@ -216,6 +225,12 @@ Type
   Determines the type of histogram. If "Bar" is selected, only the histogram
   for the first selected unit is displayed. If "Line" is selected, all
   selected units are included in the plot.
+
+Data source
+  The plugin supports two ways of organizing the data from which the
+  histograms are created: If "Units" is selected, the spike trains for each
+  currently selected unit are treated as a dataset. If "Selections" is chosen,
+  spike trains from each saved selection are treated as a dataset.
 
 Raster Plot
 -----------
@@ -267,6 +282,12 @@ Alignment event
   the SDE is calculated. After alignment, the event is a time 0 in the plot.
   The event has to be present in all selected segments that include spike
   trains for the SDE.
+
+Data source
+  The plugin supports two ways of organizing the data from which the
+  density estimations are created: If "Units" is selected, the spike trains
+  for each currently selected unit are treated as a dataset. If "Selections"
+  is chosen, spike trains from each saved selection are treated as a dataset.
 
 Kernel width optimization
   When this option is enabled, the best kernel width for each unit is

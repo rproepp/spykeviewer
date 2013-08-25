@@ -1,4 +1,5 @@
 import quantities as pq
+import neo
 from PyQt4.Qt import QMessageBox
 
 from spykeutils.plugin import analysis_plugin, gui_data
@@ -25,6 +26,7 @@ class SDEPlugin(analysis_plugin.AnalysisPlugin):
         default=False).set_prop('display', store=align_prop)
     align = gui_data.StringItem(
         'Event label').set_prop('display', active=align_prop)
+    data_source = gui_data.ChoiceItem('Data source', ('Units', 'Selections'))
 
     _g = gui_data.BeginGroup('Kernel width optimization')
     optimize_enabled = gui_data.BoolItem('Enabled',
@@ -36,7 +38,7 @@ class SDEPlugin(analysis_plugin.AnalysisPlugin):
     optimize_steps = gui_data.IntItem('Kernel size steps', default=30,
         min=2).set_prop('display', active=optimize_prop)
     _g_ = gui_data.EndGroup('Kernel size optimization')
-
+    
     def __init__(self):
         super(SDEPlugin, self).__init__()
         self.unit = pq.ms
@@ -46,7 +48,6 @@ class SDEPlugin(analysis_plugin.AnalysisPlugin):
 
     def start(self, current, selections):
         current.progress.begin('Creating spike density estimation')
-        current.progress.set_status('Reading spike trains')
 
         # Prepare quantities
         start = float(self.start_time) * self.unit
@@ -61,13 +62,26 @@ class SDEPlugin(analysis_plugin.AnalysisPlugin):
         maximum_kernel = self.maximum_kernel * self.unit
 
         # Load data
-        trains = current.spike_trains_by_unit()
-        if self.align_enabled:
-            events = current.labeled_events(self.align)
+        events = None
+        if self.data_source == 0:
+            trains = current.spike_trains_by_unit()
+            if self.align_enabled:
+                events = current.labeled_events(self.align) 
+        else:
+            # Prepare dictionaries for psth():
+            # One entry of spike trains for each selection,
+            # an event for each segment occuring in any selection
+            trains = {}
+            if self.align_enabled:
+                events = {}
+            for s in selections:
+                trains[neo.Unit(s.name)] = s.spike_trains()
+                if self.align_enabled:
+                    events.update(s.labeled_events(self.align))
+                    
+        if events:
             for s in events:  # Align on first event in each segment
                 events[s] = events[s][0]
-        else:
-            events = None
 
         plot.sde(
             trains, events, start, stop, kernel_size, optimize_steps,

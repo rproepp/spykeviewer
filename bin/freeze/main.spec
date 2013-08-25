@@ -80,9 +80,9 @@ a.datas.extend(dir_files(os.path.join(module_path, 'plugins'), 'plugins'))
 dist_dir = os.path.join('dist', 'main')
 coll = COLLECT(exe, a.binaries, a.zipfiles, a.datas, strip=None,
                upx=False, name=dist_dir)
-               
+
 if platform.system() == 'Darwin':
-    app = BUNDLE(exe, appname='Spyke Viewer',
+    app = BUNDLE(exe, name='Spyke Viewer.app',
         version=find_version(viewer_path))
 elif platform.system() == 'Windows': # Bugfix for pythoncom
     dist_total = os.path.join(viewer_path, 'bin', 'freeze', dist_dir)

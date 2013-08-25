@@ -1,4 +1,5 @@
 import quantities as pq
+import neo
 
 from spykeutils.plugin import analysis_plugin, gui_data
 from spykeutils import plot
@@ -24,9 +25,8 @@ class PSTHPlugin(analysis_plugin.AnalysisPlugin):
     align = gui_data.StringItem(
         'Event label').set_prop('display', active=align_prop)
     diagram_type = gui_data.ChoiceItem('Type', ('Bar', 'Line'))
+    data_source = gui_data.ChoiceItem('Data source', ('Units', 'Selections'))
 
-    def __init__(self):
-        super(PSTHPlugin, self).__init__()
 
     def get_name(self):
         return 'Peristimulus Time Histogram'
@@ -41,13 +41,26 @@ class PSTHPlugin(analysis_plugin.AnalysisPlugin):
 
         # Load data
         current.progress.begin('Creating PSTH')
-        trains = current.spike_trains_by_unit()
-        if self.align_enabled:
-            events = current.labeled_events(self.align)
+        events = None
+        if self.data_source == 0:
+            trains = current.spike_trains_by_unit()
+            if self.align_enabled:
+                events = current.labeled_events(self.align) 
+        else:
+            # Prepare dictionaries for psth():
+            # One entry of spike trains for each selection,
+            # an event for each segment occuring in any selection
+            trains = {}
+            if self.align_enabled:
+                events = {}
+            for s in selections:
+                trains[neo.Unit(s.name)] = s.spike_trains()
+                if self.align_enabled:
+                    events.update(s.labeled_events(self.align))
+        
+        if events:
             for s in events:  # Align on first event in each segment
                 events[s] = events[s][0]
-        else:
-            events = None
 
         plot.psth(
             trains, events, start, stop, bin_size, 

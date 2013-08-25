@@ -18,6 +18,9 @@ or external editors.
 A mailinglist for discussion and support is available at
 https://groups.google.com/d/forum/spyke-viewer
 
+Users can download and share plugins and other extensions at
+http://spyke-viewer.g-node.org
+
 Contents:
 
 .. toctree::
