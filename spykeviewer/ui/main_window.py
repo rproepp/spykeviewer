@@ -203,7 +203,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Docks
         self.setCentralWidget(None)
-        self.update_view_menu()
 
         # Finish initialization if we are not a subclass
         if type(self) is MainWindow:
@@ -265,6 +264,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if hasattr(self, 'menuView'):
             a = self.menuView.menuAction()
             self.mainMenu.removeAction(a)
+            self.menuView.clear()
         self.menuView = self.createPopupMenu()
         self.menuView.setTitle('&View')
         self.mainMenu.insertMenu(self.menuHelp.menuAction(), self.menuView)

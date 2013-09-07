@@ -15,9 +15,9 @@ import spykeviewer
 module_path = os.path.dirname(spykeviewer.__file__)
 viewer_path = os.path.dirname(module_path)
 
+
 def find_version(path):
     try:
-
         f = open(os.path.join(path, 'spykeviewer', '__init__.py'), 'r')
         try:
             for line in f:
@@ -77,5 +77,5 @@ coll = COLLECT(exe, a.binaries, a.zipfiles, a.datas, strip=None,
                upx=False, name=dist_dir)
                
 if platform.system() == 'Darwin':
-    app = BUNDLE(exe, appname='Spyke Viewer',
+    app = BUNDLE(exe, name='Spyke Viewer.app',
         version=find_version(viewer_path))
