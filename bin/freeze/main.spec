@@ -43,14 +43,9 @@ def dir_files(path, rel):
 
 a = Analysis([os.path.join(viewer_path, 'bin', 'freeze', 'dependencies.py'),
               os.path.join(viewer_path, 'bin', 'spykeviewer')],
-             #pathex=[''],
              hiddenimports=[],
              hookspath=None,
              excludes='Tkinter')
-#for s in a.scripts: # Remove useless dependencies script
-#    if s[0] == 'dependencies':
-#        a.scripts.remove(s)
-#        break
 
 if platform.system() == 'Windows':
     exename = os.path.join('build', 'pyi.win32', 'main', 'spykeviewer.exe')
@@ -84,10 +79,3 @@ coll = COLLECT(exe, a.binaries, a.zipfiles, a.datas, strip=None,
 if platform.system() == 'Darwin':
     app = BUNDLE(exe, appname='Spyke Viewer',
         version=find_version(viewer_path))
-elif platform.system() == 'Windows': # Bugfix for pythoncom
-    dist_total = os.path.join(viewer_path, 'bin', 'freeze', dist_dir)
-    try:
-        os.rename(os.path.join(dist_total, 'pythoncom27.dll'),
-            os.path.join(dist_total, 'pythoncom.pyd'))
-    except OSError, WindowsError:
-        pass
