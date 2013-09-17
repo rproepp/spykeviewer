@@ -1273,7 +1273,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                      self.remote_plugin_done)
         std.start()
         err.start()
-        self.process_threads[self.remote_process_counter] = (std, err)
+        self.process_threads[self.remote_process_counter] = (std, err, p)
         print '[#%d started]' % self.remote_process_counter
         self.remote_process_counter += 1
 
@@ -1293,6 +1293,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for k in self.process_threads.keys():
             t = self.process_threads[k]
             if not t[0].isRunning() and not t[1].isRunning():
+                t[2].wait()
                 del self.process_threads[k]
         QTimer.singleShot(1000, self.clean_finished_process_threads)
 
