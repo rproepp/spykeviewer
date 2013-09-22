@@ -85,7 +85,9 @@ using ``matplotlib`` for the plot, you first have to import it by adding::
 
     import matplotlib.pyplot as plt
 
-at the top of the plugin file.
+at the top of the plugin file. Note that ``matplotlib`` is already imported
+in the console, but you have to explicitly import everything you need in
+plugins.
 
 Next, replace the code in the ``start`` method by::
 
