@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/rob/Code/Spyke/viewer/spykeviewer/ui/settings.ui'
+# Form implementation generated from reading ui file '/home/rob/Spyke/viewer/spykeviewer/ui/settings.ui'
 #
-# Created: Tue Aug 14 17:12:13 2012
-#      by: PyQt4 UI code generator 4.9.1
+# Created: Wed Oct 16 10:24:01 2013
+#      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -115,6 +115,6 @@ class Ui_Settings(object):
         self.changeSelectionPathButton.setText(QtGui.QApplication.translate("Settings", "Change", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox_4.setTitle(QtGui.QApplication.translate("Settings", "Data path", None, QtGui.QApplication.UnicodeUTF8))
         self.changeDataPathButton.setText(QtGui.QApplication.translate("Settings", "Change", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox_5.setTitle(QtGui.QApplication.translate("Settings", "Remote scipt", None, QtGui.QApplication.UnicodeUTF8))
+        self.groupBox_5.setTitle(QtGui.QApplication.translate("Settings", "Remote script", None, QtGui.QApplication.UnicodeUTF8))
         self.changeRemoteScriptButton.setText(QtGui.QApplication.translate("Settings", "Change", None, QtGui.QApplication.UnicodeUTF8))
 
