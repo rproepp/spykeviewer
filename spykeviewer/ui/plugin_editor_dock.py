@@ -41,7 +41,7 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         self.thread_manager = ThreadManager(self)
         try:
             self.rope_project = codeeditor.get_rope_project()
-        except IOError:  # Might happen when frozen
+        except (IOError, AttributeError):  # Might happen when frozen
             self.rope_project = None
 
         data_path = QDesktopServices.storageLocation(
