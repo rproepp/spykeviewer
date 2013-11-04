@@ -64,7 +64,7 @@ QGroupBox::title {
      <x>0</x>
      <y>0</y>
      <width>819</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -309,6 +309,7 @@ QGroupBox::title {
    <addaction name="actionRefreshPlugins"/>
    <addaction name="actionConfigurePlugin"/>
    <addaction name="actionRunPlugin"/>
+   <addaction name="actionRemotePlugin"/>
   </widget>
   <action name="actionExit">
    <property name="text">
