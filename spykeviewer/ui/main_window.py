@@ -1455,9 +1455,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             u'<br><br>Copyright 2012, 2013 \xa9 Robert Pr\xf6pper<br>'
             u'Neural Information Processing Group<br>'
             u'TU Berlin, Germany<br><br>'
-            u'Licensed under the terms of the BSD license.<br>'
-            u'Icons from the Crystal Project '
-            u'(\xa9 2006-2007 Everaldo Coelho)')
+            u'If you use Spyke Viewer in work that leads to a scientific '
+            u'publication, please cite:<br>'
+            u'Pr\xf6pper, R. and Obermayer, K. (2013). Spyke Viewer: a '
+            u'flexible and extensible platform for electrophysiological data '
+            u'analysis.<br>'
+            u'<i>Front. Neuroinform.</i> 7:26. doi: 10.3389/fninf.2013.00026'
+            u'<br><br>Licensed under the terms of the BSD license.<br>'
+            u'Icons from the Crystal Project (\xa9 2006-2007 Everaldo Coelho)')
         about.show()
 
     @pyqtSignature("")
