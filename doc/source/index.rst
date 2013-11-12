@@ -1,3 +1,7 @@
+.. |br| raw:: html
+
+   <br />
+
 Welcome to the Spyke Viewer documentation!
 ==========================================
 
@@ -20,6 +24,12 @@ https://groups.google.com/d/forum/spyke-viewer
 
 Users can download and share plugins and other extensions at
 http://spyke-viewer.g-node.org
+
+If you use Spyke Viewer in work that leads to a scientific publication,
+please cite:|br|
+Pröpper, R. and Obermayer, K. (2013). Spyke Viewer: a flexible and extensible
+platform for electrophysiological data analysis.
+*Front. Neuroinform.* 7:26. doi: 10.3389/fninf.2013.00026
 
 Contents:
 
