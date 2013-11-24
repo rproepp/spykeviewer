@@ -1,6 +1,7 @@
 from PyQt4.QtCore import QTimer
 
-try:
+ipython_available = False
+try:  # Ipython 0.13
     from IPython.zmq.ipkernel import IPKernelApp
     from IPython.frontend.qt.kernelmanager import QtKernelManager
     from IPython.frontend.qt.console.rich_ipython_widget \
@@ -37,4 +38,37 @@ try:
 
     ipython_available = True
 except ImportError:
-    ipython_available = False
+    try:  # Ipython >= 1.0
+        from IPython.qt.inprocess import QtInProcessKernelManager
+        from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
+
+        class IPythonConnection():
+            _kernel = None
+            _kernel_manager = None
+            _kernel_client = None
+
+            def __init__(self):
+                self.kernel_manager = QtInProcessKernelManager()
+                self.kernel_manager.start_kernel()
+                self.kernel = self.kernel_manager.kernel
+                self.kernel.gui = 'qt4'
+
+                self.kernel_client = self.kernel_manager.client()
+                self.kernel_client.start_channels()
+
+            def get_widget(self, droplist_completion=True):
+                completion = 'droplist' if droplist_completion else 'plain'
+                widget = RichIPythonWidget(gui_completion=completion)
+                widget.kernel_manager = self.kernel_manager
+                widget.kernel_client = self.kernel_client
+                #widget.setWindowTitle("Spyke Viewer IPython")
+
+                return widget
+
+            def push(self, d):
+                self.kernel.shell.push(d)
+
+        ipython_available = True
+    except ImportError:
+        pass
+
