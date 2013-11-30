@@ -446,6 +446,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if hasattr(o, 'flush'):
                         o.flush()
 
+            def set_parent(self, _):  # Called when connecting IPython 0.13
+                pass
+
         # Fixing bugs in the internal shell
         class FixedInternalShell(InternalShell):
             def __init__(self, *args, **kwargs):
@@ -567,7 +570,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return
 
         self.ipy_kernel = ipy.IPythonConnection()
-        self.ipy_kernel.push({'current': self.provider, 'selections': self.selections, 'k': self.ipy_kernel.kernel})
+        self.ipy_kernel.push({'current': self.provider,
+                              'selections': self.selections})
 
     def on_variableExplorerDock_visibilityChanged(self, visible):
         if visible:
