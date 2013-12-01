@@ -1,7 +1,9 @@
 import sys
+import logging
 
 ipython_available = False
-try:  # Ipython 0.13
+try:  # Ipython 0.12, 0.13
+    import IPython
     from IPython.zmq.ipkernel import IPKernelApp
     from IPython.frontend.qt.kernelmanager import QtKernelManager
     from IPython.frontend.qt.console.rich_ipython_widget \
@@ -46,7 +48,10 @@ try:  # Ipython 0.13
             sys.displayhook = self._dishook
 
         def get_widget(self, droplist_completion=True):
-            completion = 'droplist' if droplist_completion else 'plain'
+            if IPython.__version__ < '0.13':
+                completion = droplist_completion
+            else:
+                completion = 'droplist' if droplist_completion else 'plain'
             widget = RichIPythonWidget(gui_completion=completion)
 
             cf = find_connection_file(self.kernel_app.connection_file)
@@ -60,10 +65,6 @@ try:  # Ipython 0.13
             sys.stderr = self._stderr
             sys.displayhook = self._dishook
 
-            #widget.kernel_manager = self.kernel_manager
-            #widget.kernel_client = self.kernel_client
-            #widget.setWindowTitle("Spyke Viewer IPython")
-
             return widget
 
         def push(self, d):
@@ -76,10 +77,6 @@ except ImportError:
         from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
 
         class IPythonConnection():
-            _kernel = None
-            _kernel_manager = None
-            _kernel_client = None
-
             def __init__(self):
                 self.kernel_manager = QtInProcessKernelManager()
                 self.kernel_manager.start_kernel()
@@ -89,12 +86,14 @@ except ImportError:
                 self.kernel_client = self.kernel_manager.client()
                 self.kernel_client.start_channels()
 
+                # Suppress debug messages
+                self.kernel.log.setLevel(logging.WARNING)
+
             def get_widget(self, droplist_completion=True):
                 completion = 'droplist' if droplist_completion else 'plain'
                 widget = RichIPythonWidget(gui_completion=completion)
                 widget.kernel_manager = self.kernel_manager
                 widget.kernel_client = self.kernel_client
-                #widget.setWindowTitle("Spyke Viewer IPython")
 
                 return widget
 
