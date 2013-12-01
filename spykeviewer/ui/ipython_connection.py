@@ -8,8 +8,7 @@ try:  # Ipython 0.12, 0.13
     from IPython.frontend.qt.kernelmanager import QtKernelManager
     from IPython.frontend.qt.console.rich_ipython_widget \
         import RichIPythonWidget
-    from IPython.config.application import catch_config_error
-    from IPython.lib.kernel import connect_qtconsole, find_connection_file
+    from IPython.lib.kernel import find_connection_file
     from PyQt4.QtCore import QTimer
     import atexit
 
