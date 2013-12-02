@@ -111,7 +111,7 @@ class MainWindowNeo(MainWindow):
         self.provider_factory = NeoStoredProvider.from_current_selection
         self.console.interpreter.locals['current'] = self.provider
         if self.ipy_kernel:
-            self.ipy_kernel.get_user_namespace()['current'] = self.provider
+            self.ipy_kernel.push({'current': self.provider})
 
     def reload_plugins(self, keep_configs=True):
         super(MainWindowNeo, self).reload_plugins(keep_configs)
