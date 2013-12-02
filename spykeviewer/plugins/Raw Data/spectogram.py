@@ -6,6 +6,7 @@ from guiqwt.builder import make
 from spykeutils.plot.dialog import PlotDialog
 import spykeutils.plot.helper as helper
 from spykeutils import SpykeException
+import quantities as pq
 
 
 class SpectrogramPlugin(analysis_plugin.AnalysisPlugin):
@@ -49,12 +50,13 @@ class SpectrogramPlugin(analysis_plugin.AnalysisPlugin):
             
             # Calculate spectrogram and create plot
             v = mlab.specgram(s, NFFT=samples, noverlap=samples/2,
-                              Fs=s.sampling_rate)
+                              Fs=s.sampling_rate.rescale(pq.Hz))
             interpolation = 'nearest'
             if self.interpolate:
                 interpolation = 'linear'
             img = make.image(sp.log(v[0]), ydata=[v[1][0],v[1][-1]], 
-                             xdata=[v[2][0],v[2][-1]],
+                             xdata=[v[2][0] + s.t_start.rescale(pq.s), 
+                                    v[2][-1] + s.t_start.rescale(pq.s)],
                              interpolation=interpolation)
             plot.add_item(img)
             

@@ -3,6 +3,7 @@
 from setuptools import setup, find_packages
 import os
 
+
 def find_version():
     try:
         f = open(os.path.join('spykeviewer', '__init__.py'), 'r')
@@ -17,7 +18,7 @@ def find_version():
 
 DESC = """Spyke Viewer is a multi-platform GUI application for navigating,
 analyzing and visualizing electrophysiological datasets. Based on the
-`Neo <http://packages.python.org/neo/>`_ framework, it works with a
+`Neo <http://packages.python.org/neo/>`_ library, it works with a
 wide variety of data formats.
 
 For more information, see the documentation at
@@ -29,20 +30,17 @@ if __name__ == "__main__":
     plugin_files = []
     for path, dirs, files in os.walk(os.path.join('spykeviewer', 'plugins')):
         p = path.split(os.sep, 1)[1]
-        plugin_files.extend([os.path.join(p,f) for f in files])
+        plugin_files.extend([os.path.join(p, f) for f in files])
 
     setup(
         name="spykeviewer",
         version=version,
         packages=find_packages(),
         install_requires=['guidata', 'guiqwt>=2.1.4', 'spyder>=2.1.0',
-                          'spykeutils[plot,plugin]=='+version,
+                          'spykeutils[plot,plugin]>=0.4.0',
                           'neo>=0.2.1', 'matplotlib', 'scipy'],
-        entry_points = {
-            'gui_scripts':
-                ['spykeviewer = spykeviewer.start:main']
-        },
-        package_data = {'': plugin_files},
+        entry_points={'gui_scripts': ['spykeviewer = spykeviewer.start:main']},
+        package_data={'': plugin_files},
         zip_safe=False,
         author='Robert Pröpper',
         maintainer='Robert Pröpper',
