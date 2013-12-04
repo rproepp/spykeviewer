@@ -852,6 +852,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 item.code, item.combined, item.on_exception, self)
         else:
             group_filters = self.filterDock.group_filters(top, name)
+            group = None
             dialog = FilterGroupDialog(top, name, item.exclusive, self)
 
         while dialog.exec_():
