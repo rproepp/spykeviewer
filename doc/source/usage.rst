@@ -263,19 +263,19 @@ Note that the variables used in these lines have now appeared in the
 *Variable Explorer* dock.
 
 .. Note::
-    There is now experimental support for IPython consoles: if you have
-    at least IPython 0.12 (and the corresponding Qt console) installed,
-    there will be an item "New IPython console" in the "File" menu.
-    It will open an IPython Qt console window connected to Spyke Viewer.
-    The ``current`` and ``selections`` objects are defined as in the
-    integrated console, but no imports are predefined.
+    If you have at least IPython 0.12 and the corresponding Qt console
+    installed, Spyke Viewer will include an *IPython* dock (accessible under
+    the "View" menu). It can be used as an alternative to the integrated
+    console if you prefer IPython. The ``current`` and ``selections`` objects
+    are defined as in the integrated console, but no imports are predefined.
     You can enter the "magic command"::
 
         %pylab
 
     to use the PyLab environment (you can safely ignore the warning message
-    about matplotlib backends). Multiple IPython consoles can be connected at
-    the same time.
+    about matplotlib backends). Note that the *Variable Explorer* and
+    *Command History* docks, as well as exceptions from plugins, are only
+    available on the internal console.
 
 .. _settings:
 
