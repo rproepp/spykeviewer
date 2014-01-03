@@ -1,6 +1,12 @@
+Version 0.4.1
+-------------
+* IPython 1.0 supported
+* IPython now supported as dock instead of external console
+* More explicit error messages on file loading failures.
+* Added "Start plugin remotely" to toolbar.
+
 Version 0.4.0
 -------------
-
 * Optional transparent lazy loading and lazy cascading for supported IOs.
 * Splash screen while loading the application.
 * Open files dialog as an alternative to the "Files" dock.
@@ -24,7 +30,6 @@ Version 0.4.0
 
 Version 0.3.0
 -------------
-
 * Added search and replace functionality to plugin editor (access with
   ``Ctrl`` + ``F`` and ``Ctrl`` + ``H``).
 * Added startup script. Can be modified using File->Edit startup script.
