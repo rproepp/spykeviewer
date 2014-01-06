@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '.\main.ui'
+# Form implementation generated from reading ui file '/home/rob/Spyke/viewer/spykeviewer/ui/main.ui'
 #
-# Created: Sun Jul 14 15:36:06 2013
-#      by: PyQt4 UI code generator 4.9.4
+# Created: Mon Nov  4 17:46:37 2013
+#      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -48,7 +48,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
         MainWindow.setCentralWidget(self.centralWidget)
         self.mainMenu = QtGui.QMenuBar(MainWindow)
-        self.mainMenu.setGeometry(QtCore.QRect(0, 0, 819, 21))
+        self.mainMenu.setGeometry(QtCore.QRect(0, 0, 819, 25))
         self.mainMenu.setObjectName(_fromUtf8("mainMenu"))
         self.menuFile = QtGui.QMenu(self.mainMenu)
         self.menuFile.setObjectName(_fromUtf8("menuFile"))
@@ -347,6 +347,7 @@ class Ui_MainWindow(object):
         self.pluginToolBar.addAction(self.actionRefreshPlugins)
         self.pluginToolBar.addAction(self.actionConfigurePlugin)
         self.pluginToolBar.addAction(self.actionRunPlugin)
+        self.pluginToolBar.addAction(self.actionRemotePlugin)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)

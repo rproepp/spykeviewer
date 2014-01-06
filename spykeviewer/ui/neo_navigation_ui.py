@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/rob/Spyke/viewer/spykeviewer/ui/neo_navigation.ui'
+# Form implementation generated from reading ui file '.\neo_navigation.ui'
 #
-# Created: Mon Apr 15 15:29:10 2013
-#      by: PyQt4 UI code generator 4.9.3
+# Created: Mon Sep 09 17:08:01 2013
+#      by: PyQt4 UI code generator 4.9.6
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,16 @@ from PyQt4 import QtCore, QtGui
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
-    _fromUtf8 = lambda s: s
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_neoNavigationDock(object):
     def setupUi(self, neoNavigationDock):
@@ -29,6 +38,7 @@ class Ui_neoNavigationDock(object):
         self.verticalLayout_31.addWidget(self.blocksLabel)
         self.neoBlockList = QtGui.QListView(self.dockWidgetContents)
         self.neoBlockList.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.neoBlockList.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.neoBlockList.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.neoBlockList.setObjectName(_fromUtf8("neoBlockList"))
         self.verticalLayout_31.addWidget(self.neoBlockList)
@@ -37,6 +47,7 @@ class Ui_neoNavigationDock(object):
         self.verticalLayout_31.addWidget(self.channelGroupsLabel)
         self.neoChannelGroupList = QtGui.QListView(self.dockWidgetContents)
         self.neoChannelGroupList.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.neoChannelGroupList.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.neoChannelGroupList.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.neoChannelGroupList.setObjectName(_fromUtf8("neoChannelGroupList"))
         self.verticalLayout_31.addWidget(self.neoChannelGroupList)
@@ -45,6 +56,7 @@ class Ui_neoNavigationDock(object):
         self.verticalLayout_31.addWidget(self.channelsLabel)
         self.neoChannelList = QtGui.QListView(self.dockWidgetContents)
         self.neoChannelList.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.neoChannelList.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.neoChannelList.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.neoChannelList.setObjectName(_fromUtf8("neoChannelList"))
         self.verticalLayout_31.addWidget(self.neoChannelList)
@@ -56,6 +68,7 @@ class Ui_neoNavigationDock(object):
         self.verticalLayout_29.addWidget(self.segmentsLabel)
         self.neoSegmentList = QtGui.QListView(self.dockWidgetContents)
         self.neoSegmentList.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.neoSegmentList.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.neoSegmentList.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.neoSegmentList.setObjectName(_fromUtf8("neoSegmentList"))
         self.verticalLayout_29.addWidget(self.neoSegmentList)
@@ -64,6 +77,7 @@ class Ui_neoNavigationDock(object):
         self.verticalLayout_29.addWidget(self.unitsLabel)
         self.neoUnitList = QtGui.QListView(self.dockWidgetContents)
         self.neoUnitList.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.neoUnitList.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.neoUnitList.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.neoUnitList.setObjectName(_fromUtf8("neoUnitList"))
         self.verticalLayout_29.addWidget(self.neoUnitList)
@@ -74,10 +88,10 @@ class Ui_neoNavigationDock(object):
         QtCore.QMetaObject.connectSlotsByName(neoNavigationDock)
 
     def retranslateUi(self, neoNavigationDock):
-        neoNavigationDock.setWindowTitle(QtGui.QApplication.translate("neoNavigationDock", "Navigation", None, QtGui.QApplication.UnicodeUTF8))
-        self.blocksLabel.setText(QtGui.QApplication.translate("neoNavigationDock", "Blocks:", None, QtGui.QApplication.UnicodeUTF8))
-        self.channelGroupsLabel.setText(QtGui.QApplication.translate("neoNavigationDock", "Channel Groups:", None, QtGui.QApplication.UnicodeUTF8))
-        self.channelsLabel.setText(QtGui.QApplication.translate("neoNavigationDock", "Channels:", None, QtGui.QApplication.UnicodeUTF8))
-        self.segmentsLabel.setText(QtGui.QApplication.translate("neoNavigationDock", "Segments:", None, QtGui.QApplication.UnicodeUTF8))
-        self.unitsLabel.setText(QtGui.QApplication.translate("neoNavigationDock", "Units:", None, QtGui.QApplication.UnicodeUTF8))
+        neoNavigationDock.setWindowTitle(_translate("neoNavigationDock", "Navigation", None))
+        self.blocksLabel.setText(_translate("neoNavigationDock", "Blocks:", None))
+        self.channelGroupsLabel.setText(_translate("neoNavigationDock", "Channel Groups:", None))
+        self.channelsLabel.setText(_translate("neoNavigationDock", "Channels:", None))
+        self.segmentsLabel.setText(_translate("neoNavigationDock", "Segments:", None))
+        self.unitsLabel.setText(_translate("neoNavigationDock", "Units:", None))
 

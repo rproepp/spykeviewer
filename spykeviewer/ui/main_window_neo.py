@@ -111,7 +111,7 @@ class MainWindowNeo(MainWindow):
         self.provider_factory = NeoStoredProvider.from_current_selection
         self.console.interpreter.locals['current'] = self.provider
         if self.ipy_kernel:
-            self.ipy_kernel.get_user_namespace()['current'] = self.provider
+            self.ipy_kernel.push({'current': self.provider})
 
     def reload_plugins(self, keep_configs=True):
         super(MainWindowNeo, self).reload_plugins(keep_configs)
@@ -172,9 +172,14 @@ class MainWindowNeo(MainWindow):
             QThread.__init__(self)
             self.paths = paths
             self.blocks = []
+            self.error = None
 
         def run(self):
-            self.blocks = NeoDataProvider.get_blocks(self.paths[0])
+            try:
+                self.blocks = NeoDataProvider.get_blocks(self.paths[0])
+            except Exception as e:
+                self.error = e
+                raise
 
     def load_files(self, file_paths):
         self.progress.begin('Loading data files...')
@@ -217,8 +222,25 @@ class MainWindowNeo(MainWindow):
         # Load worker thread finished
         blocks = self.load_worker.blocks
         if blocks is None:
-            logger.error('Could not read "%s"' %
+            QMessageBox.critical(
+                self, 'File could not be loaded',
+                'Could not read "%s": No suitable IO found.' %
+                self.load_worker.paths[0])
+            logger.error('Could not read "%s": No suitable IO found.' %
                          self.load_worker.paths[0])
+            self.progress.done()
+            self.load_progress.reset()
+            self.raise_()
+            return
+
+        if self.load_worker.error:
+            QMessageBox.critical(
+                self, 'File could not be loaded',
+                'While loading "%s", the following error occured:'
+                '\n\n%s\n%s\n\nSee the console for more details.' % (
+                    self.load_worker.paths[0],
+                    type(self.load_worker.error).__name__,
+                    str(self.load_worker.error)))
             self.progress.done()
             self.load_progress.reset()
             self.raise_()

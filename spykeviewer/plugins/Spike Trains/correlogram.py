@@ -6,7 +6,7 @@ from spykeutils import plot
 
 
 class CorrelogramPlugin(analysis_plugin.AnalysisPlugin):
-    bin_size = gui_data.FloatItem('Bin size', 1.0, 0.1, 10000.0, unit='ms')
+    bin_size = gui_data.FloatItem('Bin size', 1.0, 0.001, 10000.0, unit='ms')
     cut_off = gui_data.FloatItem('Cut off', 50.0, 2.0, 10000.0, unit='ms')
     data_source = gui_data.ChoiceItem('Data source', ('Units', 'Selections'))
     count_per = gui_data.ChoiceItem('Counts per', ('Second', 'Segment'))

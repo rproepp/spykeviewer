@@ -14,9 +14,9 @@ import time
 from PyQt4.QtGui import (QMainWindow, QMessageBox,
                          QApplication, QFileDialog, QInputDialog,
                          QLineEdit, QMenu, QDrag, QPainter, QPen,
-                         QPalette, QDesktopServices, QFont, QAction,
+                         QPalette, QDesktopServices, QFont,
                          QPixmap, QFileSystemModel, QHeaderView,
-                         QActionGroup)
+                         QActionGroup, QDockWidget)
 from PyQt4.QtCore import (Qt, pyqtSignature, SIGNAL, QMimeData, QTimer,
                           QSettings, QCoreApplication, QUrl)
 
@@ -113,10 +113,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # IPython menu option
         self.ipy_kernel = None
         if ipy.ipython_available:
-            a = QAction('New IPython Console', self.menuFile)
-            self.menuFile.insertAction(self.actionSettings, a)
-            self.connect(a, SIGNAL('triggered()'),
-                         self.on_actionIPython_triggered)
+            self.ipyDock = QDockWidget()
+            self.ipyDock.setObjectName('ipythonDock')
+            self.ipyDock.setWindowTitle('IPython')
+            self.addDockWidget(Qt.BottomDockWidgetArea, self.ipyDock)
+            self.ipyDock.setVisible(False)
+            self.ipyDock.visibilityChanged.connect(self.on_ipyDock_visibilityChanged)
 
         # Drag and Drop for selections menu
         self.menuSelections.setAcceptDrops(True)
@@ -203,7 +205,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Docks
         self.setCentralWidget(None)
-        self.update_view_menu()
 
         # Finish initialization if we are not a subclass
         if type(self) is MainWindow:
@@ -265,6 +266,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if hasattr(self, 'menuView'):
             a = self.menuView.menuAction()
             self.mainMenu.removeAction(a)
+            self.menuView.clear()
         self.menuView = self.createPopupMenu()
         self.menuView.setTitle('&View')
         self.mainMenu.insertMenu(self.menuHelp.menuAction(), self.menuView)
@@ -444,6 +446,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if hasattr(o, 'flush'):
                         o.flush()
 
+            def set_parent(self, _):  # Called when connecting IPython 0.13
+                pass
+
         # Fixing bugs in the internal shell
         class FixedInternalShell(InternalShell):
             def __init__(self, *args, **kwargs):
@@ -551,6 +556,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.history.append('\n' + self.console.history[-1])
         self.history.set_cursor_position('eof')
 
+    def on_ipyDock_visibilityChanged(self, visible):
+        if visible and not self.ipyDock.widget():
+            self.create_ipython_kernel()
+            widget = self.ipy_kernel.get_widget()
+            self.ipyDock.setWidget(widget)
+
     def create_ipython_kernel(self):
         """ Create a new IPython kernel. Does nothing if a kernel already
         exists.
@@ -558,48 +569,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not ipy.ipython_available or self.ipy_kernel:
             return
 
-        stdout = sys.stdout
-        stderr = sys.stderr
-        dishook = sys.displayhook
-
-        # Don't print message about kernel to console
-        sys.stderr = sys.__stderr__
-
-        self.ipy_kernel = ipy.IPythonLocalKernelApp.instance()
-        self.ipy_kernel.initialize()
-
-        ns = self.ipy_kernel.get_user_namespace()
-        ns['current'] = self.provider
-        ns['selections'] = self.selections
-
-        # OMG it's a hack! (to duplicate stdout, stderr)
-        ipyout = sys.stdout
-        ipyerr = sys.stderr
-        ipydishook = sys.displayhook
-
-        def write_stdout(s):
-            ipyout._oldwrite(s)
-            ipyout.flush()
-            stdout.write(s)
-
-        def write_stderr(s):
-            ipyerr._oldwrite(s)
-            ipyerr.flush()
-            stderr.write(s)
-
-        def displayhook(s):
-            ipydishook(s)
-            dishook(s)
-
-        ch = logging.StreamHandler(ipyerr)
-        ch.setLevel(logging.WARNING)
-        logger.addHandler(ch)
-
-        sys.stdout._oldwrite = sys.stdout.write
-        sys.stdout.write = write_stdout
-        sys.stderr._oldwrite = sys.stderr.write
-        sys.stderr.write = write_stderr
-        sys.displayhook = displayhook
+        self.ipy_kernel = ipy.IPythonConnection()
+        self.ipy_kernel.push({'current': self.provider,
+                              'selections': self.selections})
 
     def on_variableExplorerDock_visibilityChanged(self, visible):
         if visible:
@@ -608,13 +580,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_historyDock_visibilityChanged(self, visible):
         if visible:
             self.history.set_cursor_position('eof')
-
-    @pyqtSignature("")
-    def on_actionIPython_triggered(self):
-        if not ipy.ipython_available:
-            return
-        self.create_ipython_kernel()
-        ipy.connect_qtconsole(self.ipy_kernel.connection_file)
 
     ##### Selections #####################################################
     def on_menuSelections_mousePressed(self, event):
@@ -887,6 +852,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 item.code, item.combined, item.on_exception, self)
         else:
             group_filters = self.filterDock.group_filters(top, name)
+            group = None
             dialog = FilterGroupDialog(top, name, item.exclusive, self)
 
         while dialog.exec_():
@@ -1273,7 +1239,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                      self.remote_plugin_done)
         std.start()
         err.start()
-        self.process_threads[self.remote_process_counter] = (std, err)
+        self.process_threads[self.remote_process_counter] = (std, err, p)
         print '[#%d started]' % self.remote_process_counter
         self.remote_process_counter += 1
 
@@ -1293,6 +1259,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for k in self.process_threads.keys():
             t = self.process_threads[k]
             if not t[0].isRunning() and not t[1].isRunning():
+                t[2].wait()
                 del self.process_threads[k]
         QTimer.singleShot(1000, self.clean_finished_process_threads)
 
@@ -1454,9 +1421,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             u'<br><br>Copyright 2012, 2013 \xa9 Robert Pr\xf6pper<br>'
             u'Neural Information Processing Group<br>'
             u'TU Berlin, Germany<br><br>'
-            u'Licensed under the terms of the BSD license.<br>'
-            u'Icons from the Crystal Project '
-            u'(\xa9 2006-2007 Everaldo Coelho)')
+            u'If you use Spyke Viewer in work that leads to a scientific '
+            u'publication, please cite:<br>'
+            u'Pr\xf6pper, R. and Obermayer, K. (2013). Spyke Viewer: a '
+            u'flexible and extensible platform for electrophysiological data '
+            u'analysis.<br>'
+            u'<i>Front. Neuroinform.</i> 7:26. doi: 10.3389/fninf.2013.00026'
+            u'<br><br>Licensed under the terms of the BSD license.<br>'
+            u'Icons from the Crystal Project (\xa9 2006-2007 Everaldo Coelho)')
         about.show()
 
     @pyqtSignature("")

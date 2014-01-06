@@ -29,6 +29,9 @@
         <property name="contextMenuPolicy">
          <enum>Qt::CustomContextMenu</enum>
         </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::ExtendedSelection</enum>
         </property>
@@ -46,6 +49,9 @@
         <property name="contextMenuPolicy">
          <enum>Qt::CustomContextMenu</enum>
         </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::ExtendedSelection</enum>
         </property>
@@ -62,6 +68,9 @@
        <widget class="QListView" name="neoChannelList">
         <property name="contextMenuPolicy">
          <enum>Qt::CustomContextMenu</enum>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
         </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::ExtendedSelection</enum>
@@ -84,6 +93,9 @@
         <property name="contextMenuPolicy">
          <enum>Qt::CustomContextMenu</enum>
         </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::ExtendedSelection</enum>
         </property>
@@ -100,6 +112,9 @@
        <widget class="QListView" name="neoUnitList">
         <property name="contextMenuPolicy">
          <enum>Qt::CustomContextMenu</enum>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
         </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::ExtendedSelection</enum>
