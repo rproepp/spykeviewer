@@ -21,7 +21,7 @@ Build-Depends: debhelper (>= 7.2.18),
                imagemagick,
                xvfb,
                xauth,
-Standards-Version: 3.9.4
+Standards-Version: 3.9.5
 Homepage: http://www.ni.tu-berlin.de/software/spykeviewer
 Vcs-Browser: https://github.com/rproepp/spykeviewer
 Vcs-Git: git://github.com/rproepp/spykeviewer.git
