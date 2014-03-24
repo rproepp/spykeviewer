@@ -544,12 +544,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Duplicate stdout and stderr for console
         # Not using previous stdout, only stderr. Using StreamDuplicator
         # because spyder stream does not have flush() method...
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.WARNING)
-        logger.addHandler(ch)
-
         sys.stdout = StreamDuplicator([sys.stdout])
         sys.stderr = StreamDuplicator([sys.stderr, sys.__stderr__])
+
+        # Set root logging handler to print all log warnings in console
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.WARNING)
+        root_logger = logging.getLogger()
+        root_logger.addHandler(ch)
 
     def _append_python_history(self):
         self.browser.refresh_table()
