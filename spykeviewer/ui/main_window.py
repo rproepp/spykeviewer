@@ -1120,7 +1120,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     return None
         return ana
 
-    def _run_plugin(self, plugin, current=None, selections=None):
+    def _run_plugin(self, plugin, current=None, selections=None,
+                    finish_progress=True):
         if current is None:
             current = self.provider
         if selections is None:
@@ -1143,7 +1144,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             traceback.print_exception(type(e), e, tb)
             return None
         finally:
-            self.progress.done()
+            if finish_progress:
+                self.progress.done()
 
     @pyqtSignature("")
     def on_actionEditPlugin_triggered(self):
@@ -1337,10 +1339,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         return plugins[0]
 
-    def start_plugin(self, name, current=None, selections=None):
+    def start_plugin(self, name, current=None, selections=None,
+                     finish_progress=True):
         """ Start first plugin with given name and return result of start()
         method. Raises a SpykeException if not exactly one plugins with
         this name exist.
+
+        :param str name: Name of the plugin (as specified by the get_name()
+            method in the plugin.
+        :param current: A DataProvider to use as current selection. If
+            ``None``, the regular current selection from the GUI is used.
+            Default: ``None``
+        :param list selections: A list of DataProvider objects to use as
+            selections. If ``None``, the regular selections from the GUI
+            are used. Default: ``None``
+        :param bool finish_progress: If ``True``, progress indicators are
+            closed automatically after the plugin finishes.
         """
         plugins = self.plugin_model.get_plugins_for_name(name)
         if not plugins:
@@ -1361,7 +1375,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     raise SpykeException(
                         'Multiple plugins named "%s" exist!' % name)
 
-        return self._run_plugin(plugins[0], current, selections)
+        return self._run_plugin(plugins[0], current, selections,
+                                finish_progress)
 
     def start_plugin_remote(self, name, current=None, selections=None):
         """ Start first plugin with given name remotely. Does not return

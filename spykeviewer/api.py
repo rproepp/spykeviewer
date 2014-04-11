@@ -54,7 +54,7 @@ def start_plugin(name, current=None, selections=None):
         selections. If ``None``, the regular selections from the GUI
         are used.
     """
-    return window.start_plugin(name, current, selections)
+    return window.start_plugin(name, current, selections, False)
 
 
 def start_plugin_remote(name, current=None, selections=None):
