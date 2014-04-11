@@ -28,6 +28,8 @@ class __ConfigOptions:
         self.autoselect_channels = True
         # Select all visible units in navigation by default
         self.autoselect_units = False
+        # Tranformation function for file paths when starting plugin remotely
+        self.remote_path_transform = lambda x: x
 
     def __setitem__(self, key, value):
         self.__dict__[key] = value

@@ -80,6 +80,16 @@ objects to access the main window and application and convenience functions.
         as for :class:`subprocess.Popen`, e.g.
         ``['--param1', 'first value', '-p2', '2']``. Default: ``[]``
 
+    remote_path_transform (function)
+        When the remote script is used to start plugins on a different
+        computer, the paths of data files can change. This function can be
+        used to change the path of all data files sent to a remote script.
+        For example, if the data files are in the same directory where the
+        plugin is started on the remote computer, you can strip the path and
+        just keep the filename:
+        ``spykeviewer.api.config.remote_path_transform = lambda x: os.path.split(x)[1]``
+        Default: The identity, paths are not changed.
+
 
 .. data:: spykeviewer.api.window
 

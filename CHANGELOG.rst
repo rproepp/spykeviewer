@@ -1,3 +1,5 @@
+* Data file path transform for starting plugins remotely.
+
 Version 0.4.1
 -------------
 * IPython 1.0 supported
