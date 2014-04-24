@@ -59,20 +59,23 @@ def start_plugin(name, current=None, selections=None):
     return window.start_plugin(name, current, selections, False)
 
 
-def start_plugin_remote(name, current=None, selections=None):
+def start_plugin_remote(plugin, current=None, selections=None):
     """ Start first plugin with given name using the remote script.
     Raises a SpykeException if not exactly one plugins with
     this name exist.
 
-    :param str name: The name of the plugin. Should not include the
-        directory.
+    :param plugin: The name of the plugin or the plugin object. If this
+        is a string, it should not include the directory and the
+        plugin with this name will be started using the remote script.
+        If it is a plugin object, this plugin will be started using
+        the remote script.
     :param current: A DataProvider to use as current selection. If
         ``None``, the regular current selection from the GUI is used.
     :param list selections: A list of DataProvider objects to use as
         selections. If ``None``, the regular selections from the GUI
         are used.
     """
-    window.start_plugin_remote(name, current, selections)
+    window.start_plugin_remote(plugin, current, selections)
 
 
 def get_plugin(name):

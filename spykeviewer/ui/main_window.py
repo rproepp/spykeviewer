@@ -1378,18 +1378,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         return self._run_plugin(plugins[0], current, selections,
                                 finish_progress)
 
-    def start_plugin_remote(self, name, current=None, selections=None):
-        """ Start first plugin with given name remotely. Does not return
-        any value. Raises a SpykeException if not exactly one plugins with
-        this name exist.
+    def start_plugin_remote(self, plugin, current=None, selections=None):
+        """ Start given plugin (or plugin with given name) remotely.
+        Does not return any value. Raises a SpykeException if not
+        exactly one plugins with this name exist.
         """
-        plugins = self.plugin_model.get_plugins_for_name(name)
-        if not plugins:
-            raise SpykeException('No plugin named "%s" exists!' % name)
-        if len(plugins) > 1:
-            raise SpykeException('Multiple plugins named "%s" exist!' % name)
+        if not isinstance(plugin, AnalysisPlugin):
+            plugins = self.plugin_model.get_plugins_for_name(plugin)
+            if not plugins:
+                raise SpykeException('No plugin named "%s" exists!' % plugin)
+            if len(plugins) > 1:
+                raise SpykeException(
+                    'Multiple plugins named "%s" exist!' % plugin)
+            plugin = plugins[0]
 
-        self._execute_remote_plugin(plugins[0], current, selections)
+        self._execute_remote_plugin(plugin, current, selections)
 
     def on_file_available(self, available):
         """ Callback when availability of a file for a plugin changes.
