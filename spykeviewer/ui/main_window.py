@@ -555,7 +555,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def _append_python_history(self):
         self.browser.refresh_table()
-        self.history.append('\n' + self.console.history[-1])
+        try:
+            self.history.append('\n' + self.console.history[-1])
+        except IndexError:
+            pass  # Empty history, not a problem
         self.history.set_cursor_position('eof')
 
     def on_ipyDock_visibilityChanged(self, visible):
