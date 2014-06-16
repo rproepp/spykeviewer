@@ -1527,6 +1527,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         settings.setValue('selectionPath', self.selection_path)
         settings.setValue('filterPath', self.filter_path)
         settings.setValue('remoteScript', self.remote_script)
+        settings.setValue('dataPath', AnalysisPlugin.data_dir)
 
         # Save plugin configurations
         configs = self.get_plugin_configs()
