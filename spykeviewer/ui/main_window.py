@@ -1418,6 +1418,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.selection_path = settings.selection_path()
             self.filter_path = settings.filter_path()
             self.remote_script = settings.remote_script()
+            AnalysisPlugin.data_dir = settings.data_path()
             self.plugin_paths = settings.plugin_paths()
             if self.plugin_paths:
                 self.pluginEditorDock.set_default_path(self.plugin_paths[-1])
