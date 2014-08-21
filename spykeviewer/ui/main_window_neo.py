@@ -18,11 +18,12 @@ from spykeutils.plugin.data_provider_neo import NeoDataProvider
 from spykeutils.plugin.data_provider_stored import NeoStoredProvider
 from spykeutils.plugin import io_plugin
 
-from main_window import MainWindow
+from .main_window import MainWindow
 from ..plugin_framework.data_provider_viewer import NeoViewerProvider
-from neo_navigation import NeoNavigationDock
-from dir_files_dialog import DirFilesDialog
-import io_settings
+from .neo_navigation import NeoNavigationDock
+from .dir_files_dialog import DirFilesDialog
+from . import io_settings
+from .. import api
 
 logger = logging.getLogger('spykeviewer')
 
@@ -172,9 +173,14 @@ class MainWindowNeo(MainWindow):
             QThread.__init__(self)
             self.paths = paths
             self.blocks = []
+            self.error = None
 
         def run(self):
-            self.blocks = NeoDataProvider.get_blocks(self.paths[0])
+            try:
+                self.blocks = NeoDataProvider.get_blocks(self.paths[0])
+            except Exception as e:
+                self.error = e
+                raise
 
     def load_files(self, file_paths):
         self.progress.begin('Loading data files...')
@@ -217,8 +223,25 @@ class MainWindowNeo(MainWindow):
         # Load worker thread finished
         blocks = self.load_worker.blocks
         if blocks is None:
-            logger.error('Could not read "%s"' %
+            QMessageBox.critical(
+                self, 'File could not be loaded',
+                'Could not read "%s": No suitable IO found.' %
+                self.load_worker.paths[0])
+            logger.error('Could not read "%s": No suitable IO found.' %
                          self.load_worker.paths[0])
+            self.progress.done()
+            self.load_progress.reset()
+            self.raise_()
+            return
+
+        if self.load_worker.error:
+            QMessageBox.critical(
+                self, 'File could not be loaded',
+                'While loading "%s", the following error occured:'
+                '\n\n%s\n%s\n\nSee the console for more details.' % (
+                    self.load_worker.paths[0],
+                    type(self.load_worker.error).__name__,
+                    str(self.load_worker.error)))
             self.progress.done()
             self.load_progress.reset()
             self.raise_()
@@ -539,6 +562,8 @@ class MainWindowNeo(MainWindow):
             sl.append(s.data_dict())
 
         io_plugin_files = []
+        transform_path = getattr(api.config, 'remote_path_transform',
+                                 lambda x: x)
         for s in sl:
             if s['type'] != 'Neo':
                 continue
@@ -550,6 +575,7 @@ class MainWindowNeo(MainWindow):
                                         '%s is not a known IO class!' % b[2])
                     if getattr(io, '_is_spyke_plugin', False):
                         io_plugin_files.append(io._python_file)
+                b[1] = transform_path(b[1])
 
         selections = json.dumps(sl, sort_keys=True, indent=2)
         config = pickle.dumps(plugin.get_parameters())

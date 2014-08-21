@@ -544,16 +544,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Duplicate stdout and stderr for console
         # Not using previous stdout, only stderr. Using StreamDuplicator
         # because spyder stream does not have flush() method...
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.WARNING)
-        logger.addHandler(ch)
-
         sys.stdout = StreamDuplicator([sys.stdout])
         sys.stderr = StreamDuplicator([sys.stderr, sys.__stderr__])
 
+        # Set root logging handler to print all log warnings in console
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.WARNING)
+        root_logger = logging.getLogger()
+        root_logger.addHandler(ch)
+
     def _append_python_history(self):
         self.browser.refresh_table()
-        self.history.append('\n' + self.console.history[-1])
+        try:
+            self.history.append('\n' + self.console.history[-1])
+        except IndexError:
+            pass  # Empty history, not a problem
         self.history.set_cursor_position('eof')
 
     def on_ipyDock_visibilityChanged(self, visible):
@@ -1118,7 +1123,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     return None
         return ana
 
-    def _run_plugin(self, plugin, current=None, selections=None):
+    def _run_plugin(self, plugin, current=None, selections=None,
+                    finish_progress=True):
         if current is None:
             current = self.provider
         if selections is None:
@@ -1141,7 +1147,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             traceback.print_exception(type(e), e, tb)
             return None
         finally:
-            self.progress.done()
+            if finish_progress:
+                self.progress.done()
 
     @pyqtSignature("")
     def on_actionEditPlugin_triggered(self):
@@ -1335,10 +1342,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         return plugins[0]
 
-    def start_plugin(self, name, current=None, selections=None):
+    def start_plugin(self, name, current=None, selections=None,
+                     finish_progress=True):
         """ Start first plugin with given name and return result of start()
         method. Raises a SpykeException if not exactly one plugins with
         this name exist.
+
+        :param str name: Name of the plugin (as specified by the get_name()
+            method in the plugin.
+        :param current: A DataProvider to use as current selection. If
+            ``None``, the regular current selection from the GUI is used.
+            Default: ``None``
+        :param list selections: A list of DataProvider objects to use as
+            selections. If ``None``, the regular selections from the GUI
+            are used. Default: ``None``
+        :param bool finish_progress: If ``True``, progress indicators are
+            closed automatically after the plugin finishes.
         """
         plugins = self.plugin_model.get_plugins_for_name(name)
         if not plugins:
@@ -1359,20 +1378,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     raise SpykeException(
                         'Multiple plugins named "%s" exist!' % name)
 
-        return self._run_plugin(plugins[0], current, selections)
+        return self._run_plugin(plugins[0], current, selections,
+                                finish_progress)
 
-    def start_plugin_remote(self, name, current=None, selections=None):
-        """ Start first plugin with given name remotely. Does not return
-        any value. Raises a SpykeException if not exactly one plugins with
-        this name exist.
+    def start_plugin_remote(self, plugin, current=None, selections=None):
+        """ Start given plugin (or plugin with given name) remotely.
+        Does not return any value. Raises a SpykeException if not
+        exactly one plugins with this name exist.
         """
-        plugins = self.plugin_model.get_plugins_for_name(name)
-        if not plugins:
-            raise SpykeException('No plugin named "%s" exists!' % name)
-        if len(plugins) > 1:
-            raise SpykeException('Multiple plugins named "%s" exist!' % name)
+        if not isinstance(plugin, AnalysisPlugin):
+            plugins = self.plugin_model.get_plugins_for_name(plugin)
+            if not plugins:
+                raise SpykeException('No plugin named "%s" exists!' % plugin)
+            if len(plugins) > 1:
+                raise SpykeException(
+                    'Multiple plugins named "%s" exist!' % plugin)
+            plugin = plugins[0]
 
-        self._execute_remote_plugin(plugins[0], current, selections)
+        self._execute_remote_plugin(plugin, current, selections)
 
     def on_file_available(self, available):
         """ Callback when availability of a file for a plugin changes.
@@ -1395,6 +1418,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.selection_path = settings.selection_path()
             self.filter_path = settings.filter_path()
             self.remote_script = settings.remote_script()
+            AnalysisPlugin.data_dir = settings.data_path()
             self.plugin_paths = settings.plugin_paths()
             if self.plugin_paths:
                 self.pluginEditorDock.set_default_path(self.plugin_paths[-1])
@@ -1503,6 +1527,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         settings.setValue('selectionPath', self.selection_path)
         settings.setValue('filterPath', self.filter_path)
         settings.setValue('remoteScript', self.remote_script)
+        settings.setValue('dataPath', AnalysisPlugin.data_dir)
 
         # Save plugin configurations
         configs = self.get_plugin_configs()
