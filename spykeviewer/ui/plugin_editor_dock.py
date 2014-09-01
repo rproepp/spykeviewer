@@ -11,7 +11,12 @@ try:  # Spyder < 2.2.0
     from spyderlib.utils.module_completion import moduleCompletion \
         as module_completion
 except ImportError:  # Spyder >= 2.2.0beta3
-    from spyderlib.utils.module_completion import module_completion
+    try:
+        from spyderlib.utils.module_completion import module_completion
+    except ImportError:  # Spyder >= 2.3.0
+        from spyderlib.utils.introspection.module_completion import \
+            module_completion
+
 from spyderlib.utils.dochelpers import getsignaturesfromtext
 from spyderlib.widgets.findreplace import FindReplace
 
