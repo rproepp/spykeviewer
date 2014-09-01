@@ -1,3 +1,8 @@
+Version 0.4.2
+-------------
+* Data file path transform for starting plugins remotely.
+* Various bugfixes and compatibility with Spyder 2.3.0
+
 Version 0.4.1
 -------------
 * IPython 1.0 supported
