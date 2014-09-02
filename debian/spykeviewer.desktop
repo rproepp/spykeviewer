@@ -7,3 +7,4 @@ Terminal=false
 Type=Application
 Categories=Science;Education;Qt;DataVisualization;
 StartupNotify=false
+Keywords=science;education;electrophysiology

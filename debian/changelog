@@ -1,3 +1,9 @@
+spykeviewer (0.4.2-1) unstable; urgency=low
+
+  * Package upstream 0.4.2.
+
+ -- Robert Pröpper <robert.proepper@gmail.com>  Mon, 01 Sep 2014 18:40:54 +0100
+
 spykeviewer (0.4.1-1) unstable; urgency=low
 
   * Package upstream 0.4.1.
