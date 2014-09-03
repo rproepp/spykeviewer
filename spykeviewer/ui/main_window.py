@@ -513,7 +513,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.console.set_codecompletion_auto(True)
         self.console.set_calltips(True)
-        self.console.setup_calltips(size=600, font=font)
+        try:
+            self.console.setup_calltips(size=600, font=font)
+        except AttributeError:  # Not needed for spyderlib >= 2.3.0
+            pass
         self.console.setup_completion(size=(370, 240), font=font)
 
         self.consoleDock.setWidget(self.console)
