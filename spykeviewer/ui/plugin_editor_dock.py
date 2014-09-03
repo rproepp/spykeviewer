@@ -111,12 +111,22 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         font = QFont('Some font that does not exist')
         font.setStyleHint(font.TypeWriter, font.PreferDefault)
         editor = codeeditor.CodeEditor(self)
-        editor.setup_editor(
-            linenumbers=True, language='py',
-            scrollflagarea=False, codecompletion_enter=self.enter_completion,
-            tab_mode=False, edge_line=False, font=font,
-            codecompletion_auto=True, go_to_definition=True,
-            codecompletion_single=True, calltips=True)
+        try:
+            editor.setup_editor(
+                linenumbers=True, language='py',
+                scrollflagarea=False,
+                codecompletion_enter=self.enter_completion,
+                tab_mode=False, edge_line=False, font=font,
+                codecompletion_auto=True, go_to_definition=True,
+                codecompletion_single=True, calltips=True)
+        except TypeError:  # codecompletion_single is gone in 2.3.0
+            editor.setup_editor(
+                linenumbers=True, language='py',
+                scrollflagarea=False,
+                codecompletion_enter=self.enter_completion,
+                tab_mode=False, edge_line=False, font=font,
+                codecompletion_auto=True, go_to_definition=True,
+                calltips=True)
         editor.setCursor(Qt.IBeamCursor)
         editor.horizontalScrollBar().setCursor(Qt.ArrowCursor)
         editor.verticalScrollBar().setCursor(Qt.ArrowCursor)
