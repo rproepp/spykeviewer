@@ -31,6 +31,11 @@ Pröpper, R. and Obermayer, K. (2013). Spyke Viewer: a flexible and extensible
 platform for electrophysiological data analysis.
 *Front. Neuroinform.* 7:26. doi: 10.3389/fninf.2013.00026
 
+The following screenshots illustrate the functionality of the program:
+
+.. image:: /img/screenshot1.png
+.. image:: /img/screenshot2.png
+
 Contents:
 
 .. toctree::
