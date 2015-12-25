@@ -11,8 +11,20 @@ try:  # Spyder < 2.2.0
     from spyderlib.utils.module_completion import moduleCompletion \
         as module_completion
 except ImportError:  # Spyder >= 2.2.0beta3
-    from spyderlib.utils.module_completion import module_completion
-from spyderlib.utils.dochelpers import getsignaturesfromtext
+    try:
+        from spyderlib.utils.module_completion import module_completion
+    except ImportError:  # Spyder >= 2.3.0
+        try:
+            from spyderlib.utils.introspection.module_completion import \
+                module_completion
+        except ImportError:  # Spyder >= 2.3.2
+            from spyderlib.utils.introspection import module_completion
+
+try:
+    from spyderlib.utils.dochelpers import getsignaturesfromtext
+except ImportError:  # Spyder >= 2.3.0
+    from spyderlib.utils.dochelpers import getsignaturefromtext as \
+        getsignaturesfromtext
 from spyderlib.widgets.findreplace import FindReplace
 
 
@@ -102,12 +114,22 @@ class SamplePlugin(analysis_plugin.AnalysisPlugin):
         font = QFont('Some font that does not exist')
         font.setStyleHint(font.TypeWriter, font.PreferDefault)
         editor = codeeditor.CodeEditor(self)
-        editor.setup_editor(
-            linenumbers=True, language='py',
-            scrollflagarea=False, codecompletion_enter=self.enter_completion,
-            tab_mode=False, edge_line=False, font=font,
-            codecompletion_auto=True, go_to_definition=True,
-            codecompletion_single=True, calltips=True)
+        try:
+            editor.setup_editor(
+                linenumbers=True, language='py',
+                scrollflagarea=False,
+                codecompletion_enter=self.enter_completion,
+                tab_mode=False, edge_line=False, font=font,
+                codecompletion_auto=True, go_to_definition=True,
+                codecompletion_single=True, calltips=True)
+        except TypeError:  # codecompletion_single is gone in 2.3.0
+            editor.setup_editor(
+                linenumbers=True, language='py',
+                scrollflagarea=False,
+                codecompletion_enter=self.enter_completion,
+                tab_mode=False, edge_line=False, font=font,
+                codecompletion_auto=True, go_to_definition=True,
+                calltips=True)
         editor.setCursor(Qt.IBeamCursor)
         editor.horizontalScrollBar().setCursor(Qt.ArrowCursor)
         editor.verticalScrollBar().setCursor(Qt.ArrowCursor)
