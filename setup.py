@@ -36,7 +36,7 @@ if __name__ == "__main__":
         name="spykeviewer",
         version=version,
         packages=find_packages(),
-        install_requires=['guidata', 'guiqwt>=2.1.4,<4.0', 'spyder>=2.1.0,<4.0',
+        install_requires=['guidata', 'guiqwt>=2.1.4,<4.0', 'spyder>=2.1.0,<3.0',
                           'spykeutils[plot,plugin]>=0.4.0',
                           'neo>=0.2.1', 'matplotlib', 'scipy'],
         entry_points={'gui_scripts': ['spykeviewer = spykeviewer.start:main']},
