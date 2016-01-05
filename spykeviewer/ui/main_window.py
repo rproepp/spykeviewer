@@ -21,7 +21,12 @@ from PyQt4.QtCore import (Qt, pyqtSignature, SIGNAL, QMimeData, QTimer,
                           QSettings, QCoreApplication, QUrl)
 
 from spyderlib.widgets.internalshell import InternalShell
-from spyderlib.widgets.externalshell.namespacebrowser import NamespaceBrowser
+try:  # Support for spyder < 3
+    from spyderlib.widgets.externalshell.namespacebrowser import \
+         NamespaceBrowser
+except ImportError:
+    from spyderlib.widgets.variableexplorer.namespacebrowser import \
+         NamespaceBrowser
 from spyderlib.widgets.sourcecode.codeeditor import CodeEditor
 from spyderlib.utils.misc import get_error_match
 
@@ -47,8 +52,12 @@ from remote_thread import RemoteThread
 logger = logging.getLogger('spykeviewer')
 
 
-# Monkeypatch variable editor
-from spyderlib.widgets.dicteditor import DictDelegate
+# Monkeypatch variable editor to report error in message box
+try:  # spyder < 3
+    from spyderlib.widgets.dicteditor import DictDelegate
+except ImportError:
+    from spyderlib.widgets.variableexplorer.collectionseditor import \
+         CollectionsDelegate as DictDelegate
 _orig_createEditor = DictDelegate.createEditor
 
 
