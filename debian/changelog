@@ -1,8 +1,9 @@
-spykeviewer (0.4.3-1) unstable; urgency=low
+spykeviewer (0.4.4-1) unstable; urgency=low
 
-  * Package upstream 0.4.3.
+  * Package upstream 0.4.4.
+  * Restrict neo<<0.4 because of breaking changes.
 
- -- Robert Pröpper <robert.proepper@gmail.com>  Wed, 06 Jan 2016 13:34:40 +0100
+ -- Robert Pröpper <robert.proepper@gmail.com>  Fri, 22 Jan 2016 18:32:23 +0100
 
 spykeviewer (0.4.2-1) unstable; urgency=low
 
