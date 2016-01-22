@@ -1,3 +1,13 @@
+Version 0.4.4
+-------------
+
+* Support for spyder 3
+
+Version 0.4.3
+-------------
+
+* Support for guiqwt 3
+
 Version 0.4.2
 -------------
 * Data file path transform for starting plugins remotely.
