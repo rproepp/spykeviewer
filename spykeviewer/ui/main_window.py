@@ -533,13 +533,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Variable browser
         self.browser = NamespaceBrowser(self.variableExplorerDock)
         self.browser.set_shellwidget(self.console)
-        self.browser.setup(
+        setup_args = dict(
             check_all=True, exclude_private=True,
             exclude_uppercase=False, exclude_capitalized=False,
             exclude_unsupported=False, truncate=False, minmax=False,
-            collvalue=False, remote_editing=False, inplace=False,
-            autorefresh=False,
+            remote_editing=False, autorefresh=False,
             excluded_names=excludes)
+
+        # spyder < 2.3.8
+        if 'collvalue' in self.browser.setup.__code__.co_varnames:
+            setup_args['collvalue'] = False
+            setup_args['inplace'] = False
+
+        self.browser.setup(**setup_args)
         self.variableExplorerDock.setWidget(self.browser)
 
         # History
