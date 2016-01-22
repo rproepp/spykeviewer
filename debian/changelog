@@ -1,4 +1,12 @@
-spykeviewer (0.4.3-1) unstable; urgency=low
+spykeviewer (0.4.4-1) unstable; urgency=low
+
+  * Package upstream 0.4.4 (Closes: #808685).
+  * Restrict neo<<0.4 because of breaking changes.
+  * Remove timestamp from icon for reproducible build (Closes: #778643).
+
+ -- Robert Pröpper <robert.proepper@gmail.com>  Fri, 22 Jan 2016 18:32:23 +0100
+
+spykeviewer (0.4.3-1) unreleased; urgency=low
 
   * Package upstream 0.4.3.
 

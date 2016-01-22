@@ -37,7 +37,7 @@ endif
 override_dh_install:
 	cp resources/icons/appicon.png resources/icons/spykeviewer.png
 	dh_install
-	mogrify -resize 32x32 debian/spykeviewer/usr/share/pixmaps/spykeviewer.png
+	mogrify -resize 32x32 +set date:create +set date:modify -define png:exclude-chunk=time debian/spykeviewer/usr/share/pixmaps/spykeviewer.png
 
 ## immediately useable documentation
 ## and exemplar data (they are small excerpts anyway)
