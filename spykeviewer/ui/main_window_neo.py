@@ -10,7 +10,11 @@ import neo
 from PyQt4.QtCore import (Qt, pyqtSignature, QThread)
 from PyQt4.QtGui import (QMessageBox, QApplication,
                          QProgressDialog, QFileDialog)
-from spyderlib.widgets.dicteditor import DictEditor
+try:  # Support for spyder < 3
+    from spyderlib.widgets.dicteditor import DictEditor
+except ImportError:
+    from spyderlib.widgets.variableexplorer.collectionseditor import \
+         CollectionsEditor as DictEditor
 
 from spykeutils import SpykeException
 from spykeutils.progress_indicator import ignores_cancel

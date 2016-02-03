@@ -1,4 +1,4 @@
-from guidata.qt.QtCore import SIGNAL, SLOT
+from PyQt4.QtCore import SIGNAL, SLOT
 from PyQt4.QtGui import QVBoxLayout, QDialog, QDialogButtonBox, QMessageBox
 
 from guidata.dataset.datatypes import DataSet

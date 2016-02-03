@@ -144,7 +144,7 @@ access configuration options and the main window itself. For example, if you
 want the Enter key to always finish a line in the console and only
 use the Tab key for autocompletion::
 
-    spyke.config['codecomplete_console_enter'] = False
+    spyke.config.codecomplete_console_enter = False
 
 To change the font size of the Python console (effective for new input) and
 title of the window::
